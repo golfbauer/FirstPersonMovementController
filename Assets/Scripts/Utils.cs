@@ -17,16 +17,33 @@ public class Utils : MonoBehaviour
         return mouseLook;
     }
 
-    public static Movement CreateMovement(GameObject target, float moveSpeed)
+    public static Movement CreateMovement(GameObject target, CharacterController controller, float moveSpeed)
     {
-        if (target == null)
+        if (target == null || controller == null)
         {
             throw new System.Exception("Assign PlayerBody to FirstPersonMovementController");
         }
 
         Movement movement = target.AddComponent<Movement>();
         movement.SetMoveSpeed(moveSpeed);
+        movement.SetController(controller);
+
         return movement;
+    }
+
+    public static Physics CreatePhysics(GameObject target, Transform playerTransform, CharacterController controller, float gravity)
+    {
+        if(playerTransform == null)
+        {
+            throw new System.Exception("Assign PlayerBody to FirstPersonMovementController");
+        }
+
+        Physics physics = target.AddComponent<Physics>();
+        physics.SetGravity(gravity);
+        physics.SetPlayerTransform(playerTransform);
+        physics.SetController(controller);
+
+        return physics;
     }
 }
 

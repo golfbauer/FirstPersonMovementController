@@ -17,14 +17,24 @@ public class FirstPersonMovementController : MonoBehaviour
     [SerializeField]
     private float moveSpeed;
 
+    [SerializeField]
+    private float gravity;
+
+
+    private CharacterController controller;
 
     private MouseLook mouseLookCamera;
     private Movement playerMovement;
+    private Physics physics;
+
 
     private void Awake()
     {
+        controller = GetComponent<CharacterController>();
+
         mouseLookCamera = Utils.CreateMouseLook(playerCamera, playerTransform, mouseSensivity);
-        playerMovement = Utils.CreateMovement(this.gameObject, moveSpeed);
+        playerMovement = Utils.CreateMovement(this.gameObject, controller, moveSpeed);
+        physics = Utils.CreatePhysics(this.gameObject, playerTransform, controller, gravity);
     }
 
     void Update()

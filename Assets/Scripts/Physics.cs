@@ -8,22 +8,24 @@ public class Physics : MonoBehaviour
 	private CharacterController controller;
 
 	private float gravity;
-	private float velocityY = 0.0f;
+	private Vector3 playerVelocity;
 
 
-	void Update()
-	{
-		applyGravity();
-	}
-
-	void applyGravity()
+    void Update()
     {
-        velocityY += gravity * Time.deltaTime;
+        applyGravity();
+    }
 
-        if (controller.isGrounded)
-			velocityY = -0.2f;
+    void applyGravity()
+    {
 
-        controller.Move(Vector3.up * velocityY);
+        if (controller.isGrounded && playerVelocity.y < 0)
+        {
+            playerVelocity.y = 0f;
+        }
+
+        playerVelocity.y += gravity * Time.deltaTime;
+        controller.Move(playerVelocity * Time.deltaTime);
     }
 
 	public void SetGravity(float gravity)

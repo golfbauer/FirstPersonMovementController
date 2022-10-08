@@ -49,7 +49,7 @@ CharacterController:
   m_Height: 3.5
   m_Radius: 0.5
   m_SlopeLimit: 45
-  m_StepOffset: 0.3
+  m_StepOffset: 1
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
@@ -69,6 +69,8 @@ MonoBehaviour:
   playerCamera: {fileID: 4129777150849137025}
   mouseSensivity: 200
   moveSpeed: 20
+  sprintSpeed: 40
+  sprintKey: 304
   gravity: -9.81
 --- !u!1 &4129777150849137025
 GameObject:

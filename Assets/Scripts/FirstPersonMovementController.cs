@@ -12,13 +12,19 @@ public class FirstPersonMovementController : MonoBehaviour
     private GameObject playerCamera;
 
     [SerializeField]
-    private float mouseSensivity;
+    private float mouseSensivity = 100f;
 
     [SerializeField]
-    private float moveSpeed;
+    private float moveSpeed = 20f;
 
     [SerializeField]
-    private float gravity;
+    private float sprintSpeed = 40f;
+
+    [SerializeField]
+    private KeyCode sprintKey = KeyCode.LeftShift;
+
+    [SerializeField]
+    private float gravity = -9.81f;
 
 
     private CharacterController controller;
@@ -33,7 +39,7 @@ public class FirstPersonMovementController : MonoBehaviour
         controller = GetComponent<CharacterController>();
 
         mouseLookCamera = Utils.CreateMouseLook(playerCamera, playerTransform, mouseSensivity);
-        playerMovement = Utils.CreateMovement(this.gameObject, controller, moveSpeed);
+        playerMovement = Utils.CreateMovement(this.gameObject, controller, moveSpeed, sprintSpeed, sprintKey);
         physics = Utils.CreatePhysics(this.gameObject, playerTransform, controller, gravity);
     }
 

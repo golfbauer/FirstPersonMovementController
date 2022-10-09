@@ -17,7 +17,7 @@ public class Utils : MonoBehaviour
         return mouseLook;
     }
 
-    public static Movement CreateMovement(GameObject target, CharacterController controller, float moveSpeed, float sprintSpeed, KeyCode sprintKey)
+    public static Movement CreateMovement(GameObject target, CharacterController controller, float moveSpeed, float sprintSpeed, KeyCode sprintKey, float gravity)
     {
         if (target == null || controller == null)
         {
@@ -29,18 +29,19 @@ public class Utils : MonoBehaviour
         movement.SetController(controller);
         movement.SetSprintSpeed(sprintSpeed);
         movement.SetSprintKey(sprintKey);
+        movement.SetGravity(gravity);
 
         return movement;
     }
 
-    public static Physics CreatePhysics(GameObject target, Transform playerTransform, CharacterController controller, float gravity)
+    public static PlayerPhysics CreatePhysics(GameObject target, Transform playerTransform, CharacterController controller, float gravity)
     {
         if(target == null || playerTransform == null)
         {
             throw new System.Exception("Assign PlayerBody to FirstPersonMovementController");
         }
 
-        Physics physics = target.AddComponent<Physics>();
+        PlayerPhysics physics = target.AddComponent<PlayerPhysics>();
         physics.SetGravity(gravity);
         physics.SetPlayerTransform(playerTransform);
         physics.SetController(controller);

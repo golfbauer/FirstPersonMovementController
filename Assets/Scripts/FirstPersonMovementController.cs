@@ -31,7 +31,7 @@ public class FirstPersonMovementController : MonoBehaviour
 
     private MouseLook mouseLookCamera;
     private Movement playerMovement;
-    private Physics physics;
+    private PlayerPhysics playerPhysics;
 
 
     private void Awake()
@@ -39,8 +39,8 @@ public class FirstPersonMovementController : MonoBehaviour
         controller = GetComponent<CharacterController>();
 
         mouseLookCamera = Utils.CreateMouseLook(playerCamera, playerTransform, mouseSensivity);
-        playerMovement = Utils.CreateMovement(this.gameObject, controller, moveSpeed, sprintSpeed, sprintKey);
-        physics = Utils.CreatePhysics(this.gameObject, playerTransform, controller, gravity);
+        playerMovement = Utils.CreateMovement(this.gameObject, controller, moveSpeed, sprintSpeed, sprintKey, gravity);
+        playerPhysics = Utils.CreatePhysics(this.gameObject, playerTransform, controller, gravity);
     }
 
     void Update()

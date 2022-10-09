@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Physics : MonoBehaviour
+public class PlayerPhysics : MonoBehaviour
 {
 
 	private Transform playerTransform;
@@ -9,23 +9,31 @@ public class Physics : MonoBehaviour
 
 	private float gravity;
 	private Vector3 playerVelocity;
+    private bool isGrounded;
 
 
     void Update()
     {
+        CheckIsGrounded();
+        Debug.Log(isGrounded);
         applyGravity();
     }
 
     void applyGravity()
     {
 
-        if (controller.isGrounded && playerVelocity.y < 0)
+        if (isGrounded && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
         }
 
         playerVelocity.y += gravity * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
+    }
+
+    void CheckIsGrounded()
+    {
+        return Physics.Raycast(playerTransform.position, Vector3.down, controller.height/2 + 0.1f);
     }
 
 	public void SetGravity(float gravity)

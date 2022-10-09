@@ -8,6 +8,9 @@ public class Movement : MonoBehaviour
 	private float moveSpeed;
 	private float sprintSpeed;
 	private KeyCode sprintKey;
+	private float gravity;
+
+	private Vector3 playerVelocity;
 
     void Update()
 	{
@@ -28,6 +31,18 @@ public class Movement : MonoBehaviour
 		controller.Move(moveDirect * moveSpeed * Time.deltaTime);
 	}
 
+	void ApplyGravity()
+    {
+
+        if (controller.isGrounded && playerVelocity.y < 0)
+        {
+            playerVelocity.y = 0f;
+        }
+
+        playerVelocity.y += gravity * Time.deltaTime;
+        controller.Move(playerVelocity * Time.deltaTime);
+    }
+
 	public void SetMoveSpeed(float moveSpeed)
     {
 		this.moveSpeed = moveSpeed;
@@ -42,6 +57,11 @@ public class Movement : MonoBehaviour
     {
 		this.sprintKey = sprintKey;
     }
+
+	public void SetGravity(float gravity)
+	{
+		this.gravity = gravity;
+	}
 
 	public void SetController(CharacterController controller)
     {

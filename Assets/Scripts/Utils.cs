@@ -17,7 +17,20 @@ public class Utils : MonoBehaviour
         return mouseLook;
     }
 
-    public static Movement CreateMovement(GameObject target, CharacterController controller, float moveSpeed, float sprintSpeed, KeyCode sprintKey, float gravity)
+    public static Movement CreateMovement(
+        GameObject target, 
+        CharacterController controller, 
+        float moveSpeed, 
+        float sprintSpeed, 
+        KeyCode sprintKey, 
+        KeyCode jumpKey, 
+        float crouchHeight, 
+        float standingHeight, 
+        float timeToCrouch, 
+        Vector3 crouchingCenter, 
+        Vector3 standingCenter,
+        KeyCode crouchKey
+        )
     {
         if (target == null || controller == null)
         {
@@ -29,12 +42,18 @@ public class Utils : MonoBehaviour
         movement.SetController(controller);
         movement.SetSprintSpeed(sprintSpeed);
         movement.SetSprintKey(sprintKey);
-        movement.SetGravity(gravity);
+        movement.SetJumpKey(jumpKey);
+        movement.SetCrouchHeight(crouchHeight);
+        movement.SetStandingHeight(standingHeight);
+        movement.SetTimeToCrouch(timeToCrouch);
+        movement.SetCrouchingCenter(crouchingCenter);
+        movement.SetStandingCenter(standingCenter);
+        movement.SetCrouchKey(crouchKey);
 
         return movement;
     }
 
-    public static PlayerPhysics CreatePhysics(GameObject target, Transform playerTransform, CharacterController controller, float gravity)
+    public static PlayerPhysics CreatePhysics(GameObject target, Transform playerTransform, CharacterController controller, float gravity, float jumpForce)
     {
         if(target == null || playerTransform == null)
         {
@@ -45,6 +64,7 @@ public class Utils : MonoBehaviour
         physics.SetGravity(gravity);
         physics.SetPlayerTransform(playerTransform);
         physics.SetController(controller);
+        physics.SetJumpForce(jumpForce);
 
         return physics;
     }

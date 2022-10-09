@@ -5,27 +5,34 @@ using UnityEngine;
 public class FirstPersonMovementController : MonoBehaviour
 {
 
-    [SerializeField]
-    private Transform playerTransform;
+    [Header("Player Components")]
+    [SerializeField] private Transform playerTransform;
+    [SerializeField] private GameObject playerCamera;
 
-    [SerializeField]
-    private GameObject playerCamera;
+    [Header("Mouse Configurations")]
+    [SerializeField] private float mouseSensivity = 100f;
 
-    [SerializeField]
-    private float mouseSensivity = 100f;
+    [Header("Movement Configurations")]
+    [SerializeField] private float moveSpeed = 20f;
+    [SerializeField] private float sprintSpeed = 40f;
 
-    [SerializeField]
-    private float moveSpeed = 20f;
+    [Header("Jumping Configurations")]
+    [SerializeField] private float jumpForce = 1.0f;
 
-    [SerializeField]
-    private float sprintSpeed = 40f;
+    [Header("Crouch Configurations")]
+    [SerializeField] private float crouchHeight;
+    [SerializeField] private float standingHeight;
+    [SerializeField] private float timeToCrouch;
+    [SerializeField] private Vector3 crouchingCenter;
+    [SerializeField] private Vector3 standingCenter;
 
-    [SerializeField]
-    private KeyCode sprintKey = KeyCode.LeftShift;
+    [Header("Environmental Configurations")]
+    [SerializeField] private float gravity = -9.81f;
 
-    [SerializeField]
-    private float gravity = -9.81f;
-
+    [Header("Key Bindings")]
+    [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
+    [SerializeField] private KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
 
     private CharacterController controller;
 
@@ -39,12 +46,20 @@ public class FirstPersonMovementController : MonoBehaviour
         controller = GetComponent<CharacterController>();
 
         mouseLookCamera = Utils.CreateMouseLook(playerCamera, playerTransform, mouseSensivity);
-        playerMovement = Utils.CreateMovement(this.gameObject, controller, moveSpeed, sprintSpeed, sprintKey, gravity);
-        playerPhysics = Utils.CreatePhysics(this.gameObject, playerTransform, controller, gravity);
-    }
-
-    void Update()
-    {
-        
+        playerMovement = Utils.CreateMovement(
+            this.gameObject, 
+            controller, 
+            moveSpeed, 
+            sprintSpeed, 
+            sprintKey, 
+            jumpKey,
+            crouchHeight,
+            standingHeight,
+            timeToCrouch,
+            crouchingCenter,
+            standingCenter,
+            crouchKey
+            );
+        playerPhysics = Utils.CreatePhysics(this.gameObject, playerTransform, controller, gravity, jumpForce);
     }
 }

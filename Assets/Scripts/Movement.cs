@@ -3,22 +3,46 @@ using System.Collections;
 
 public class Movement : MonoBehaviour
 {
-	private CharacterController controller;
 
+	private bool shouldCrouch => Input.GetKeyDown(crouchKey) && !duringCrouchAnimation && isGrounded;
+
+	private CharacterController controller;
+	private PlayerPhysics playerPhysics;
+	
 	private float moveSpeed;
 	private float sprintSpeed;
-	private KeyCode sprintKey;
-	private float gravity;
 
-	private Vector3 playerVelocity;
+	private KeyCode sprintKey;
+	private KeyCode jumpKey;
+	private KeyCode crouchKey;
+
+	private float crouchHeight;
+	private float standingHeight;
+	private float timeToCrouch;
+	private Vector3 crouchingCenter;
+	private Vector3 standingCenter;
+	private bool isCrouching;
+	private bool duringCrouchAnimation;
+
+	private bool isGrounded;
+
+
+    private void Start()
+    {
+		playerPhysics = GetComponent<PlayerPhysics>();
+    }
 
     void Update()
 	{
-		if(Input.GetKey(sprintKey))
+		isGrounded = playerPhysics.GetIsGrounded();
+
+		if (Input.GetKey(sprintKey))
 			CharacterMovement(sprintSpeed);
 		else
 			CharacterMovement(moveSpeed);
 
+		CharacterJump();
+		CharacterCrouch();
 	}
 
 	void CharacterMovement(float moveSpeed)
@@ -31,16 +55,76 @@ public class Movement : MonoBehaviour
 		controller.Move(moveDirect * moveSpeed * Time.deltaTime);
 	}
 
-	void ApplyGravity()
+	void CharacterJump()
     {
-
-        if (controller.isGrounded && playerVelocity.y < 0)
+		if(isGrounded && Input.GetKeyDown(jumpKey))
         {
-            playerVelocity.y = 0f;
+			playerPhysics.SetApplyJumpForce(true);
+        }
+    }
+
+	void CharacterCrouch()
+    {
+		if(shouldCrouch)
+        {
+			StartCoroutine(CrouchStand());
+        }
+    }
+
+	private IEnumerator CrouchStand()
+    {
+		duringCrouchAnimation = true;
+
+		float timeElapsed = 0;
+		float targetHeight = isCrouching ? standingHeight : crouchHeight;
+		float currentHeight = controller.height;
+		Vector3 targetCenter = isCrouching ? standingCenter : crouchingCenter;
+		Vector3 currentCenter = controller.center;
+
+		while(timeElapsed < timeToCrouch)
+        {
+			controller.height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / timeToCrouch);
+			controller.center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / timeToCrouch);
+			timeElapsed += Time.deltaTime;
+			yield return null;
         }
 
-        playerVelocity.y += gravity * Time.deltaTime;
-        controller.Move(playerVelocity * Time.deltaTime);
+		controller.height = targetHeight;
+		controller.center = targetCenter;
+
+		isCrouching = !isCrouching;
+
+		duringCrouchAnimation = false;
+    }
+
+	public void SetCrouchHeight(float crouchHeight)
+    {
+		this.crouchHeight = crouchHeight;
+    }
+
+	public void SetStandingHeight(float standingHeight)
+	{
+		this.standingHeight = standingHeight;
+	}
+
+	public void SetTimeToCrouch(float timeToCrouch)
+	{
+		this.timeToCrouch = timeToCrouch;
+	}
+
+	public void SetCrouchingCenter(Vector3 crouchingCenter)
+	{
+		this.crouchingCenter = crouchingCenter;
+	}
+
+	public void SetStandingCenter(Vector3 standingCenter)
+	{
+		this.standingCenter = standingCenter;
+	}
+
+	public void SetCrouchKey(KeyCode crouchKey)
+    {
+		this.crouchKey = crouchKey;
     }
 
 	public void SetMoveSpeed(float moveSpeed)
@@ -58,10 +142,10 @@ public class Movement : MonoBehaviour
 		this.sprintKey = sprintKey;
     }
 
-	public void SetGravity(float gravity)
-	{
-		this.gravity = gravity;
-	}
+	public void SetJumpKey(KeyCode jumpKey)
+    {
+		this.jumpKey = jumpKey;
+    }
 
 	public void SetController(CharacterController controller)
     {

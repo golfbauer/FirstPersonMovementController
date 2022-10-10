@@ -24,9 +24,9 @@ public class PlayerPhysics : MonoBehaviour
     void applyGravity()
     {
 
-        if (isGrounded && playerVelocity.y < 0)
+        if (isGrounded && playerVelocity.y < -0.1f)
         {
-            playerVelocity.y = 0f;
+            playerVelocity.y = -0.1f;
         }
 
         if (applyJumpForce)
@@ -41,7 +41,8 @@ public class PlayerPhysics : MonoBehaviour
 
     private bool CheckIsGrounded()
     {
-        return Physics.Raycast(playerTransform.position, Vector3.down, controller.height/2 + 0.1f);
+        RaycastHit hit;
+        return Physics.SphereCast(playerTransform.position, controller.radius , Vector3.down, out hit, controller.height/2);
     }
 
     public bool GetIsGrounded()

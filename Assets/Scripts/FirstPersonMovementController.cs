@@ -18,6 +18,7 @@ public class FirstPersonMovementController : MonoBehaviour
 
     [Header("Jumping Configurations")]
     [SerializeField] private float jumpForce = 1.0f;
+    [SerializeField] private float jumpingStepOffset = 0.1f;
 
     [Header("Crouch Configurations")]
     [SerializeField] private float crouchHeight;
@@ -53,6 +54,7 @@ public class FirstPersonMovementController : MonoBehaviour
             sprintSpeed, 
             sprintKey, 
             jumpKey,
+            jumpingStepOffset,
             crouchHeight,
             standingHeight,
             timeToCrouch,

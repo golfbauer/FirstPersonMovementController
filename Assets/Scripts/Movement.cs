@@ -11,8 +11,10 @@ public class Movement : MonoBehaviour
 	
 	private float moveSpeed;
 	private float sprintSpeed;
+    private float groundedStepOffset;
+	private float jumpingStepOffset;
 
-	private KeyCode sprintKey;
+    private KeyCode sprintKey;
 	private KeyCode jumpKey;
 	private KeyCode crouchKey;
 
@@ -27,9 +29,12 @@ public class Movement : MonoBehaviour
 	private bool isGrounded;
 
 
+
     private void Start()
     {
 		playerPhysics = GetComponent<PlayerPhysics>();
+
+		groundedStepOffset = controller.stepOffset;
     }
 
     void Update()
@@ -57,6 +62,15 @@ public class Movement : MonoBehaviour
 
 	void CharacterJump()
     {
+		if(!isGrounded)
+		{
+			controller.stepOffset = jumpingStepOffset;
+        }
+		else
+		{
+			controller.stepOffset = groundedStepOffset;
+		}
+
 		if(isGrounded && Input.GetKeyDown(jumpKey))
         {
 			playerPhysics.SetApplyJumpForce(true);
@@ -151,5 +165,10 @@ public class Movement : MonoBehaviour
     {
 		this.controller = controller;
     }
+
+	public void SetJumpingStepOffset(float jumpingStepOffset)
+	{
+		this.jumpingStepOffset = jumpingStepOffset;
+	}
 }
 

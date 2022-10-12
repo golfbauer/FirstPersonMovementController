@@ -27,7 +27,7 @@ public class PlayerPhysics : MonoBehaviour
         if (isGrounded && playerVelocity.y < -0.1f)
         {
             playerVelocity.y = -0.1f;
-        }
+        } 
 
         if (applyJumpForce)
         {

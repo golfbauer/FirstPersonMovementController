@@ -23,7 +23,8 @@ public class Utils : MonoBehaviour
         float moveSpeed, 
         float sprintSpeed, 
         KeyCode sprintKey, 
-        KeyCode jumpKey, 
+        KeyCode jumpKey,
+        float jumpingStepOffset,
         float crouchHeight, 
         float standingHeight, 
         float timeToCrouch, 
@@ -43,6 +44,7 @@ public class Utils : MonoBehaviour
         movement.SetSprintSpeed(sprintSpeed);
         movement.SetSprintKey(sprintKey);
         movement.SetJumpKey(jumpKey);
+        movement.SetJumpingStepOffset(jumpingStepOffset);
         movement.SetCrouchHeight(crouchHeight);
         movement.SetStandingHeight(standingHeight);
         movement.SetTimeToCrouch(timeToCrouch);

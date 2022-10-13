@@ -4351,5 +4351,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 4129777150225781226, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: height
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781226, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: radius
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781226, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: skinWidth
+      value: 0.08
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781226, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: slopeLimit
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781226, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: stepOffset
+      value: 0.5
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 4129777150225781227, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}

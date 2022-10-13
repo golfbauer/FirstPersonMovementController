@@ -5,7 +5,7 @@ public class PlayerPhysics : MonoBehaviour
 {
 
 	private Transform playerTransform;
-	private CharacterController controller;
+	private CapsuleCharacterController controller;
 
 	private float gravity;
 	private Vector3 playerVelocity;
@@ -18,7 +18,7 @@ public class PlayerPhysics : MonoBehaviour
     void Update()
     {
         isGrounded = CheckIsGrounded();
-        applyGravity();
+        //applyGravity();
     }
 
     void applyGravity()
@@ -36,13 +36,13 @@ public class PlayerPhysics : MonoBehaviour
         }
 
         playerVelocity.y += gravity * Time.deltaTime;
-        controller.Move(playerVelocity * Time.deltaTime);
+        controller.Move(playerVelocity);
     }
 
     private bool CheckIsGrounded()
     {
         RaycastHit hit;
-        return Physics.SphereCast(playerTransform.position, controller.radius , Vector3.down, out hit, controller.height/2);
+        return Physics.SphereCast(playerTransform.position, controller.Radius , Vector3.down, out hit, controller.Height/2);
     }
 
     public bool GetIsGrounded()
@@ -70,7 +70,7 @@ public class PlayerPhysics : MonoBehaviour
 		this.playerTransform = playerTransform;
     }
 
-	public void SetController(CharacterController controller)
+	public void SetController(CapsuleCharacterController controller)
     {
 		this.controller = controller;
     }

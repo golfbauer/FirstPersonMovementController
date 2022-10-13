@@ -4,6 +4,14 @@ using UnityEngine;
 
 public class FirstPersonMovementController : MonoBehaviour
 {
+    [Header("Capsule Collider")]
+    [SerializeField] private float slopeLimit;
+    [SerializeField] private float stepOffset;
+    [SerializeField] private float jumpingStepOffset = 0.1f;
+    [SerializeField] private float skinWidth;
+    [SerializeField] private Vector3 center;
+    [SerializeField] private float height;
+    [SerializeField] private float radius;
 
     [Header("Player Components")]
     [SerializeField] private Transform playerTransform;
@@ -18,7 +26,6 @@ public class FirstPersonMovementController : MonoBehaviour
 
     [Header("Jumping Configurations")]
     [SerializeField] private float jumpForce = 1.0f;
-    [SerializeField] private float jumpingStepOffset = 0.1f;
 
     [Header("Crouch Configurations")]
     [SerializeField] private float crouchHeight;
@@ -35,26 +42,23 @@ public class FirstPersonMovementController : MonoBehaviour
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
 
-    private CharacterController controller;
-
     private MouseLook mouseLookCamera;
     private Movement playerMovement;
     private PlayerPhysics playerPhysics;
+    private CapsuleCharacterController controller;
 
 
     private void Awake()
     {
-        controller = GetComponent<CharacterController>();
-
+        controller = Utils.CreateCapsuleCharacterController(this.gameObject, slopeLimit, stepOffset, jumpingStepOffset, skinWidth, center, height, radius);
         mouseLookCamera = Utils.CreateMouseLook(playerCamera, playerTransform, mouseSensivity);
         playerMovement = Utils.CreateMovement(
-            this.gameObject, 
-            controller, 
+            this.gameObject,
+            controller,
             moveSpeed, 
             sprintSpeed, 
             sprintKey, 
             jumpKey,
-            jumpingStepOffset,
             crouchHeight,
             standingHeight,
             timeToCrouch,
@@ -62,6 +66,6 @@ public class FirstPersonMovementController : MonoBehaviour
             standingCenter,
             crouchKey
             );
-        playerPhysics = Utils.CreatePhysics(this.gameObject, playerTransform, controller, gravity, jumpForce);
+        playerPhysics = Utils.CreatePhysics(this.gameObject, controller, playerTransform, gravity, jumpForce);
     }
 }

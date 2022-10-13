@@ -6,13 +6,12 @@ public class Movement : MonoBehaviour
 
 	private bool shouldCrouch => Input.GetKeyDown(crouchKey) && !duringCrouchAnimation && isGrounded;
 
-	private CharacterController controller;
+	private CapsuleCharacterController controller;
 	private PlayerPhysics playerPhysics;
 	
 	private float moveSpeed;
 	private float sprintSpeed;
-    private float groundedStepOffset;
-	private float jumpingStepOffset;
+	private float groundedStepOffset;
 
     private KeyCode sprintKey;
 	private KeyCode jumpKey;
@@ -34,7 +33,7 @@ public class Movement : MonoBehaviour
     {
 		playerPhysics = GetComponent<PlayerPhysics>();
 
-		groundedStepOffset = controller.stepOffset;
+		groundedStepOffset = controller.StepOffset;
     }
 
     void Update()
@@ -64,11 +63,11 @@ public class Movement : MonoBehaviour
     {
 		if(!isGrounded)
 		{
-			controller.stepOffset = jumpingStepOffset;
+			controller.StepOffset = controller.JumpingStepOffset;
         }
 		else
 		{
-			controller.stepOffset = groundedStepOffset;
+			controller.StepOffset = groundedStepOffset;
 		}
 
 		if(isGrounded && Input.GetKeyDown(jumpKey))
@@ -79,39 +78,39 @@ public class Movement : MonoBehaviour
 
 	void CharacterCrouch()
     {
-		if(shouldCrouch)
+        if (shouldCrouch)
         {
-			StartCoroutine(CrouchStand());
+            StartCoroutine(CrouchStand());
         }
     }
 
-	private IEnumerator CrouchStand()
+    private IEnumerator CrouchStand()
     {
-		duringCrouchAnimation = true;
+        duringCrouchAnimation = true;
 
-		float timeElapsed = 0;
-		float targetHeight = isCrouching ? standingHeight : crouchHeight;
-		float currentHeight = controller.height;
-		Vector3 targetCenter = isCrouching ? standingCenter : crouchingCenter;
-		Vector3 currentCenter = controller.center;
+        float timeElapsed = 0;
+        float targetHeight = isCrouching ? standingHeight : crouchHeight;
+        float currentHeight = controller.Height;
+        Vector3 targetCenter = isCrouching ? standingCenter : crouchingCenter;
+        Vector3 currentCenter = controller.Center;
 
-		while(timeElapsed < timeToCrouch)
+        while (timeElapsed < timeToCrouch)
         {
-			controller.height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / timeToCrouch);
-			controller.center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / timeToCrouch);
-			timeElapsed += Time.deltaTime;
-			yield return null;
+            controller.Height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / timeToCrouch);
+            controller.Center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / timeToCrouch);
+            timeElapsed += Time.deltaTime;
+            yield return null;
         }
 
-		controller.height = targetHeight;
-		controller.center = targetCenter;
+        controller.Height = targetHeight;
+        controller.Center = targetCenter;
 
-		isCrouching = !isCrouching;
+        isCrouching = !isCrouching;
 
-		duringCrouchAnimation = false;
+        duringCrouchAnimation = false;
     }
 
-	public void SetCrouchHeight(float crouchHeight)
+    public void SetCrouchHeight(float crouchHeight)
     {
 		this.crouchHeight = crouchHeight;
     }
@@ -161,14 +160,9 @@ public class Movement : MonoBehaviour
 		this.jumpKey = jumpKey;
     }
 
-	public void SetController(CharacterController controller)
+	public void SetController(CapsuleCharacterController controller)
     {
 		this.controller = controller;
     }
-
-	public void SetJumpingStepOffset(float jumpingStepOffset)
-	{
-		this.jumpingStepOffset = jumpingStepOffset;
-	}
 }
 

@@ -3,72 +3,69 @@ using System.Collections;
 
 public class Utils : MonoBehaviour
 {
-	public static MouseLook CreateMouseLook(GameObject target, Transform playerTransform, float mouseSensitivity)
-    {
-        if(playerTransform == null || target == null)
-        {
-            throw new System.Exception("Assign Camera and/or playerBody to FirstPersonMovementController");
-        }
+    public const float Epsilon = 0.001f;
+    public const float MaxAngleShoveRadians = 90f;
 
-        MouseLook mouseLook = target.AddComponent<MouseLook>();
-        mouseLook.SetPlayerTransform(playerTransform);
-        mouseLook.SetMouseSensitivity(mouseSensitivity);
+	public static PlayerCameraLook CreatePlayerCameraLook(GameObject target, Transform playerTransform, float mouseSensitivity)
+    {
+        PlayerCameraLook mouseLook = target.AddComponent<PlayerCameraLook>();
+        mouseLook.MouseSensitivity = mouseSensitivity;
+        mouseLook.PlayerTransform = playerTransform;
 
         return mouseLook;
     }
 
-    public static Movement CreateMovement(
-        GameObject target, 
-        CharacterController controller, 
+    public static PlayerMovement CreateMovement(
+        GameObject target,
         float moveSpeed, 
         float sprintSpeed, 
         KeyCode sprintKey, 
         KeyCode jumpKey,
-        float jumpingStepOffset,
         float crouchHeight, 
         float standingHeight, 
         float timeToCrouch, 
         Vector3 crouchingCenter, 
         Vector3 standingCenter,
-        KeyCode crouchKey
+        KeyCode crouchKey,
+        Vector3 gravity,
+        float jumpForce
         )
     {
-        if (target == null || controller == null)
-        {
-            throw new System.Exception("Assign PlayerBody to FirstPersonMovementController");
-        }
-
-        Movement movement = target.AddComponent<Movement>();
-        movement.SetMoveSpeed(moveSpeed);
-        movement.SetController(controller);
-        movement.SetSprintSpeed(sprintSpeed);
-        movement.SetSprintKey(sprintKey);
-        movement.SetJumpKey(jumpKey);
-        movement.SetJumpingStepOffset(jumpingStepOffset);
-        movement.SetCrouchHeight(crouchHeight);
-        movement.SetStandingHeight(standingHeight);
-        movement.SetTimeToCrouch(timeToCrouch);
-        movement.SetCrouchingCenter(crouchingCenter);
-        movement.SetStandingCenter(standingCenter);
-        movement.SetCrouchKey(crouchKey);
+        PlayerMovement movement = target.AddComponent<PlayerMovement>();
+        movement.MoveSpeed = moveSpeed;
+        movement.SprintSpeed = sprintSpeed;
+        movement.SprintKey = sprintKey;
+        movement.JumpKey = jumpKey;
+        movement.CrouchHeight = crouchHeight;
+        movement.StandingHeight = standingHeight;
+        movement.TimeToCrouch = timeToCrouch;
+        movement.CrouchingCenter = crouchingCenter;
+        movement.StandingCenter = standingCenter;
+        movement.CrouchKey = crouchKey;
+        movement.Gravity = gravity;
+        movement.JumpForce = jumpForce;
 
         return movement;
     }
 
-    public static PlayerPhysics CreatePhysics(GameObject target, Transform playerTransform, CharacterController controller, float gravity, float jumpForce)
+    public static KinematicCharacterController CreateKinemeticCharacterController(
+        GameObject target, 
+        float slopeLimit, 
+        Vector3 center,
+        float height, 
+        float radius,
+        float anglePower,
+        float maxBounces
+        )
     {
-        if(target == null || playerTransform == null)
-        {
-            throw new System.Exception("Assign PlayerBody to FirstPersonMovementController");
-        }
-
-        PlayerPhysics physics = target.AddComponent<PlayerPhysics>();
-        physics.SetGravity(gravity);
-        physics.SetPlayerTransform(playerTransform);
-        physics.SetController(controller);
-        physics.SetJumpForce(jumpForce);
-
-        return physics;
+        KinematicCharacterController controller = target.AddComponent<KinematicCharacterController>();
+        controller.SlopeLimit = slopeLimit;
+        controller.Center = center;
+        controller.Height = height;
+        controller.Radius = radius;
+        controller.AnglePower = anglePower;
+        controller.MaxBounces = maxBounces;
+        return controller;
     }
 }
 

@@ -1,9 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class FirstPersonMovementController : MonoBehaviour
+public class PlayerMovementController : MonoBehaviour
 {
+    [Header("Kinematic Character Controller")]
+    [SerializeField] private float slopeLimit;
+    [SerializeField] private Vector3 center;
+    [SerializeField] private float height;
+    [SerializeField] private float radius;
+    [SerializeField] private float anglePower;
+    [SerializeField] private float maxBounces;
 
     [Header("Player Components")]
     [SerializeField] private Transform playerTransform;
@@ -18,7 +26,6 @@ public class FirstPersonMovementController : MonoBehaviour
 
     [Header("Jumping Configurations")]
     [SerializeField] private float jumpForce = 1.0f;
-    [SerializeField] private float jumpingStepOffset = 0.1f;
 
     [Header("Crouch Configurations")]
     [SerializeField] private float crouchHeight;
@@ -28,40 +35,47 @@ public class FirstPersonMovementController : MonoBehaviour
     [SerializeField] private Vector3 standingCenter;
 
     [Header("Environmental Configurations")]
-    [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private Vector3 gravity = new Vector3(0, -9.81f, 0);
 
-    [Header("Key Bindings")]
+    [Header("Key Binding Configurations")]
     [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
 
-    private CharacterController controller;
-
-    private MouseLook mouseLookCamera;
-    private Movement playerMovement;
-    private PlayerPhysics playerPhysics;
+    private PlayerCameraLook mouseLookCamera;
+    private PlayerMovement playerMovement;
+    private KinematicCharacterController controller;
 
 
     private void Awake()
     {
-        controller = GetComponent<CharacterController>();
-
-        mouseLookCamera = Utils.CreateMouseLook(playerCamera, playerTransform, mouseSensivity);
-        playerMovement = Utils.CreateMovement(
+        controller = Utils.CreateKinemeticCharacterController(
             this.gameObject, 
-            controller, 
-            moveSpeed, 
-            sprintSpeed, 
-            sprintKey, 
+            slopeLimit, 
+            center, 
+            height, 
+            radius,
+            anglePower,
+            maxBounces
+        );
+
+        mouseLookCamera = Utils.CreatePlayerCameraLook(playerCamera, playerTransform, mouseSensivity);
+
+        playerMovement = Utils.CreateMovement(
+            this.gameObject,
+            moveSpeed,
+            sprintSpeed,
+            sprintKey,
             jumpKey,
-            jumpingStepOffset,
             crouchHeight,
             standingHeight,
             timeToCrouch,
             crouchingCenter,
             standingCenter,
-            crouchKey
+            crouchKey,
+            gravity,
+            jumpForce
             );
-        playerPhysics = Utils.CreatePhysics(this.gameObject, playerTransform, controller, gravity, jumpForce);
+
     }
 }

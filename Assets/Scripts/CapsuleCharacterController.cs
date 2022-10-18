@@ -42,6 +42,23 @@ public class CapsuleCharacterController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        for (int i = 0; i < collision.contactCount - 1; i++)
+        {
+            Vector3 normal = collision.GetContact(i).normal;
+            Debug.Log("normal before: " + normal);
+            normal = new Vector3(
+                (int) normal.x != 0 ? System.Math.Abs(normal.x) * -1f : 1,
+                (int) normal.y != 0 ? System.Math.Abs(normal.y) * -1f : 1,
+                (int) normal.z != 0 ? System.Math.Abs(normal.z) * -1f : 1
+            );
+
+            Vector3 collisionDirect = Vector3.Scale(move, normal);
+            Debug.Log("move: " + move);
+            Debug.Log("normal after: " + normal);
+            Debug.Log("collisionDirect: " + collisionDirect);
+
+            transform.position += collisionDirect;
+        }
     }
 
     public float Height { get => _height; set => _height = value; }

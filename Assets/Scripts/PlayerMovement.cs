@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Movement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
 
 	private bool shouldCrouch => Input.GetKeyDown(crouchKey) && !duringCrouchAnimation && isGrounded;
 
-	private CapsuleCharacterController controller;
+	private KinematicCharacterController controller;
 	private PlayerPhysics playerPhysics;
 	
 	private float moveSpeed;
@@ -160,7 +160,7 @@ public class Movement : MonoBehaviour
 		this.jumpKey = jumpKey;
     }
 
-	public void SetController(CapsuleCharacterController controller)
+	public void SetController(KinematicCharacterController controller)
     {
 		this.controller = controller;
     }

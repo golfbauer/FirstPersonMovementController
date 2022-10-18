@@ -5,7 +5,7 @@ public class PlayerPhysics : MonoBehaviour
 {
 
 	private Transform playerTransform;
-	private CapsuleCharacterController controller;
+	private KinematicCharacterController controller;
 
 	private float gravity;
 	private Vector3 playerVelocity;
@@ -70,7 +70,7 @@ public class PlayerPhysics : MonoBehaviour
 		this.playerTransform = playerTransform;
     }
 
-	public void SetController(CapsuleCharacterController controller)
+	public void SetController(KinematicCharacterController controller)
     {
 		this.controller = controller;
     }

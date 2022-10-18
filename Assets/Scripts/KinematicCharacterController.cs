@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CapsuleCharacterController : MonoBehaviour
+public class KinematicCharacterController : MonoBehaviour
 {
 
     private float _slopeLimit;

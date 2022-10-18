@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class FirstPersonMovementController : MonoBehaviour
+public class PlayerMovementController : MonoBehaviour
 {
     [Header("Capsule Collider")]
     [SerializeField] private float slopeLimit;
@@ -63,10 +63,10 @@ public class FirstPersonMovementController : MonoBehaviour
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
 
-    private MouseLook mouseLookCamera;
-    private Movement playerMovement;
+    private PlayerCameraLook mouseLookCamera;
+    private PlayerMovement playerMovement;
     private PlayerPhysics playerPhysics;
-    private CapsuleCharacterController controller;
+    private KinematicCharacterController controller;
 
     private CapsuleCollider capsuleCollider;
     private Rigidbody rigidbody;

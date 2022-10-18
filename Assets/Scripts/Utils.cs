@@ -3,23 +3,23 @@ using System.Collections;
 
 public class Utils : MonoBehaviour
 {
-	public static MouseLook CreateMouseLook(GameObject target, Transform playerTransform, float mouseSensitivity)
+	public static PlayerCameraLook CreateMouseLook(GameObject target, Transform playerTransform, float mouseSensitivity)
     {
         if(playerTransform == null || target == null)
         {
             throw new System.Exception("Assign Camera and/or playerBody to FirstPersonMovementController");
         }
 
-        MouseLook mouseLook = target.AddComponent<MouseLook>();
+        PlayerCameraLook mouseLook = target.AddComponent<PlayerCameraLook>();
         mouseLook.SetPlayerTransform(playerTransform);
         mouseLook.SetMouseSensitivity(mouseSensitivity);
 
         return mouseLook;
     }
 
-    public static Movement CreateMovement(
+    public static PlayerMovement CreateMovement(
         GameObject target,
-        CapsuleCharacterController controller,
+        KinematicCharacterController controller,
         float moveSpeed, 
         float sprintSpeed, 
         KeyCode sprintKey, 
@@ -37,7 +37,7 @@ public class Utils : MonoBehaviour
             throw new System.Exception("Assign PlayerBody to FirstPersonMovementController");
         }
 
-        Movement movement = target.AddComponent<Movement>();
+        PlayerMovement movement = target.AddComponent<PlayerMovement>();
         movement.SetController(controller);
         movement.SetMoveSpeed(moveSpeed);
         movement.SetSprintSpeed(sprintSpeed);
@@ -53,7 +53,7 @@ public class Utils : MonoBehaviour
         return movement;
     }
 
-    public static PlayerPhysics CreatePhysics(GameObject target, CapsuleCharacterController controller, Transform playerTransform, float gravity, float jumpForce)
+    public static PlayerPhysics CreatePhysics(GameObject target, KinematicCharacterController controller, Transform playerTransform, float gravity, float jumpForce)
     {
         if(target == null || playerTransform == null)
         {
@@ -69,9 +69,9 @@ public class Utils : MonoBehaviour
         return physics;
     }
 
-    public static CapsuleCharacterController CreateCapsuleCharacterController(GameObject target, float slopeLimit, float stepOffset,float jumpingStepOffset, float skinWidth, Vector3 center,float height, float radius)
+    public static KinematicCharacterController CreateCapsuleCharacterController(GameObject target, float slopeLimit, float stepOffset,float jumpingStepOffset, float skinWidth, Vector3 center,float height, float radius)
     {
-        CapsuleCharacterController controller = target.AddComponent<CapsuleCharacterController>();
+        KinematicCharacterController controller = target.AddComponent<KinematicCharacterController>();
         controller.SlopeLimit = slopeLimit;
         controller.StepOffset = stepOffset;
         controller.JumpingStepOffset = jumpingStepOffset;

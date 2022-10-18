@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MouseLook : MonoBehaviour
+public class PlayerCameraLook : MonoBehaviour
 {
 
 	private Transform playerTransform;

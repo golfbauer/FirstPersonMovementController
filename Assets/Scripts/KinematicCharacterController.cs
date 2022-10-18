@@ -1,28 +1,47 @@
-﻿using UnityEngine;
+﻿
+// Copyright (C) 2022 Nicholas Maltbie
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+// associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute,
+// sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all copies or
+// substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 public class KinematicCharacterController : MonoBehaviour
 {
+    public float Height { get; set; }
+    public float SlopeLimit { get; set; }
+    public float JumpingStepOffset { get; set; } = 0.1f;
+    public float Radius { get; set; }
+    public float StepOffset { get; set; }
+    public Vector3 Center { get; set; }
+    public float AnglePower { get; set; } = 0.5f;
+    public float MaxBounces { get; set; } = 5;
 
-    private float _slopeLimit;
-    private float _stepOffset;
-    private float _jumpingStepOffset = 0.1f;
-    private float _skinWidth;
-    private Vector3 _center;
-    private float _height;
-    private float _radius;
-
-    private Vector3 move;
-
-    CapsuleCollider capsuleCollider;
-    Rigidbody rigibody;
+    private CapsuleCollider capsuleCollider;
+    private Rigidbody rigidbody;
 
 
     // Use this for initialization
     void Start()
 	{
-        rigibody = gameObject.AddComponent<Rigidbody>();
-        rigibody.isKinematic = true;
+        rigidbody = gameObject.AddComponent<Rigidbody>();
+        rigidbody.isKinematic = true;
 
         capsuleCollider = gameObject.AddComponent<CapsuleCollider>();
         capsuleCollider.height = Height;
@@ -30,43 +49,121 @@ public class KinematicCharacterController : MonoBehaviour
         capsuleCollider.center = Center;
 	}
 
-    private void FixedUpdate()
+    public Vector3 MovePlayer(Vector3 movement)
     {
-        rigibody.position += move;
-    }
+        Vector3 position = transform.position;
+        Quaternion rotation = transform.rotation;
 
-    public void Move(Vector3 moveDirect)
-    {
-        move = moveDirect;
-    }
+        Vector3 remaining = movement;
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        for (int i = 0; i < collision.contactCount - 1; i++)
+        int bounces = 0;
+
+        while (bounces < MaxBounces && remaining.magnitude > Utils.Epsilon)
         {
-            Vector3 normal = collision.GetContact(i).normal;
-            Debug.Log("normal before: " + normal);
-            normal = new Vector3(
-                (int) normal.x != 0 ? System.Math.Abs(normal.x) * -1f : 1,
-                (int) normal.y != 0 ? System.Math.Abs(normal.y) * -1f : 1,
-                (int) normal.z != 0 ? System.Math.Abs(normal.z) * -1f : 1
-            );
+            // Do a cast of the collider to see if an object is hit during this
+            // movement bounce
+            float distance = remaining.magnitude;
+            if (!CastSelf(position, rotation, remaining.normalized, distance, out RaycastHit hit))
+            {
+                // If there is no hit, move to desired position
+                position += remaining;
 
-            Vector3 collisionDirect = Vector3.Scale(move, normal);
-            Debug.Log("move: " + move);
-            Debug.Log("normal after: " + normal);
-            Debug.Log("collisionDirect: " + collisionDirect);
+                // Exit as we are done bouncing
+                break;
+            }
 
-            transform.position += collisionDirect;
+            // If we are overlapping with something, just exit.
+            if (hit.distance == 0)
+            {
+                break;
+            }
+
+            float fraction = hit.distance / distance;
+
+            // Set the fraction of remaining movement (minus some small value)
+            position += remaining * (fraction);
+            // Push slightly along normal to stop from getting caught in walls
+            position += hit.normal * Utils.Epsilon * 2;
+            // Decrease remaining movement by fraction of movement remaining
+            remaining *= (1 - fraction);
+
+            // Plane to project rest of movement onto
+            Vector3 planeNormal = hit.normal;
+
+            // Only apply angular change if hitting something
+            // Get angle between surface normal and remaining movement
+            float angleBetween = Vector3.Angle(hit.normal, remaining) - 90.0f;
+
+            // Normalize angle between to be between 0 and 1
+            // 0 means no angle, 1 means 90 degree angle
+            angleBetween = Mathf.Min(Utils.MaxAngleShoveRadians, Mathf.Abs(angleBetween));
+            float normalizedAngle = angleBetween / Utils.MaxAngleShoveRadians;
+
+            // Reduce the remaining movement by the remaining movement that ocurred
+            remaining *= Mathf.Pow(1 - normalizedAngle, AnglePower) * 0.9f + 0.1f;
+
+            // Rotate the remaining movement to be projected along the plane 
+            // of the surface hit (emulate pushing against the object)
+            Vector3 projected = Vector3.ProjectOnPlane(remaining, planeNormal).normalized * remaining.magnitude;
+
+            // If projected remaining movement is less than original remaining movement (so if the projection broke
+            // due to float operations), then change this to just project along the vertical.
+            if (projected.magnitude + Utils.Epsilon < remaining.magnitude)
+            {
+                remaining = Vector3.ProjectOnPlane(remaining, Vector3.up).normalized * remaining.magnitude;
+            }
+            else
+            {
+                remaining = projected;
+            }
+
+            // Track number of times the character has bounced
+            bounces++;
         }
+
+        return position;
     }
 
-    public float Height { get => _height; set => _height = value; }
-    public float SlopeLimit { get => _slopeLimit; set => _slopeLimit = value; }
-    public float JumpingStepOffset { get => _jumpingStepOffset; set => _jumpingStepOffset = value; }
-    public float SkinWidth { get => _skinWidth; set => _skinWidth = value; }
-    public float Radius { get => _radius; set => _radius = value; }
-    public float StepOffset { get => _stepOffset; set => _stepOffset = value; }
-    public Vector3 Center { get => _center; set => _center = value; }
+    public bool CheckGrounded(Vector3 velocity, out RaycastHit groundHit)
+    {
+        // 0.1f = GroundDistance
+        bool onGround = CastSelf(transform.position, transform.rotation, Vector3.down, 0.1f, out groundHit);
+        float angle = Vector3.Angle(groundHit.normal, Vector3.up);
+
+        if(velocity.y > 0) {
+            return false;
+        }
+        // 60f = MaxWalkingAngle
+        return onGround && angle < 60f;
+    }
+
+    private bool CastSelf(Vector3 pos, Quaternion rot, Vector3 dir, float dist, out RaycastHit hit)
+    { 
+        // Get Parameters associated with the KCC
+        Vector3 center = rot * capsuleCollider.center + pos;
+        float radius = capsuleCollider.radius;
+        float height = capsuleCollider.height;
+
+        // Get top and bottom points of collider
+        Vector3 bottom = center + rot * Vector3.down * (height / 2 - radius);
+        Vector3 top = center + rot * Vector3.up * (height / 2 - radius);
+
+        // Check what objects this collider will hit when cast with this configuration excluding itself
+        IEnumerable<RaycastHit> hits = Physics.CapsuleCastAll(
+            top, bottom, radius, dir, dist, ~0, QueryTriggerInteraction.Ignore)
+            .Where(hit => hit.collider.transform != transform);
+
+        bool didHit = hits.Count() > 0;
+
+        // Find the closest objects hit
+        float closestDist = didHit ? Enumerable.Min(hits.Select(hit => hit.distance)) : 0;
+        IEnumerable<RaycastHit> closestHit = hits.Where(hit => hit.distance == closestDist);
+
+        // Get the first hit object out of the things the player collides with
+        hit = closestHit.FirstOrDefault();
+
+        // Return if any objects were hit
+        return didHit;
+    }
 }
 

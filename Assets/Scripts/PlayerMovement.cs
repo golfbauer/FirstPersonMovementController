@@ -2,167 +2,134 @@
 using System.Collections;
 
 public class PlayerMovement : MonoBehaviour
-{
+{	
 
-	private bool shouldCrouch => Input.GetKeyDown(crouchKey) && !duringCrouchAnimation && isGrounded;
+	public float MoveSpeed { get; set; }
+	public float SprintSpeed { get; set; }
+	public float GroundedStepOffset { get; set; }
+	public float CrouchHeight { get; set; }
+	public float StandingHeight { get; set; }
+	public float TimeToCrouch { get; set; }
+    public float JumpForce { get; set; }
 
-	private KinematicCharacterController controller;
-	private PlayerPhysics playerPhysics;
-	
-	private float moveSpeed;
-	private float sprintSpeed;
-	private float groundedStepOffset;
+    public KeyCode SprintKey { get; set; }
+	public KeyCode JumpKey { get; set; }
+	public KeyCode CrouchKey { get; set; }
 
-    private KeyCode sprintKey;
-	private KeyCode jumpKey;
-	private KeyCode crouchKey;
 
-	private float crouchHeight;
-	private float standingHeight;
-	private float timeToCrouch;
-	private Vector3 crouchingCenter;
-	private Vector3 standingCenter;
+	public Vector3 CrouchingCenter { get; set; }
+    public Vector3 StandingCenter { get; set; }
+    public Vector3 Gravity { get; set; }
+
+    private bool shouldCrouch;
 	private bool isCrouching;
 	private bool duringCrouchAnimation;
+	private bool falling;
 
-	private bool isGrounded;
+    private bool canSnapToGround => velocity.y <= 0.1f;
+    private float elapsedSinceJump;
+    private float elapsedSinceFall;
 
 
+    private Vector3 velocity;
+
+	private KinematicCharacterController controller;
 
     private void Start()
     {
-		playerPhysics = GetComponent<PlayerPhysics>();
+		controller  = GetComponent<KinematicCharacterController>();
 
-		groundedStepOffset = controller.StepOffset;
+		GroundedStepOffset = controller.StepOffset;
     }
 
     void Update()
 	{
-		isGrounded = playerPhysics.GetIsGrounded();
+		falling = !controller.CheckGrounded(velocity, out RaycastHit groundHit);
+        if (falling)
+        {
+            velocity += Gravity * Time.deltaTime;
+            elapsedSinceFall += Time.deltaTime;
+        } else
+        {
+            velocity = Vector3.zero;
+            elapsedSinceFall = 0;
+            elapsedSinceJump = 0;
+        }
 
-		if (Input.GetKey(sprintKey))
-			CharacterMovement(sprintSpeed);
-		else
-			CharacterMovement(moveSpeed);
+        Vector3 movement;
 
-		CharacterJump();
-		CharacterCrouch();
+        if(Input.GetKey(SprintKey)){
+            movement = MoveDirect(SprintSpeed);
+        } else {
+            movement = MoveDirect(MoveSpeed);
+        }
+
+
+        if (!falling)
+        {
+            movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
+        }
+
+        playerJump();
+
+        // Attempt to move the player based on player movement
+        transform.position = controller.MovePlayer(movement);
+
+        // Move player based on falling speed
+        transform.position = controller.MovePlayer(velocity * Time.deltaTime);
 	}
 
-	void CharacterMovement(float moveSpeed)
+	private Vector3 MoveDirect(float moveSpeed)
     {
 		float moveX = Input.GetAxis("Horizontal");
 		float moveZ = Input.GetAxis("Vertical");
 
-		Vector3 moveDirect = transform.right * moveX + transform.forward * moveZ;
+        Vector3 moveDirect = transform.right * moveX + transform.forward * moveZ;
 
-		controller.Move(moveDirect * moveSpeed * Time.deltaTime);
+        return moveDirect * moveSpeed * Time.deltaTime;
 	}
 
-	void CharacterJump()
+	void playerJump()
     {
-		if(!isGrounded)
-		{
-			controller.StepOffset = controller.JumpingStepOffset;
-        }
-		else
-		{
-			controller.StepOffset = groundedStepOffset;
-		}
-
-		if(isGrounded && Input.GetKeyDown(jumpKey))
-        {
-			playerPhysics.SetApplyJumpForce(true);
+		if(!falling && Input.GetKeyDown(JumpKey))
+        { 
+			velocity.y = Mathf.Sqrt(JumpForce * -3.0f * Gravity.y);
+            elapsedSinceJump = 0;
         }
     }
 
-	void CharacterCrouch()
-    {
-        if (shouldCrouch)
-        {
-            StartCoroutine(CrouchStand());
-        }
-    }
+	// void CharacterCrouch()
+    // {
+    //     if (shouldCrouch)
+    //     {
+    //         StartCoroutine(CrouchStand());
+    //     }
+    // }
 
-    private IEnumerator CrouchStand()
-    {
-        duringCrouchAnimation = true;
+    // private IEnumerator CrouchStand()
+    // {
+    //     duringCrouchAnimation = true;
 
-        float timeElapsed = 0;
-        float targetHeight = isCrouching ? standingHeight : crouchHeight;
-        float currentHeight = controller.Height;
-        Vector3 targetCenter = isCrouching ? standingCenter : crouchingCenter;
-        Vector3 currentCenter = controller.Center;
+    //     float timeElapsed = 0;
+    //     float targetHeight = isCrouching ? standingHeight : crouchHeight;
+    //     float currentHeight = controller.Height;
+    //     Vector3 targetCenter = isCrouching ? standingCenter : crouchingCenter;
+    //     Vector3 currentCenter = controller.Center;
 
-        while (timeElapsed < timeToCrouch)
-        {
-            controller.Height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / timeToCrouch);
-            controller.Center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / timeToCrouch);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-        }
+    //     while (timeElapsed < timeToCrouch)
+    //     {
+    //         controller.Height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / timeToCrouch);
+    //         controller.Center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / timeToCrouch);
+    //         timeElapsed += Time.deltaTime;
+    //         yield return null;
+    //     }
 
-        controller.Height = targetHeight;
-        controller.Center = targetCenter;
+    //     controller.Height = targetHeight;
+    //     controller.Center = targetCenter;
 
-        isCrouching = !isCrouching;
+    //     isCrouching = !isCrouching;
 
-        duringCrouchAnimation = false;
-    }
-
-    public void SetCrouchHeight(float crouchHeight)
-    {
-		this.crouchHeight = crouchHeight;
-    }
-
-	public void SetStandingHeight(float standingHeight)
-	{
-		this.standingHeight = standingHeight;
-	}
-
-	public void SetTimeToCrouch(float timeToCrouch)
-	{
-		this.timeToCrouch = timeToCrouch;
-	}
-
-	public void SetCrouchingCenter(Vector3 crouchingCenter)
-	{
-		this.crouchingCenter = crouchingCenter;
-	}
-
-	public void SetStandingCenter(Vector3 standingCenter)
-	{
-		this.standingCenter = standingCenter;
-	}
-
-	public void SetCrouchKey(KeyCode crouchKey)
-    {
-		this.crouchKey = crouchKey;
-    }
-
-	public void SetMoveSpeed(float moveSpeed)
-    {
-		this.moveSpeed = moveSpeed;
-    }
-
-	public void SetSprintSpeed(float sprintSpeed)
-    {
-		this.sprintSpeed = sprintSpeed;
-    }
-
-	public void SetSprintKey(KeyCode sprintKey)
-    {
-		this.sprintKey = sprintKey;
-    }
-
-	public void SetJumpKey(KeyCode jumpKey)
-    {
-		this.jumpKey = jumpKey;
-    }
-
-	public void SetController(KinematicCharacterController controller)
-    {
-		this.controller = controller;
-    }
+    //     duringCrouchAnimation = false;
+    // }
 }
 

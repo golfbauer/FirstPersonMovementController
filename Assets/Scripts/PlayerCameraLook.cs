@@ -4,9 +4,8 @@ using System.Collections;
 public class PlayerCameraLook : MonoBehaviour
 {
 
-	private Transform playerTransform;
-
-	private float mouseSensitivity;
+    public Transform PlayerTransform { get; set; }
+	public float MouseSensitivity { get; set; }
 
 	private float xRotation = 0f;
 
@@ -17,25 +16,15 @@ public class PlayerCameraLook : MonoBehaviour
 
     void Update()
 	{
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") * MouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * MouseSensitivity * Time.deltaTime;
 
 		xRotation -= mouseY;
 		xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
 		transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        playerTransform.Rotate(Vector3.up * mouseX);
+        PlayerTransform.Rotate(Vector3.up * mouseX);
 
-    }
-
-    public void SetPlayerTransform(Transform playerTransform)
-    {
-        this.playerTransform = playerTransform;
-    }
-
-	public void SetMouseSensitivity(float mouseSensitivity)
-    {
-		this.mouseSensitivity = mouseSensitivity;
     }
 
 }

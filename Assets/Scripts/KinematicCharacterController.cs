@@ -1,5 +1,4 @@
-﻿
-// Copyright (C) 2022 Nicholas Maltbie
+﻿// Copyright (C) 2022 Nicholas Maltbie
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 // associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -26,9 +25,7 @@ public class KinematicCharacterController : MonoBehaviour
 {
     public float Height { get; set; }
     public float SlopeLimit { get; set; }
-    public float JumpingStepOffset { get; set; } = 0.1f;
     public float Radius { get; set; }
-    public float StepOffset { get; set; }
     public Vector3 Center { get; set; }
     public float AnglePower { get; set; } = 0.5f;
     public float MaxBounces { get; set; } = 5;

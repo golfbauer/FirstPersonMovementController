@@ -51,8 +51,6 @@ public class Utils : MonoBehaviour
     public static KinematicCharacterController CreateKinemeticCharacterController(
         GameObject target, 
         float slopeLimit, 
-        float stepOffset,
-        float jumpingStepOffset, 
         Vector3 center,
         float height, 
         float radius,
@@ -62,8 +60,6 @@ public class Utils : MonoBehaviour
     {
         KinematicCharacterController controller = target.AddComponent<KinematicCharacterController>();
         controller.SlopeLimit = slopeLimit;
-        controller.StepOffset = stepOffset;
-        controller.JumpingStepOffset = jumpingStepOffset;
         controller.Center = center;
         controller.Height = height;
         controller.Radius = radius;

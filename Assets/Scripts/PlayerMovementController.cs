@@ -5,11 +5,8 @@ using UnityEngine;
 
 public class PlayerMovementController : MonoBehaviour
 {
-    [Header("Capsule Collider")]
+    [Header("Kinematic Character Controller")]
     [SerializeField] private float slopeLimit;
-    [SerializeField] private float stepOffset;
-    [SerializeField] private float jumpingStepOffset = 0.1f;
-    [SerializeField] private float skinWidth;
     [SerializeField] private Vector3 center;
     [SerializeField] private float height;
     [SerializeField] private float radius;
@@ -40,7 +37,7 @@ public class PlayerMovementController : MonoBehaviour
     [Header("Environmental Configurations")]
     [SerializeField] private Vector3 gravity = new Vector3(0, -9.81f, 0);
 
-    [Header("Key Bindings")]
+    [Header("Key Binding Configurations")]
     [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
@@ -55,8 +52,6 @@ public class PlayerMovementController : MonoBehaviour
         controller = Utils.CreateKinemeticCharacterController(
             this.gameObject, 
             slopeLimit, 
-            stepOffset, 
-            jumpingStepOffset, 
             center, 
             height, 
             radius,

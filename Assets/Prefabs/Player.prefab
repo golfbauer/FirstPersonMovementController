@@ -9,8 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4129777150225781225}
-  - component: {fileID: 4129777150225781227}
-  - component: {fileID: 4129777150225781226}
+  - component: {fileID: 298859791}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -35,25 +34,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!143 &4129777150225781227
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4129777150225781224}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 1
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4129777150225781226
+--- !u!114 &298859791
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -62,21 +43,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 4129777150225781224}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 319edd6b3697c479086be4cc7f738750, type: 3}
+  m_Script: {fileID: 11500000, guid: 39c782e128bd845959cedc7d4739c6ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  slopeLimit: 60
+  center: {x: 0, y: 0, z: 0}
+  height: 3.5
+  radius: 0.5
+  anglePower: 0.5
+  maxBounces: 5
   playerTransform: {fileID: 4129777150225781225}
   playerCamera: {fileID: 4129777150849137025}
-  mouseSensivity: 200
-  moveSpeed: 10
-  sprintSpeed: 20
-  jumpForce: 1.4
-  crouchHeight: 0.5
-  standingHeight: 3.5
-  timeToCrouch: 0.25
-  crouchingCenter: {x: 0, y: 0.5, z: 0}
+  mouseSensivity: 400
+  moveSpeed: 5
+  sprintSpeed: 10
+  jumpForce: 2
+  crouchHeight: 0
+  standingHeight: 0
+  timeToCrouch: 0
+  crouchingCenter: {x: 0, y: 0, z: 0}
   standingCenter: {x: 0, y: 0, z: 0}
-  gravity: -19.62
+  gravity: {x: 0, y: -19.62, z: 0}
   sprintKey: 304
   jumpKey: 32
   crouchKey: 306
@@ -190,7 +177,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4129777151106693135}
   m_LocalRotation: {x: -0, y: -0.0143382065, z: -0, w: 0.99989724}
-  m_LocalPosition: {x: -0.003, y: 0, z: 0}
+  m_LocalPosition: {x: -0.003, y: -0.09, z: 0}
   m_LocalScale: {x: 1, y: 1.6447653, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

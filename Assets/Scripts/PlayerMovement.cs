@@ -6,7 +6,6 @@ public class PlayerMovement : MonoBehaviour
 
 	public float MoveSpeed { get; set; }
 	public float SprintSpeed { get; set; }
-	public float GroundedStepOffset { get; set; }
 	public float CrouchHeight { get; set; }
 	public float StandingHeight { get; set; }
 	public float TimeToCrouch { get; set; }
@@ -16,7 +15,6 @@ public class PlayerMovement : MonoBehaviour
 	public KeyCode JumpKey { get; set; }
 	public KeyCode CrouchKey { get; set; }
 
-
 	public Vector3 CrouchingCenter { get; set; }
     public Vector3 StandingCenter { get; set; }
     public Vector3 Gravity { get; set; }
@@ -25,8 +23,8 @@ public class PlayerMovement : MonoBehaviour
 	private bool isCrouching;
 	private bool duringCrouchAnimation;
 	private bool falling;
-
     private bool canSnapToGround => velocity.y <= 0.1f;
+
     private float elapsedSinceJump;
     private float elapsedSinceFall;
 
@@ -38,8 +36,6 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
 		controller  = GetComponent<KinematicCharacterController>();
-
-		GroundedStepOffset = controller.StepOffset;
     }
 
     void Update()

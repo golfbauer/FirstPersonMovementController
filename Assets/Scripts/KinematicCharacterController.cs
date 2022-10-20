@@ -23,10 +23,49 @@ using UnityEngine;
 
 public class KinematicCharacterController : MonoBehaviour
 {
-    public float Height { get; set; }
+
+    private float height;
+    private float radius;
+    private Vector3 center;
+
+    public float Height
+    {
+        get { return height; }
+        set
+        {
+            height = value;
+            if(capsuleCollider != null)
+            {
+                capsuleCollider.height = value;
+            }
+        }
+    }
+    public float Radius
+    {
+        get { return radius; }
+        set
+        {
+            radius = value;
+            if (capsuleCollider != null)
+            {
+                capsuleCollider.radius = value;
+            }
+        }
+    }
+    public Vector3 Center
+    {
+        get { return center; }
+        set
+        {
+            center = value;
+            if (capsuleCollider != null)
+            {
+                capsuleCollider.center = value;
+            }
+        }
+    }
+
     public float SlopeLimit { get; set; }
-    public float Radius { get; set; }
-    public Vector3 Center { get; set; }
     public float AnglePower { get; set; } = 0.5f;
     public float MaxBounces { get; set; } = 5;
 
@@ -41,9 +80,9 @@ public class KinematicCharacterController : MonoBehaviour
         rigidbody.isKinematic = true;
 
         capsuleCollider = gameObject.AddComponent<CapsuleCollider>();
-        capsuleCollider.height = Height;
-        capsuleCollider.radius = Radius;
-        capsuleCollider.center = Center;
+        capsuleCollider.height = height;
+        capsuleCollider.radius = radius;
+        capsuleCollider.center = center;
 	}
 
     public Vector3 MovePlayer(Vector3 movement)

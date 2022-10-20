@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class PlayerMovement : MonoBehaviour
 {	
@@ -19,7 +20,7 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 StandingCenter { get; set; }
     public Vector3 Gravity { get; set; }
 
-    private bool shouldCrouch;
+    private bool shouldCrouch => !falling;
 	private bool isCrouching;
 	private bool duringCrouchAnimation;
 	private bool falling;
@@ -49,7 +50,6 @@ public class PlayerMovement : MonoBehaviour
         {
             velocity = Vector3.zero;
             elapsedSinceFall = 0;
-            elapsedSinceJump = 0;
         }
 
         Vector3 movement;
@@ -66,7 +66,9 @@ public class PlayerMovement : MonoBehaviour
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
         }
 
-        playerJump();
+        PlayerJump();
+
+        PlayerCrouch();
 
         // Attempt to move the player based on player movement
         transform.position = controller.MovePlayer(movement);
@@ -85,47 +87,60 @@ public class PlayerMovement : MonoBehaviour
         return moveDirect * moveSpeed * Time.deltaTime;
 	}
 
-	void playerJump()
+	void PlayerJump()
     {
 		if(!falling && Input.GetKeyDown(JumpKey))
         { 
 			velocity.y = Mathf.Sqrt(JumpForce * -3.0f * Gravity.y);
             elapsedSinceJump = 0;
         }
+
+        elapsedSinceJump += Time.deltaTime;
     }
 
-	// void CharacterCrouch()
-    // {
-    //     if (shouldCrouch)
-    //     {
-    //         StartCoroutine(CrouchStand());
-    //     }
-    // }
+    void PlayerCrouch()
+    {
+        if (shouldCrouch && Input.GetKeyDown(CrouchKey))
+        {
+            StartCoroutine(CrouchStand());
+        }
+    }
 
-    // private IEnumerator CrouchStand()
-    // {
-    //     duringCrouchAnimation = true;
+    private IEnumerator CrouchStand()
+    {
+        duringCrouchAnimation = true;
 
-    //     float timeElapsed = 0;
-    //     float targetHeight = isCrouching ? standingHeight : crouchHeight;
-    //     float currentHeight = controller.Height;
-    //     Vector3 targetCenter = isCrouching ? standingCenter : crouchingCenter;
-    //     Vector3 currentCenter = controller.Center;
+        float timeElapsed = 0;
+        float targetHeight = isCrouching ? StandingHeight : CrouchHeight;
+        float currentHeight = controller.Height;
+        Vector3 targetCenter = isCrouching ? StandingCenter : CrouchingCenter;
+        Vector3 currentCenter = controller.Center;
 
-    //     while (timeElapsed < timeToCrouch)
-    //     {
-    //         controller.Height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / timeToCrouch);
-    //         controller.Center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / timeToCrouch);
-    //         timeElapsed += Time.deltaTime;
-    //         yield return null;
-    //     }
+        float positionY = transform.position.y;
+        float moveUpBY = (targetHeight - currentHeight) / 2;
 
-    //     controller.Height = targetHeight;
-    //     controller.Center = targetCenter;
+        while (timeElapsed < TimeToCrouch)
+        {
+            if (isCrouching)
+            {
+                float moveWithCrouch = positionY + Mathf.Lerp(0, moveUpBY, timeElapsed / TimeToCrouch);
+                transform.position = new Vector3(transform.position.x, moveWithCrouch, transform.position.z);
+            }
 
-    //     isCrouching = !isCrouching;
+            controller.Height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / TimeToCrouch);
+            controller.Center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / TimeToCrouch);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
 
-    //     duringCrouchAnimation = false;
-    // }
+        transform.position = new Vector3(transform.position.x, positionY + moveUpBY + 0.01f, transform.position.z);
+           
+        controller.Height = targetHeight;
+        controller.Center = targetCenter;
+
+        isCrouching = !isCrouching;
+
+        duringCrouchAnimation = false;
+    }
 }
 

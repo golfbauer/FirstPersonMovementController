@@ -75,8 +75,8 @@ public class PlayerMovement : MonoBehaviour
 
         // Move player based on falling speed
         transform.position = controller.MovePlayer(velocity * Time.deltaTime);
-	}
-
+	} 
+    
 	private Vector3 MoveDirect(float moveSpeed)
     {
 		float moveX = Input.GetAxis("Horizontal");
@@ -116,25 +116,23 @@ public class PlayerMovement : MonoBehaviour
         Vector3 targetCenter = isCrouching ? StandingCenter : CrouchingCenter;
         Vector3 currentCenter = controller.Center;
 
-        float positionY = transform.position.y;
-        float moveUpBY = (targetHeight - currentHeight) / 2;
-
         while (timeElapsed < TimeToCrouch)
         {
+            float controllerHeight = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / TimeToCrouch);
+
             if (isCrouching)
             {
-                float moveWithCrouch = positionY + Mathf.Lerp(0, moveUpBY, timeElapsed / TimeToCrouch);
-                transform.position = new Vector3(transform.position.x, moveWithCrouch, transform.position.z);
+                float ColliderHeightDifference = controllerHeight - controller.Height;
+
+                transform.position += Vector3.up * ColliderHeightDifference;
             }
 
-            controller.Height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / TimeToCrouch);
+            controller.Height = controllerHeight;
             controller.Center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / TimeToCrouch);
             timeElapsed += Time.deltaTime;
             yield return null;
         }
 
-        transform.position = new Vector3(transform.position.x, positionY + moveUpBY + 0.01f, transform.position.z);
-           
         controller.Height = targetHeight;
         controller.Center = targetCenter;
 

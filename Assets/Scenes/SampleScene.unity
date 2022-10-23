@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -677,52 +677,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &298859788 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4129777150225781224, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-  m_PrefabInstance: {fileID: 4129777150423864560}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &298859790 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-  m_PrefabInstance: {fileID: 4129777150423864560}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &298859791
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 298859788}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39c782e128bd845959cedc7d4739c6ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slopeLimit: 60
-  stepOffset: 2
-  jumpingStepOffset: 0.1
-  skinWidth: 0.05
-  center: {x: 0, y: 0, z: 0}
-  height: 3.5
-  radius: 0.5
-  anglePower: 0.5
-  maxBounces: 5
-  playerTransform: {fileID: 298859790}
-  playerCamera: {fileID: 1823044492}
-  mouseSensivity: 400
-  moveSpeed: 20
-  sprintSpeed: 40
-  jumpForce: 2
-  crouchHeight: 0
-  standingHeight: 0
-  timeToCrouch: 0
-  crouchingCenter: {x: 0, y: 0, z: 0}
-  standingCenter: {x: 0, y: 0, z: 0}
-  gravity: {x: 0, y: -9.81, z: 0}
-  sprintKey: 304
-  jumpKey: 32
-  crouchKey: 306
 --- !u!43 &452882159
 Mesh:
   m_ObjectHideFlags: 0
@@ -3769,11 +3723,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &1823044492 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4129777150849137025, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-  m_PrefabInstance: {fileID: 4129777150423864560}
-  m_PrefabAsset: {fileID: 0}
 --- !u!43 &2100243734
 Mesh:
   m_ObjectHideFlags: 0
@@ -4402,31 +4351,5 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4129777150225781226, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-      propertyPath: height
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4129777150225781226, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-      propertyPath: radius
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4129777150225781226, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-      propertyPath: skinWidth
-      value: 0.08
-      objectReference: {fileID: 0}
-    - target: {fileID: 4129777150225781226, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-      propertyPath: slopeLimit
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 4129777150225781226, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-      propertyPath: stepOffset
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4129777151106693616, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.09
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 4129777150225781227, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-    - {fileID: 4129777150225781226, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class PlayerMovement : MonoBehaviour
 {	
@@ -19,7 +20,7 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 StandingCenter { get; set; }
     public Vector3 Gravity { get; set; }
 
-    private bool shouldCrouch;
+    private bool shouldCrouch => !falling;
 	private bool isCrouching;
 	private bool duringCrouchAnimation;
 	private bool falling;
@@ -49,7 +50,6 @@ public class PlayerMovement : MonoBehaviour
         {
             velocity = Vector3.zero;
             elapsedSinceFall = 0;
-            elapsedSinceJump = 0;
         }
 
         Vector3 movement;
@@ -66,15 +66,17 @@ public class PlayerMovement : MonoBehaviour
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
         }
 
-        playerJump();
+        PlayerJump();
+
+        PlayerCrouch();
 
         // Attempt to move the player based on player movement
         transform.position = controller.MovePlayer(movement);
 
         // Move player based on falling speed
         transform.position = controller.MovePlayer(velocity * Time.deltaTime);
-	}
-
+	} 
+    
 	private Vector3 MoveDirect(float moveSpeed)
     {
 		float moveX = Input.GetAxis("Horizontal");
@@ -85,47 +87,58 @@ public class PlayerMovement : MonoBehaviour
         return moveDirect * moveSpeed * Time.deltaTime;
 	}
 
-	void playerJump()
+	void PlayerJump()
     {
 		if(!falling && Input.GetKeyDown(JumpKey))
         { 
 			velocity.y = Mathf.Sqrt(JumpForce * -3.0f * Gravity.y);
             elapsedSinceJump = 0;
         }
+
+        elapsedSinceJump += Time.deltaTime;
     }
 
-	// void CharacterCrouch()
-    // {
-    //     if (shouldCrouch)
-    //     {
-    //         StartCoroutine(CrouchStand());
-    //     }
-    // }
+    void PlayerCrouch()
+    {
+        if (shouldCrouch && Input.GetKeyDown(CrouchKey))
+        {
+            StartCoroutine(CrouchStand());
+        }
+    }
 
-    // private IEnumerator CrouchStand()
-    // {
-    //     duringCrouchAnimation = true;
+    private IEnumerator CrouchStand()
+    {
+        duringCrouchAnimation = true;
 
-    //     float timeElapsed = 0;
-    //     float targetHeight = isCrouching ? standingHeight : crouchHeight;
-    //     float currentHeight = controller.Height;
-    //     Vector3 targetCenter = isCrouching ? standingCenter : crouchingCenter;
-    //     Vector3 currentCenter = controller.Center;
+        float timeElapsed = 0;
+        float targetHeight = isCrouching ? StandingHeight : CrouchHeight;
+        float currentHeight = controller.Height;
+        Vector3 targetCenter = isCrouching ? StandingCenter : CrouchingCenter;
+        Vector3 currentCenter = controller.Center;
 
-    //     while (timeElapsed < timeToCrouch)
-    //     {
-    //         controller.Height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / timeToCrouch);
-    //         controller.Center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / timeToCrouch);
-    //         timeElapsed += Time.deltaTime;
-    //         yield return null;
-    //     }
+        while (timeElapsed < TimeToCrouch)
+        {
+            float controllerHeight = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / TimeToCrouch);
 
-    //     controller.Height = targetHeight;
-    //     controller.Center = targetCenter;
+            if (isCrouching)
+            {
+                float ColliderHeightDifference = controllerHeight - controller.Height;
 
-    //     isCrouching = !isCrouching;
+                transform.position += Vector3.up * ColliderHeightDifference;
+            }
 
-    //     duringCrouchAnimation = false;
-    // }
+            controller.Height = controllerHeight;
+            controller.Center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / TimeToCrouch);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        controller.Height = targetHeight;
+        controller.Center = targetCenter;
+
+        isCrouching = !isCrouching;
+
+        duringCrouchAnimation = false;
+    }
 }
 

@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slopeLimit: 60
   center: {x: 0, y: 0, z: 0}
-  height: 3.5
+  height: 2
   radius: 0.5
   anglePower: 0.5
   maxBounces: 5
@@ -58,10 +58,10 @@ MonoBehaviour:
   moveSpeed: 5
   sprintSpeed: 10
   jumpForce: 2
-  crouchHeight: 0
-  standingHeight: 0
-  timeToCrouch: 0
-  crouchingCenter: {x: 0, y: 0, z: 0}
+  crouchHeight: 0.5
+  standingHeight: 2
+  timeToCrouch: 0.25
+  crouchingCenter: {x: 0, y: 0.5, z: 0}
   standingCenter: {x: 0, y: 0, z: 0}
   gravity: {x: 0, y: -19.62, z: 0}
   sprintKey: 304

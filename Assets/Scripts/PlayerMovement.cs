@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
 	public float StandingHeight { get; set; }
 	public float TimeToCrouch { get; set; }
     public float JumpForce { get; set; }
+    public int CountAllowedJumps { get; set; }
 
     public KeyCode SprintKey { get; set; }
 	public KeyCode JumpKey { get; set; }
@@ -25,9 +26,11 @@ public class PlayerMovement : MonoBehaviour
 	private bool duringCrouchAnimation;
 	private bool falling;
     private bool canSnapToGround => velocity.y <= 0.1f;
+    private bool canJump => currentJumpCount < CountAllowedJumps;
 
     private float elapsedSinceJump;
     private float elapsedSinceFall;
+    private int currentJumpCount;
 
 
     private Vector3 velocity;
@@ -89,11 +92,14 @@ public class PlayerMovement : MonoBehaviour
 
 	void PlayerJump()
     {
-		if(!falling && Input.GetKeyDown(JumpKey))
+        if (currentJumpCount == 0 && falling) return;
+		if(canJump && Input.GetKeyDown(JumpKey))
         { 
 			velocity.y = Mathf.Sqrt(JumpForce * -3.0f * Gravity.y);
+            currentJumpCount++;
             elapsedSinceJump = 0;
         }
+        if (!canJump && !falling) currentJumpCount = 0;
 
         elapsedSinceJump += Time.deltaTime;
     }

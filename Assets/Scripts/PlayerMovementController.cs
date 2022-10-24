@@ -26,6 +26,7 @@ public class PlayerMovementController : MonoBehaviour
 
     [Header("Jumping Configurations")]
     [SerializeField] private float jumpForce = 1.0f;
+    [SerializeField] private int countAllowedJumps = 1;
 
     [Header("Crouch Configurations")]
     [SerializeField] private float crouchHeight;
@@ -74,7 +75,8 @@ public class PlayerMovementController : MonoBehaviour
             standingCenter,
             crouchKey,
             gravity,
-            jumpForce
+            jumpForce,
+            countAllowedJumps
             );
 
     }

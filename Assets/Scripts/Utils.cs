@@ -28,7 +28,8 @@ public class Utils : MonoBehaviour
         Vector3 standingCenter,
         KeyCode crouchKey,
         Vector3 gravity,
-        float jumpForce
+        float jumpForce,
+        int countAllowedJumps
         )
     {
         PlayerMovement movement = target.AddComponent<PlayerMovement>();
@@ -44,6 +45,7 @@ public class Utils : MonoBehaviour
         movement.CrouchKey = crouchKey;
         movement.Gravity = gravity;
         movement.JumpForce = jumpForce;
+        movement.CountAllowedJumps = countAllowedJumps;
 
         return movement;
     }

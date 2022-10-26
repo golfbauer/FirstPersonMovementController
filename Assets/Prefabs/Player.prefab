@@ -58,6 +58,7 @@ MonoBehaviour:
   moveSpeed: 5
   sprintSpeed: 10
   jumpForce: 2
+  countAllowedJumps: 2
   crouchHeight: 0.5
   standingHeight: 2
   timeToCrouch: 0.25

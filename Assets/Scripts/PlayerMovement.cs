@@ -3,9 +3,10 @@ using System.Collections;
 using System;
 
 public class PlayerMovement : MonoBehaviour
-{	
+{
 
-	public float MoveSpeed { get; set; }
+    // Public variables that can be set via Unity Editor
+    public float MoveSpeed { get; set; }
 	public float SprintSpeed { get; set; }
 	public float CrouchHeight { get; set; }
 	public float StandingHeight { get; set; }
@@ -14,19 +15,22 @@ public class PlayerMovement : MonoBehaviour
     public int CountAllowedJumps { get; set; }
 
     public KeyCode SprintKey { get; set; }
-	public KeyCode JumpKey { get; set; }
-	public KeyCode CrouchKey { get; set; }
+    public KeyCode JumpKey { get; set; }
+    public KeyCode CrouchKey { get; set; }
 
-	public Vector3 CrouchingCenter { get; set; }
+    public Vector3 CrouchingCenter { get; set; }
     public Vector3 StandingCenter { get; set; }
     public Vector3 Gravity { get; set; }
+
+    // Public variables that can be set via Scripts
+    public bool Jump { get; set; }
 
     private bool shouldCrouch => !falling;
 	private bool isCrouching;
 	private bool duringCrouchAnimation;
 	private bool falling;
     private bool canSnapToGround => velocity.y <= 0.1f;
-    private bool canJump => currentJumpCount < CountAllowedJumps;
+    private bool canJump => currentJumpCount < CountAllowedJumps || Jump;
 
     private float elapsedSinceJump;
     private float elapsedSinceFall;
@@ -98,6 +102,7 @@ public class PlayerMovement : MonoBehaviour
 			velocity.y = Mathf.Sqrt(JumpForce * -3.0f * Gravity.y);
             currentJumpCount++;
             elapsedSinceJump = 0;
+            Jump = false;
         }
         if (!canJump && !falling) currentJumpCount = 0;
 

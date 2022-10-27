@@ -160,17 +160,14 @@ public class KinematicCharacterController : MonoBehaviour
         return position;
     }
 
-    public bool CheckGrounded(Vector3 velocity, out RaycastHit groundHit)
+    public bool CheckGrounded(out RaycastHit groundHit)
     {
         // 0.1f = GroundDistance
         bool onGround = CastSelf(transform.position, transform.rotation, Vector3.down, 0.1f, out groundHit);
         float angle = Vector3.Angle(groundHit.normal, Vector3.up);
 
-        if(velocity.y > 0) {
-            return false;
-        }
         // 60f = MaxWalkingAngle
-        return onGround && angle < 60f;
+        return onGround && angle < SlopeLimit;
     }
 
     private bool CastSelf(Vector3 pos, Quaternion rot, Vector3 dir, float dist, out RaycastHit hit)

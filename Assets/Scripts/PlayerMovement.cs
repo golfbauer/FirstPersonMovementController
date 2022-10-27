@@ -23,20 +23,23 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 Gravity { get; set; }
 
     // Public variables that can be set via Scripts
-    public bool Jump { get; set; }
+    public bool Jump { get; set; } = false;
+    public bool Sprint { get; set; } = false;
 
-    private bool shouldCrouch => !falling;
 	private bool isCrouching;
 	private bool duringCrouchAnimation;
-	private bool falling;
-    private bool canSnapToGround => velocity.y <= 0.1f;
-    private bool canJump => currentJumpCount < CountAllowedJumps || Jump;
+    private bool onGround;
+
+    private bool canCrouch => onGround;
+    private bool canJump =>
+        (!(currentJumpCount == 0 && !onGround) &&
+        currentJumpCount < CountAllowedJumps &&
+        !duringCrouchAnimation) || Jump;
+    private bool canSprint => onGround || Sprint;
 
     private float elapsedSinceJump;
-    private float elapsedSinceFall;
+    private float elapsedSinceNotOnGround;
     private int currentJumpCount;
-
-
     private Vector3 velocity;
 
 	private KinematicCharacterController controller;
@@ -48,27 +51,32 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
 	{
-		falling = !controller.CheckGrounded(velocity, out RaycastHit groundHit);
-        if (falling)
+		onGround = controller.CheckGrounded(out RaycastHit groundHit);
+        if (!onGround)
         {
             velocity += Gravity * Time.deltaTime;
-            elapsedSinceFall += Time.deltaTime;
+            elapsedSinceNotOnGround += Time.deltaTime;
         } else
         {
-            velocity = Vector3.zero;
-            elapsedSinceFall = 0;
+            if (!(velocity.y > 0))
+            {
+                velocity = Vector3.zero;
+                elapsedSinceNotOnGround = 0;
+                currentJumpCount = 0;
+            }
         }
 
         Vector3 movement;
 
-        if(Input.GetKey(SprintKey)){
+        if((Input.GetKey(SprintKey) && canSprint) || Sprint)
+        {
             movement = MoveDirect(SprintSpeed);
         } else {
             movement = MoveDirect(MoveSpeed);
         }
 
 
-        if (!falling)
+        if (onGround)
         {
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
         }
@@ -96,7 +104,6 @@ public class PlayerMovement : MonoBehaviour
 
 	void PlayerJump()
     {
-        if (currentJumpCount == 0 && falling) return;
 		if(canJump && Input.GetKeyDown(JumpKey))
         { 
 			velocity.y = Mathf.Sqrt(JumpForce * -3.0f * Gravity.y);
@@ -104,14 +111,13 @@ public class PlayerMovement : MonoBehaviour
             elapsedSinceJump = 0;
             Jump = false;
         }
-        if (!canJump && !falling) currentJumpCount = 0;
 
         elapsedSinceJump += Time.deltaTime;
     }
 
     void PlayerCrouch()
     {
-        if (shouldCrouch && Input.GetKeyDown(CrouchKey))
+        if (canCrouch && Input.GetKeyDown(CrouchKey))
         {
             StartCoroutine(CrouchStand());
         }

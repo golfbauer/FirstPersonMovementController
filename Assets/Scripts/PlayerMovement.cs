@@ -68,7 +68,7 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 movement;
 
-        if((Input.GetKey(SprintKey) && canSprint) || Sprint)
+        if(Input.GetKey(SprintKey) && canSprint)
         {
             movement = MoveDirect(SprintSpeed);
         } else {

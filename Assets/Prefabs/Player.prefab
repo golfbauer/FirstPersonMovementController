@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39c782e128bd845959cedc7d4739c6ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  configDuringRuntime: 1
   slopeLimit: 60
   center: {x: 0, y: 0, z: 0}
   height: 2

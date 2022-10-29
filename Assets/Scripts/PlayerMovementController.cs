@@ -38,13 +38,18 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] [OnChangedCall("OnVariableChange")] private Vector3 crouchingCenter;
     [SerializeField] [OnChangedCall("OnVariableChange")] private Vector3 standingCenter;
 
+    [Header("Slide Configurations")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float slideSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float timeSlide;
+
     [Header("Environmental Configurations")]
     [SerializeField] [OnChangedCall("OnVariableChange")] private Vector3 gravity = new Vector3(0, -9.81f, 0);
 
     [Header("Key Binding Configurations")]
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode sprintKey = KeyCode.LeftShift;
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode jumpKey = KeyCode.Space;
-    [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode crouchKey = KeyCode.LeftControl;
+    [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode crouchKey = KeyCode.C;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode slideKey = KeyCode.C;
 
     private PlayerCameraLook mouseLookCamera;
     private PlayerMovement playerMovement;
@@ -103,7 +108,10 @@ public class PlayerMovementController : MonoBehaviour
             crouchKey,
             gravity,
             jumpForce,
-            countAllowedJumps
+            countAllowedJumps,
+            slideKey,
+            slideSpeed,
+            timeSlide
             );
 
     }
@@ -143,6 +151,9 @@ public class PlayerMovementController : MonoBehaviour
                 playerMovement.Gravity = gravity;
                 playerMovement.JumpForce = jumpForce;
                 playerMovement.CountAllowedJumps = countAllowedJumps;
+                playerMovement.SlideKey = slideKey;
+                playerMovement.SlideSpeed = slideSpeed;
+                playerMovement.TimeSlide = timeSlide;
             }
         }
     }

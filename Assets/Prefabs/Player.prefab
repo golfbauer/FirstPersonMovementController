@@ -65,10 +65,15 @@ MonoBehaviour:
   timeToCrouch: 0.25
   crouchingCenter: {x: 0, y: 0.5, z: 0}
   standingCenter: {x: 0, y: 0, z: 0}
+  slideSpeed: 30
+  timeSlide: 1
+  slideControll: 0
+  canCancelSlide: 1
   gravity: {x: 0, y: -19.62, z: 0}
   sprintKey: 304
   jumpKey: 32
-  crouchKey: 306
+  crouchKey: 99
+  slideKey: 99
 --- !u!1 &4129777150849137025
 GameObject:
   m_ObjectHideFlags: 0

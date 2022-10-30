@@ -65,8 +65,8 @@ MonoBehaviour:
   timeToCrouch: 0.25
   crouchingCenter: {x: 0, y: 0.5, z: 0}
   standingCenter: {x: 0, y: 0, z: 0}
-  slideSpeed: 10
-  timeSlide: 0.5
+  slideSpeed: 30
+  timeSlide: 1
   gravity: {x: 0, y: -19.62, z: 0}
   sprintKey: 304
   jumpKey: 32

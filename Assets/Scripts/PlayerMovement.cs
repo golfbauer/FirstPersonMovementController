@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     public float JumpForce { get; set; }
     public int CountAllowedJumps { get; set; }
 
+    public bool CanCancelSlide { get; set; }
+
     public KeyCode SprintKey { get; set; }
     public KeyCode JumpKey { get; set; }
     public KeyCode CrouchKey { get; set; }
@@ -40,17 +42,24 @@ public class PlayerMovement : MonoBehaviour
     private bool crouched;
 
     //Check whether player is allowed to perform action
-    private bool canCrouch => onGround && Input.GetKeyDown(CrouchKey);
+    private bool canCrouch => onGround && !isSliding && Input.GetKeyDown(CrouchKey);
     private bool canJump =>
         (!(currentJumpCount == 0 && !onGround) &&
         currentJumpCount < CountAllowedJumps &&
-        !isCrouching) && Input.GetKeyDown(JumpKey);
+        !isCrouching && !isSliding) && Input.GetKeyDown(JumpKey);
     private bool canSprint => onGround && Input.GetKey(SprintKey);
-    private bool canSlide => (isSprinting && Input.GetKeyDown(SlideKey) && !crouched);
+    private bool canSlide => isSprinting && !crouched && !isSliding && Input.GetKeyDown(SlideKey);
+    private bool cancelSlide => CanCancelSlide && Input.GetKeyDown(SlideKey);
 
     private float elapsedSinceJump;
     private float elapsedSinceNotOnGround;
+
     private int currentJumpCount;
+
+    private float slideX;
+    private float slideZ;
+    private float timeElapsed;
+
     private Vector3 velocity;
     private Vector3 movement;
 
@@ -101,7 +110,6 @@ public class PlayerMovement : MonoBehaviour
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
         }
 
-        // Attempt to move the player based on player movement
         transform.position = controller.MovePlayer(movement);
 
         // Move player based on falling speed
@@ -168,7 +176,7 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
 
-        
+
         controller.Height = targetHeight;
         controller.Center = targetCenter;
 
@@ -180,44 +188,35 @@ public class PlayerMovement : MonoBehaviour
     {
         if (canSlide || Slide)
         {
-            StartCoroutine(SlideStand());
+            slideX = Input.GetAxis("Horizontal");
+            slideZ = Input.GetAxis("Vertical");
+            timeElapsed = 0;
+
+            isSliding = true;
             Slide = false;
         }
-    }
 
-    private IEnumerator SlideStand()
-    {
-        isSliding = true;
-
-        float slideX = Input.GetAxis("Horizontal");
-        float slideZ = Input.GetAxis("Vertical");
-        float timeElapsed = 0;
-
-        while(timeElapsed < TimeSlide)
+        if (isSliding)
         {
-            MoveDirectSlide(slideX, slideZ);
+            if (cancelSlide)
+            {
+                isSliding = false;
+                Crouch = true;
+                return;
+            }
 
-            timeElapsed += Time.deltaTime;
+            if (timeElapsed < TimeSlide)
+            {
+                Vector3 moveDirect = transform.right * slideX + transform.forward * slideZ;
 
-            yield return null;
+                movement = moveDirect * SlideSpeed * Time.deltaTime;
+
+                timeElapsed += Time.deltaTime;
+                return;
+            }
+            isSliding = false;
+            Crouch = true;
         }
-        Crouch = true;
-        isSliding = false;
-    }
-
-    void MoveDirectSlide(float slideX, float slideZ)
-    {
-        onGround = controller.CheckGrounded(out RaycastHit groundHit);
-
-        Vector3 moveDirect = transform.right * slideX + transform.forward * slideZ;
-        moveDirect = moveDirect * Time.deltaTime * SlideSpeed;
-
-        if (onGround)
-        {
-            moveDirect = Vector3.ProjectOnPlane(moveDirect, groundHit.normal);
-        }
-
-        transform.position = controller.MovePlayer(moveDirect);
     }
 }
 

@@ -32,7 +32,9 @@ public class Utils : MonoBehaviour
         int countAllowedJumps,
         KeyCode slideKey,
         float slideSpeed,
-        float timeSlide
+        float timeSlide,
+        bool canCancelSlide,
+        float slideControll
         )
     {
         PlayerMovement movement = target.AddComponent<PlayerMovement>();
@@ -52,6 +54,8 @@ public class Utils : MonoBehaviour
         movement.SlideKey = slideKey;
         movement.SlideSpeed = slideSpeed;
         movement.TimeSlide = timeSlide;
+        movement.CanCancelSlide = canCancelSlide;
+        movement.SlideControl = slideControll;
 
         return movement;
     }

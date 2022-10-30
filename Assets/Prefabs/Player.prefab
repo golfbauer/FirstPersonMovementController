@@ -67,6 +67,8 @@ MonoBehaviour:
   standingCenter: {x: 0, y: 0, z: 0}
   slideSpeed: 30
   timeSlide: 1
+  slideControll: 0
+  canCancelSlide: 1
   gravity: {x: 0, y: -19.62, z: 0}
   sprintKey: 304
   jumpKey: 32

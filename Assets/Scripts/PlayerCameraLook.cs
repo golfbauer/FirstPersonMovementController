@@ -26,6 +26,5 @@ public class PlayerCameraLook : MonoBehaviour
         PlayerTransform.Rotate(Vector3.up * mouseX);
 
     }
-
 }
 

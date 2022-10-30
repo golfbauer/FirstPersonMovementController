@@ -39,8 +39,10 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] [OnChangedCall("OnVariableChange")] private Vector3 standingCenter;
 
     [Header("Slide Configurations")]
-    [SerializeField][OnChangedCall("OnVariableChange")] private float slideSpeed;
-    [SerializeField][OnChangedCall("OnVariableChange")] private float timeSlide;
+    [SerializeField] [OnChangedCall("OnVariableChange")] private float slideSpeed;
+    [SerializeField] [OnChangedCall("OnVariableChange")] private float timeSlide;
+    [SerializeField] [OnChangedCall("OnVariableChange")] private float slideControll;
+    [SerializeField] [OnChangedCall("OnVariableChange")] private bool canCancelSlide;
 
     [Header("Environmental Configurations")]
     [SerializeField] [OnChangedCall("OnVariableChange")] private Vector3 gravity = new Vector3(0, -9.81f, 0);
@@ -49,7 +51,7 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode sprintKey = KeyCode.LeftShift;
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode crouchKey = KeyCode.C;
-    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode slideKey = KeyCode.C;
+    [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode slideKey = KeyCode.C;
 
     private PlayerCameraLook mouseLookCamera;
     private PlayerMovement playerMovement;
@@ -111,7 +113,9 @@ public class PlayerMovementController : MonoBehaviour
             countAllowedJumps,
             slideKey,
             slideSpeed,
-            timeSlide
+            timeSlide,
+            canCancelSlide,
+            slideControll
             );
 
     }
@@ -154,6 +158,8 @@ public class PlayerMovementController : MonoBehaviour
                 playerMovement.SlideKey = slideKey;
                 playerMovement.SlideSpeed = slideSpeed;
                 playerMovement.TimeSlide = timeSlide;
+                playerMovement.CanCancelSlide = canCancelSlide;
+                playerMovement.SlideControl = slideControll;
             }
         }
     }

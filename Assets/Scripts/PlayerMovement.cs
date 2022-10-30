@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     public float TimeToCrouch { get; set; }
     public float TimeSlide { get; set; }
     public float JumpForce { get; set; }
+    public float SlideControl { get; set; }
     public int CountAllowedJumps { get; set; }
 
     public bool CanCancelSlide { get; set; }
@@ -59,6 +60,7 @@ public class PlayerMovement : MonoBehaviour
     private float slideX;
     private float slideZ;
     private float timeElapsed;
+    private Vector3 slideDirect;
 
     private Vector3 velocity;
     private Vector3 movement;
@@ -190,6 +192,7 @@ public class PlayerMovement : MonoBehaviour
         {
             slideX = Input.GetAxis("Horizontal");
             slideZ = Input.GetAxis("Vertical");
+            slideDirect = transform.right * slideX + transform.forward * slideZ;
             timeElapsed = 0;
 
             isSliding = true;
@@ -198,7 +201,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (isSliding)
         {
-            if (cancelSlide)
+            if (cancelSlide && timeElapsed > 0)
             {
                 isSliding = false;
                 Crouch = true;
@@ -207,9 +210,10 @@ public class PlayerMovement : MonoBehaviour
 
             if (timeElapsed < TimeSlide)
             {
-                Vector3 moveDirect = transform.right * slideX + transform.forward * slideZ;
-
-                movement = moveDirect * SlideSpeed * Time.deltaTime;
+                Vector3 currentSlideDirect =
+                    slideDirect * (1f - SlideControl) +
+                    (SlideControl * (slideX * transform.right + transform.forward * slideZ));
+                movement = currentSlideDirect * SlideSpeed * Time.deltaTime;
 
                 timeElapsed += Time.deltaTime;
                 return;

@@ -118,17 +118,20 @@ public class KinematicCharacterController : MonoBehaviour
 
             float fraction = hit.distance / distance;
 
-            Vector3 stairOffset = new Vector3(0, 1f, 0);
+            Vector3 stairOffset = new Vector3(0, 0.3f, 0);
 
-            if (Physics.Raycast(position + (remaining * fraction) + stairOffset, Vector3.down, out RaycastHit hit2, stairOffset.y))
+            if (!CastSelf(position + stairOffset, rotation, remaining.normalized, distance, out RaycastHit hit2));
             {
-                float yOffset = hit2.point.y - position.y;  
-                Vector3 radiusOffset = rotation.normalized * new Vector3(radius, 0, radius);
-                Debug.Log(radiusOffset);
-                Debug.DrawRay(position - new Vector3(0, height /2, 0) + radiusOffset + (remaining * fraction) + stairOffset, Vector3.down - stairOffset, Color.red, 5);
-                position += (remaining *fraction) + new Vector3(0, yOffset, 0);
+                //Debug.Log(hit2.distance);
+                if (hit2.distance == 0 && CastSelf(position + stairOffset + remaining, rotation, Vector3.down, stairOffset.magnitude, out RaycastHit groundHit))
+                {
+                    float snapUpDistance = groundHit.point.y - (position.y - height / 2);
+                    //Debug.Log(snapUpDistance);
+                    if (snapUpDistance > 0)
+                        position += remaining.normalized * (remaining.magnitude + 0.05f) + Vector3.up * snapUpDistance;
+                    break;
+                }
             }
-
 
             // Set the fraction of remaining movement (minus some small value)
             position += remaining * (fraction);
@@ -171,7 +174,18 @@ public class KinematicCharacterController : MonoBehaviour
             bounces++;
         }
 
+        SnapDown(position, rotation, 0.3f);
+
         return position;
+    }
+
+    public void SnapDown(Vector3 pos, Quaternion rot, float maxSnapDistance)
+    {
+        if (CastSelf(pos, rot, Vector3.down, Mathf.Infinity, out RaycastHit groundHit))
+        {
+            float distanceToGround = groundHit.distance;
+            Debug.Log(distanceToGround);
+        }
     }
 
     public bool CheckGrounded(Vector3 velocity, out RaycastHit groundHit)

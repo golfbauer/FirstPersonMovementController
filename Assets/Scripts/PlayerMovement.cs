@@ -73,6 +73,12 @@ public class PlayerMovement : MonoBehaviour
         // Attempt to move the player based on player movement
         transform.position = controller.MovePlayer(movement);
 
+        // If player was not falling before movemnt but is falling after movement see if he should be snapped down
+        if (!falling && !controller.CheckGrounded(Vector3.zero, out RaycastHit groundHitAfterMove)) 
+        {
+
+        }
+
         // Move player based on falling speed
         transform.position = controller.MovePlayer(velocity * Time.deltaTime);
 	} 

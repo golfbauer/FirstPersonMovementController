@@ -4303,6 +4303,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 298859791, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: timeSlide
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 298859791, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: slideSpeed
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 298859791, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: mouseSensivity
+      value: 200
+      objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781224, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_Name
       value: Player

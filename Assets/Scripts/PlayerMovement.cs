@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
     public float TimeSlide { get; set; }
     public float JumpForce { get; set; }
     public float SlideControl { get; set; }
+    public float WallRunSpeed { get; set; } = 20f;
     public int CountAllowedJumps { get; set; }
 
     public bool CanCancelSlide { get; set; }
@@ -38,6 +39,8 @@ public class PlayerMovement : MonoBehaviour
     private bool isCrouching;
     private bool isSliding;
     private bool isSprinting;
+    private bool isJumping;
+    private bool isWallRunning;
 
     private bool onGround;
     private bool crouched;
@@ -61,6 +64,8 @@ public class PlayerMovement : MonoBehaviour
     private float slideZ;
     private float timeElapsed;
     private Vector3 slideDirect;
+
+    private Vector3 savedGravity;
 
     private Vector3 velocity;
     private Vector3 movement;
@@ -103,6 +108,8 @@ public class PlayerMovement : MonoBehaviour
 
         PlayerJump();
 
+        PlayerWallRun();
+
         PlayerCrouch();
 
         PlayerSlide();
@@ -130,15 +137,52 @@ public class PlayerMovement : MonoBehaviour
 
     void PlayerJump()
     {
+        if (isJumping && onGround)
+        {
+            isJumping = false;
+        }
+
         if (canJump || Jump)
         {
             velocity.y = Mathf.Sqrt(JumpForce * -3.0f * Gravity.y);
             currentJumpCount++;
             elapsedSinceJump = 0;
             Jump = false;
+            isJumping = true;
         }
 
         elapsedSinceJump += Time.deltaTime;
+    }
+
+    void PlayerWallRun()
+    {
+        bool isWallRight = Physics.Raycast(transform.position, transform.right, 1f);
+        bool isWallLeft = Physics.Raycast(transform.position, -transform.right, 1f);
+
+        if(Input.GetKey(KeyCode.D) && isWallRight)
+        {
+            Gravity = Vector3.zero;
+            velocity = Vector3.zero;
+            isWallRunning = true;
+        }
+        if(Input.GetKey(KeyCode.A) && isWallLeft)
+        {
+            Gravity = Vector3.zero;
+            velocity = Vector3.zero;
+            isWallRunning = true;
+        }
+        if (isWallRunning)
+        {
+            Vector3 moveDirect = transform.right * (isWallRight ? 1f : -1f) + transform.forward * 1f;
+
+            movement =  moveDirect * WallRunSpeed * Time.deltaTime;
+        }
+
+        if((!isWallLeft || !isWallRight) && isWallRunning)
+        {
+            Gravity = new Vector3(0, -19.62f, 0);
+            isWallRunning = false;
+        }
     }
 
     void PlayerCrouch()

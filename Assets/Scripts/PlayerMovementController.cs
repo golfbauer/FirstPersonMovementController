@@ -98,6 +98,7 @@ public class PlayerMovementController : MonoBehaviour
 
         playerMovement = Utils.CreateMovement(
             this.gameObject,
+            playerCamera,
             moveSpeed,
             sprintSpeed,
             sprintKey,
@@ -142,6 +143,7 @@ public class PlayerMovementController : MonoBehaviour
 
             if (playerMovement != null)
             {
+                playerMovement.PlayerCamera = playerCamera;
                 playerMovement.MoveSpeed = moveSpeed;
                 playerMovement.SprintSpeed = sprintSpeed;
                 playerMovement.SprintKey = sprintKey;

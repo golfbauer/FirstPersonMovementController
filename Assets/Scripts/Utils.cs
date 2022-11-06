@@ -17,6 +17,7 @@ public class Utils : MonoBehaviour
 
     public static PlayerMovement CreateMovement(
         GameObject target,
+        GameObject playerCamera,
         float moveSpeed, 
         float sprintSpeed, 
         KeyCode sprintKey, 
@@ -38,6 +39,7 @@ public class Utils : MonoBehaviour
         )
     {
         PlayerMovement movement = target.AddComponent<PlayerMovement>();
+        movement.PlayerCamera = playerCamera;
         movement.MoveSpeed = moveSpeed;
         movement.SprintSpeed = sprintSpeed;
         movement.SprintKey = sprintKey;

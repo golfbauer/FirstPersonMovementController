@@ -7,7 +7,15 @@ public class PlayerCameraLook : MonoBehaviour
     public Transform PlayerTransform { get; set; }
 	public float MouseSensitivity { get; set; }
 
+    public bool TiltCameraRight { get; set; }
+    public bool CameraTiltedLeft = false;
+    public bool CameraTiltedRight = false;
+    public float TimeToTiltCameraWallRun { get; set; } = 0.5f;
+    public float MaxCameraTilt { get; set; } = 20f;
+
 	private float xRotation = 0f;
+    private float zRotation = 0f;
+    private bool isTiltingCamera;
 
     void Start()
     {
@@ -22,9 +30,39 @@ public class PlayerCameraLook : MonoBehaviour
 		xRotation -= mouseY;
 		xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-		transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+		transform.localRotation = Quaternion.Euler(xRotation, 0f, zRotation);
         PlayerTransform.Rotate(Vector3.up * mouseX);
 
+    }
+
+    public void TiltCamera()
+    {
+        if(!isTiltingCamera) StartCoroutine(TiltingCamera());
+    }
+
+    IEnumerator TiltingCamera()
+    {
+        isTiltingCamera = true;
+        float timeElapsed = 0;
+        float targetTilt = CameraTiltedLeft || CameraTiltedRight ? 0f : TiltCameraRight ? -MaxCameraTilt : MaxCameraTilt;
+        float currentTilt = zRotation;
+
+        while (timeElapsed < TimeToTiltCameraWallRun)
+        {
+            zRotation = Mathf.Lerp(currentTilt, targetTilt, timeElapsed / TimeToTiltCameraWallRun);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        isTiltingCamera = false;
+        zRotation = targetTilt;
+        if (targetTilt < 0) CameraTiltedRight = true;
+        if (targetTilt > 0) CameraTiltedLeft = true;
+        if (targetTilt == 0) 
+        { 
+            CameraTiltedLeft = false;
+            CameraTiltedRight = false;
+        }
     }
 }
 

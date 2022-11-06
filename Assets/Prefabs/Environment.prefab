@@ -1555,7 +1555,7 @@ GameObject:
   - component: {fileID: 1628244721787399707}
   - component: {fileID: 1628244721787399706}
   - component: {fileID: 1628244721787399709}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9077,7 +9077,7 @@ GameObject:
   - component: {fileID: 1628244722807438303}
   - component: {fileID: 1628244722807438302}
   - component: {fileID: 1628244722807437857}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9311,7 +9311,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 6502
+  m_VersionIndex: 6499
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -10055,7 +10055,7 @@ GameObject:
   - component: {fileID: 1628244723019862849}
   - component: {fileID: 1628244723019862848}
   - component: {fileID: 1628244723019862851}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

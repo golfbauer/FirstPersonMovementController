@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using Unity.VisualScripting;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class PlayerMovement : MonoBehaviour
     public float WallRunSpeed { get; set; } = 20f;
     public float WallRunMaxAngle { get; set; } = 100f;
     public float WallJumpForce { get; set; } = 10f;
+    public float MaxTimeOnWall { get; set; } = 500f;
     public int WallRunLayer { get; set; } = 1 << 7;
     public int CountAllowedJumps { get; set; }
 
@@ -41,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
     public bool Sprint { get; set; } = false;
     public bool Slide { get; set; } = false;
     public bool Crouch { get; set; } = false;
+    public bool WallJump { get; set; } = false;
 
     //Set to true if player is doing the action
     private bool isCrouching;
@@ -62,9 +65,8 @@ public class PlayerMovement : MonoBehaviour
     private bool canSprint => onGround && Input.GetKey(SprintKey);
     private bool canSlide => isSprinting && !crouched && !isSliding && Input.GetKeyDown(SlideKey);
     private bool cancelSlide => CanCancelSlide && Input.GetKeyDown(SlideKey);
-    private bool canWallRun => (isJumping || isWallRunning) && Input.GetKey(WallRunKey);
-    private bool canWallJump =>isWallRunning &&
-        currentJumpCount <= CountAllowedJumps && Input.GetKeyUp(WallRunKey);
+    private bool canWallRun => (isJumping || isWallRunning) && Input.GetKey(WallRunKey) && timeOnWall < MaxTimeOnWall;
+    private bool canWallJump =>isWallRunning && Input.GetKeyUp(WallRunKey);
 
     private float elapsedSinceJump;
     private float elapsedSinceNotOnGround;
@@ -80,6 +82,9 @@ public class PlayerMovement : MonoBehaviour
     private bool isWallLeft;
     private bool isWallFront;
     private bool isWallBack;
+    private string prevWallDirect;
+    private Vector3 tempGravity;
+    private float timeOnWall;
 
     private Vector3 velocity;
     private Vector3 movement;
@@ -91,6 +96,8 @@ public class PlayerMovement : MonoBehaviour
     {
         controller = GetComponent<KinematicCharacterController>();
         playerCamera = PlayerCamera.GetComponent<PlayerCameraLook>();
+
+        tempGravity = Gravity;
     }
 
     void Update()
@@ -173,11 +180,18 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
-    // 5. Make wall run possible without a and d key (needs jump to get loose)
-    // Gravity is hardcoded
-    // WalJump doesnt use normal but  transform.right???
+    // TODO: 
+    // 1. WallRun done by hitting wall, getting loose by pressing jump key
+    // 2. Front and Back shouldnt go left or right when hit wall first. Where should it go? Standing still? Upwards?
+    // 3. WallRun needs max timer. Drops after time expired. Can be set to no timer. Should timer be reset when walljump or jump??? -> Solution for now
+    // 4. WallRun should have value from -1 to 1 to slowly rise or drop while wallrunning. Just multiply Gravity by said value.
 
-    private string prevWallDirect;
+    // 1. WallJump should use hit.normal or tranform.forward && transform.right
+    // 2. WallJump facing wall should push backwards a bit
+    // 3. Can I combine WallJump and Jump to both apply force? Does this make sense? Or make WallJumpForce into vector to be able to alter y and z.
+    // 4. WallJump when hitting end of wall.
+
+
     void PlayerWallRun()
     {
         if (canWallRun)
@@ -201,7 +215,6 @@ public class PlayerMovement : MonoBehaviour
                     playerCamera.TiltCamera();
                 }
             }
-
             if (isWallLeft)
             {
                 float wallAngle = Vector3.Angle(hitWallLeft.normal, Vector3.up);
@@ -229,6 +242,12 @@ public class PlayerMovement : MonoBehaviour
 
             if (isWallRunning)
             {
+                timeOnWall += Time.deltaTime;
+                if(timeOnWall > MaxTimeOnWall)
+                {
+                    WallJump = true;
+                }
+                if (Gravity != Vector3.zero) tempGravity = Gravity;
                 Gravity = Vector3.zero;
                 velocity = Vector3.zero;
                 currentJumpCount = 0;
@@ -238,19 +257,22 @@ public class PlayerMovement : MonoBehaviour
             }
         }
         if(playerCamera.CameraTiltedRight || playerCamera.CameraTiltedLeft) playerCamera.TiltCamera();
-        Gravity = new Vector3(0, -19.62f, 0);
+        Gravity = tempGravity;
+        if (onGround)
+        {
+            timeOnWall = 0;
+        }
     }
 
-    private bool PlayerWallJump()
+    void PlayerWallJump()
     {
         if (isWallJumping && (onGround || isWallRunning || isJumping))
         {
             isWallJumping = false;
         }
 
-        if (canWallJump)
+        if (canWallJump || WallJump)
         {
-            Gravity = new Vector3(0, -19.62f, 0);
             if (CanChangeWallJumpDirect)
             {
                 velocity = PlayerCamera.transform.forward * WallJumpForce;
@@ -263,9 +285,8 @@ public class PlayerMovement : MonoBehaviour
             currentJumpCount++;
             elapsedSinceJump = 0;
             isWallJumping = true;
-            return true;
+            WallJump = false;
         }
-        return false;
     }
 
     void PlayerCrouch()

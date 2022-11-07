@@ -31,6 +31,14 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] [OnChangedCall("OnVariableChange")] private float jumpForce = 1.0f;
     [SerializeField] [OnChangedCall("OnVariableChange")] private int countAllowedJumps = 1;
 
+    [Header("WallRun Configurations")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunMaxAngle;
+    [SerializeField][OnChangedCall("OnVariableChange")] private int wallRunLayer;
+
+    [Header("WallJump Configurations")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallJumpForce;
+
     [Header("Crouch Configurations")]
     [SerializeField] [OnChangedCall("OnVariableChange")] private float crouchHeight;
     [SerializeField] [OnChangedCall("OnVariableChange")] private float standingHeight;
@@ -52,6 +60,7 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode crouchKey = KeyCode.C;
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode slideKey = KeyCode.C;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode wallRunKey = KeyCode.Space;
 
     private PlayerCameraLook mouseLookCamera;
     private PlayerMovement playerMovement;

@@ -19,7 +19,7 @@ public class PlayerMovement : MonoBehaviour
     public float WallRunSpeed { get; set; } = 20f;
     public float WallRunMaxAngle { get; set; } = 100f;
     public float WallJumpForce { get; set; } = 10f;
-    public float MaxTimeOnWall { get; set; } = 500f;
+    public float MaxTimeOnWall { get; set; } = 1f;
     public int WallRunLayer { get; set; } = 1 << 7;
     public int CountAllowedJumps { get; set; }
 
@@ -182,14 +182,15 @@ public class PlayerMovement : MonoBehaviour
 
     // TODO: 
     // 1. WallRun done by hitting wall, getting loose by pressing jump key
-    // 2. Front and Back shouldnt go left or right when hit wall first. Where should it go? Standing still? Upwards?
-    // 3. WallRun needs max timer. Drops after time expired. Can be set to no timer. Should timer be reset when walljump or jump??? -> Solution for now
+    // 2. Front and Back shouldnt go left or right when hit wall first. Back to wall -> shouldnt work,  Front to  wall -> Stays on wall wihtout moving
+    // 3. WallRun needs max timer. Drops after time expired. Can be set to no timer. Should timer be reset when walljump or jump??? : yes it should and push away from wall -> Solution for now
     // 4. WallRun should have value from -1 to 1 to slowly rise or drop while wallrunning. Just multiply Gravity by said value.
+    // 5. Add minium hight for wall run -> raycast down
 
     // 1. WallJump should use hit.normal or tranform.forward && transform.right
     // 2. WallJump facing wall should push backwards a bit
     // 3. Can I combine WallJump and Jump to both apply force? Does this make sense? Or make WallJumpForce into vector to be able to alter y and z.
-    // 4. WallJump when hitting end of wall.
+    // 4. WallJump when hitting end of wall. make it an option
 
 
     void PlayerWallRun()

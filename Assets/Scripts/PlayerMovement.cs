@@ -199,6 +199,7 @@ public class PlayerMovement : MonoBehaviour
     // 1. WallRun done by hitting wall, getting loose by pressing jump key
     // 2. WallJump when hitting end of wall. make it an
     // 3. Minimum height check will ignore isWallJumping but will take isJumping into account should leave it like this or change it?
+    // 4. Camera look is missing
 
 
     void PlayerWallRun()

@@ -3,6 +3,8 @@ using System.Collections;
 using System;
 using Unity.VisualScripting;
 using static Utils;
+using System.Collections.Generic;
+using System.Linq;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -17,25 +19,24 @@ public class PlayerMovement : MonoBehaviour
     public float TimeSlide { get; set; }
     public float JumpForce { get; set; }
     public float SlideControl { get; set; }
-    public float WallRunSpeed { get; set; } = 20f;
-    public float WallRunMaxAngle { get; set; } = 100f;
-    public Vector2 WallJumpForce { get; set; } = new Vector2(10f, 2f);
-    public float WallPushForce { get; set; } = 2f;
-    public float MaxTimeOnWall { get; set; } = 500f;
-    public int WallRunLayer { get; set; } = 1 << 7;
-    public float WallRunGravityMultiplier { get; set; } = 0f;
-    public float WallRunMinimumHeight { get; set; } = 1f;
+    public float WallRunSpeed { get; set; }
+    public float WallRunMaxAngle { get; set; }
+    public Vector2 WallJumpForce { get; set; }
+    public float WallPushForce { get; set; }
+    public float MaxTimeOnWall { get; set; }
+    public int WallRunLayer { get; set; }
+    public float WallRunGravityMultiplier { get; set; }
+    public float WallRunMinimumHeight { get; set; }
     public int CountAllowedJumps { get; set; }
 
     public bool CanCancelSlide { get; set; }
-    public bool CanChangeWallJumpDirect { get; set; } = true;
-    public bool CanWallJumpOffEndWall { get; set; } = true;
+    public bool CanChangeWallJumpDirect { get; set; }
 
     public KeyCode SprintKey { get; set; }
     public KeyCode JumpKey { get; set; }
     public KeyCode CrouchKey { get; set; }
     public KeyCode SlideKey { get; set; }
-    public KeyCode WallRunKey { get; set; } = KeyCode.Space;
+    public KeyCode WallRunKey { get; set; }
 
     public Vector3 CrouchingCenter { get; set; }
     public Vector3 StandingCenter { get; set; }
@@ -111,6 +112,7 @@ public class PlayerMovement : MonoBehaviour
         playerCamera = PlayerCamera.GetComponent<PlayerCameraLook>();
 
         tempGravity = Gravity;
+        WallRunLayer = 1 << WallRunLayer;
     }
 
     void Update()
@@ -195,15 +197,8 @@ public class PlayerMovement : MonoBehaviour
 
     // TODO: 
     // 1. WallRun done by hitting wall, getting loose by pressing jump key
-    // 2. Done -> Front and Back shouldnt go left or right when hit wall first. Back to wall -> shouldnt work,  Front to  wall -> Stays on wall wihtout moving
-    // 3. Done -> WallRun needs max timer. Drops after time expired. Can be set to no timer. Should timer be reset when walljump or jump??? : yes 
-    // 4. Done -> WallRun should have value from -1 to 1 to slowly rise or drop while wallrunning. Just multiply Gravity by said value.
-    // 5. Done -> Add minium hight for wall run -> raycast down
-
-    // 1. Done -> WallJump should use hit.normal or tranform.forward && transform.right
-    // 2. Done -> WallJump push backwards when player falling off due too time
-    // 3. Done -> Can I combine WallJump and Jump to both apply force? Does this make sense? Or make WallJumpForce into vector to be able to alter y and z.
-    // 4. WallJump when hitting end of wall. make it an option
+    // 2. WallJump when hitting end of wall. make it an
+    // 3. Minimum height check will ignore isWallJumping but will take isJumping into account should leave it like this or change it?
 
 
     void PlayerWallRun()
@@ -295,7 +290,8 @@ public class PlayerMovement : MonoBehaviour
         velocity = Vector3.zero;
 
         bool isToCloseToGround = Physics.Raycast(transform.position, -transform.up, WallRunMinimumHeight + controller.Height);
-        if (isToCloseToGround && !isJumping && !isWallJumping) return false;
+
+        if (isToCloseToGround && !isWallJumping) return false;
 
         return true;
     }
@@ -319,7 +315,7 @@ public class PlayerMovement : MonoBehaviour
                     : isWallFront ? hitWallFront.normal 
                     : isWallBack ? hitWallBack.normal 
                     : transform.forward;
-                velocity = hitNormal * WallJumpForce;
+                velocity = hitNormal * WallJumpForce.x;
             }
 
             velocity.y = Mathf.Sqrt(WallJumpForce.y * -3.0f * Gravity.y);

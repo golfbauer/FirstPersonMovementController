@@ -35,7 +35,17 @@ public class Utils : MonoBehaviour
         float slideSpeed,
         float timeSlide,
         bool canCancelSlide,
-        float slideControll
+        float slideControll,
+        float wallRunSpeed,
+        float wallRunMaxAngle,
+        int wallRunLayer,
+        float maxTimeOnWall,
+        float wallRunGravityMultiplier,
+        float wallRunMinimumHeight,
+        KeyCode wallRunKey,
+        Vector2 wallJumpForce,
+        float wallPushForce,
+        bool canChangeWallJumpDirect
         )
     {
         PlayerMovement movement = target.AddComponent<PlayerMovement>();
@@ -58,6 +68,18 @@ public class Utils : MonoBehaviour
         movement.TimeSlide = timeSlide;
         movement.CanCancelSlide = canCancelSlide;
         movement.SlideControl = slideControll;
+
+        movement.WallRunSpeed = wallRunSpeed;
+        movement.WallRunMaxAngle = wallRunMaxAngle;
+        movement.WallRunLayer = wallRunLayer;
+        movement.MaxTimeOnWall = maxTimeOnWall;
+        movement.WallRunGravityMultiplier = wallRunGravityMultiplier;
+        movement.WallRunMinimumHeight = wallRunMinimumHeight;
+        movement.WallRunKey = wallRunKey;   
+
+        movement.WallJumpForce = wallJumpForce;
+        movement.WallPushForce = wallPushForce;
+        movement.CanChangeWallJumpDirect = canChangeWallJumpDirect;
 
         return movement;
     }

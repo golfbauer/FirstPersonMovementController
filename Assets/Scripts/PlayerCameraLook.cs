@@ -35,6 +35,20 @@ public class PlayerCameraLook : MonoBehaviour
 
     }
 
+    public void TiltRight()
+    {
+        if (CameraTiltedRight) return;
+        TiltCameraRight = true;
+        TiltCamera();
+    }
+
+    public void TiltLeft()
+    {
+        if (CameraTiltedLeft) return;
+        TiltCameraRight = false;
+        TiltCamera();
+    }
+
     public void TiltCamera()
     {
         if(!isTiltingCamera) StartCoroutine(TiltingCamera());

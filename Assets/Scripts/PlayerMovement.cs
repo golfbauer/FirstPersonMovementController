@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using Unity.VisualScripting;
+using static Utils;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -18,13 +19,17 @@ public class PlayerMovement : MonoBehaviour
     public float SlideControl { get; set; }
     public float WallRunSpeed { get; set; } = 20f;
     public float WallRunMaxAngle { get; set; } = 100f;
-    public float WallJumpForce { get; set; } = 10f;
-    public float MaxTimeOnWall { get; set; } = 1f;
+    public Vector2 WallJumpForce { get; set; } = new Vector2(10f, 2f);
+    public float WallPushForce { get; set; } = 2f;
+    public float MaxTimeOnWall { get; set; } = 500f;
     public int WallRunLayer { get; set; } = 1 << 7;
+    public float WallRunGravityMultiplier { get; set; } = 0f;
+    public float WallRunMinimumHeight { get; set; } = 1f;
     public int CountAllowedJumps { get; set; }
 
     public bool CanCancelSlide { get; set; }
     public bool CanChangeWallJumpDirect { get; set; } = true;
+    public bool CanWallJumpOffEndWall { get; set; } = true;
 
     public KeyCode SprintKey { get; set; }
     public KeyCode JumpKey { get; set; }
@@ -43,6 +48,7 @@ public class PlayerMovement : MonoBehaviour
     public bool Sprint { get; set; } = false;
     public bool Slide { get; set; } = false;
     public bool Crouch { get; set; } = false;
+    public bool WallRun { get; set; } = false;
     public bool WallJump { get; set; } = false;
 
     //Set to true if player is doing the action
@@ -65,8 +71,8 @@ public class PlayerMovement : MonoBehaviour
     private bool canSprint => onGround && Input.GetKey(SprintKey);
     private bool canSlide => isSprinting && !crouched && !isSliding && Input.GetKeyDown(SlideKey);
     private bool cancelSlide => CanCancelSlide && Input.GetKeyDown(SlideKey);
-    private bool canWallRun => (isJumping || isWallRunning) && Input.GetKey(WallRunKey) && timeOnWall < MaxTimeOnWall;
-    private bool canWallJump =>isWallRunning && Input.GetKeyUp(WallRunKey);
+    private bool canWallRun => PlayerCanWallRun();
+    private bool canWallJump => PlayerCanWallJump();
 
     private float elapsedSinceJump;
     private float elapsedSinceNotOnGround;
@@ -79,10 +85,17 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 slideDirect;
 
     private bool isWallRight;
+    private RaycastHit hitWallRight;
     private bool isWallLeft;
+    private RaycastHit hitWallLeft;
     private bool isWallFront;
+    private RaycastHit hitWallFront;
     private bool isWallBack;
-    private string prevWallDirect;
+    private RaycastHit hitWallBack;
+
+    private float hitWallAngle;
+    private Vector3 wallRunMoveDirect;
+    private WallRunDirect prevWallDirect;
     private Vector3 tempGravity;
     private float timeOnWall;
 
@@ -182,87 +195,109 @@ public class PlayerMovement : MonoBehaviour
 
     // TODO: 
     // 1. WallRun done by hitting wall, getting loose by pressing jump key
-    // 2. Front and Back shouldnt go left or right when hit wall first. Back to wall -> shouldnt work,  Front to  wall -> Stays on wall wihtout moving
-    // 3. WallRun needs max timer. Drops after time expired. Can be set to no timer. Should timer be reset when walljump or jump??? : yes it should and push away from wall -> Solution for now
-    // 4. WallRun should have value from -1 to 1 to slowly rise or drop while wallrunning. Just multiply Gravity by said value.
-    // 5. Add minium hight for wall run -> raycast down
+    // 2. Done -> Front and Back shouldnt go left or right when hit wall first. Back to wall -> shouldnt work,  Front to  wall -> Stays on wall wihtout moving
+    // 3. Done -> WallRun needs max timer. Drops after time expired. Can be set to no timer. Should timer be reset when walljump or jump??? : yes 
+    // 4. Done -> WallRun should have value from -1 to 1 to slowly rise or drop while wallrunning. Just multiply Gravity by said value.
+    // 5. Done -> Add minium hight for wall run -> raycast down
 
-    // 1. WallJump should use hit.normal or tranform.forward && transform.right
-    // 2. WallJump facing wall should push backwards a bit
-    // 3. Can I combine WallJump and Jump to both apply force? Does this make sense? Or make WallJumpForce into vector to be able to alter y and z.
+    // 1. Done -> WallJump should use hit.normal or tranform.forward && transform.right
+    // 2. Done -> WallJump push backwards when player falling off due too time
+    // 3. Done -> Can I combine WallJump and Jump to both apply force? Does this make sense? Or make WallJumpForce into vector to be able to alter y and z.
     // 4. WallJump when hitting end of wall. make it an option
 
 
     void PlayerWallRun()
     {
-        if (canWallRun)
+        if (canWallRun || WallRun)
+        {
+            isWallRunning = true;
+            timeOnWall += Time.deltaTime;
+            Gravity = tempGravity * WallRunGravityMultiplier;
+
+            TiltCameraOnWallRun();
+            movement = wallRunMoveDirect * WallRunSpeed * Time.deltaTime;
+
+        } else
         {
             isWallRunning = false;
-            Vector3 wallRunDirect = Vector3.zero;
-            isWallRight = Physics.Raycast(transform.position, transform.right, out RaycastHit hitWallRight, 1f, WallRunLayer);
-            isWallLeft = Physics.Raycast(transform.position, -transform.right, out RaycastHit hitWallLeft, 1f, WallRunLayer);
-            isWallFront = Physics.Raycast(transform.position, transform.forward, out RaycastHit hitWallFront, 1f, WallRunLayer);
-            isWallBack = Physics.Raycast(transform.position, -transform.forward, out RaycastHit hitWallBack, 1f, WallRunLayer);
-
-            if (isWallRight)
-            {
-                float wallAngle = Vector3.Angle(hitWallRight.normal, Vector3.up);
-                isWallRunning = wallAngle < WallRunMaxAngle;
-                wallRunDirect = transform.right + transform.forward;
-                prevWallDirect = "right";
-                if (isWallRunning && !playerCamera.CameraTiltedLeft)
-                {
-                    playerCamera.TiltCameraRight = false;
-                    playerCamera.TiltCamera();
-                }
+            WallRun = false;
+            prevWallDirect = WallRunDirect.Stop;
+            Gravity = tempGravity;
+            if (playerCamera.CameraTiltedRight || playerCamera.CameraTiltedLeft) 
+            { 
+                playerCamera.TiltCamera(); 
             }
-            if (isWallLeft)
-            {
-                float wallAngle = Vector3.Angle(hitWallLeft.normal, Vector3.up);
-                isWallRunning = wallAngle < WallRunMaxAngle;
-                wallRunDirect = -transform.right + transform.forward;
-                prevWallDirect = "left";
-                if (isWallRunning && !playerCamera.CameraTiltedRight)
-                {
-                    playerCamera.TiltCameraRight = true;
-                    playerCamera.TiltCamera();
-                }
-            }
-            if (isWallFront)
-            {
-                float wallAngle = Vector3.Angle(hitWallFront.normal, Vector3.up);
-                isWallRunning = wallAngle < WallRunMaxAngle;
-                wallRunDirect = transform.right * (prevWallDirect == "right" ? -1f : 1f) + transform.forward;
-            }
-            if (isWallBack)
-            {
-                float wallAngle = Vector3.Angle(hitWallBack.normal, Vector3.up);
-                isWallRunning = wallAngle < WallRunMaxAngle;
-                wallRunDirect = transform.right * (prevWallDirect == "right" ? 1f : -1f) + -transform.forward;
-            }
-
-            if (isWallRunning)
-            {
-                timeOnWall += Time.deltaTime;
-                if(timeOnWall > MaxTimeOnWall)
-                {
-                    WallJump = true;
-                }
-                if (Gravity != Vector3.zero) tempGravity = Gravity;
-                Gravity = Vector3.zero;
-                velocity = Vector3.zero;
-                currentJumpCount = 0;
-
-                movement = wallRunDirect * WallRunSpeed * Time.deltaTime;
-                return;
-            }
+            if(onGround || isWallJumping) timeOnWall = 0;
         }
-        if(playerCamera.CameraTiltedRight || playerCamera.CameraTiltedLeft) playerCamera.TiltCamera();
-        Gravity = tempGravity;
-        if (onGround)
+    }
+
+    void TiltCameraOnWallRun()
+    {
+        if (isWallRight)
         {
-            timeOnWall = 0;
+            playerCamera.TiltLeft();
+            return;
         }
+        if (isWallLeft)
+        {
+            playerCamera.TiltRight();
+            return;
+        }
+    }
+
+    bool PlayerCanWallRun()
+    {
+        bool canWallRun = (isJumping || isWallJumping || isWallRunning) && Input.GetKey(WallRunKey) && timeOnWall < MaxTimeOnWall;
+        if (!canWallRun) return false;
+
+        PlayerUpdateWallHit();
+
+        hitWallAngle = 0;
+
+        if (isWallFront)
+        {
+            hitWallAngle = Vector3.Angle(hitWallFront.normal, Vector3.up);
+            wallRunMoveDirect = transform.right * (prevWallDirect == WallRunDirect.Right ? -1f : 1f) + transform.forward;
+            if (prevWallDirect == WallRunDirect.Stop) wallRunMoveDirect = Vector3.zero;
+        }
+        if (isWallBack)
+        {
+            hitWallAngle = Vector3.Angle(hitWallBack.normal, Vector3.up);
+            if (prevWallDirect == WallRunDirect.Stop) return false;
+            wallRunMoveDirect = transform.right * (prevWallDirect == WallRunDirect.Right ? 1f : -1f) + -transform.forward;
+        }
+        if (isWallRight)
+        {
+            hitWallAngle = Vector3.Angle(hitWallRight.normal, Vector3.up);
+            prevWallDirect = WallRunDirect.Right;
+            wallRunMoveDirect = transform.right + transform.forward;
+        }
+        if (isWallLeft)
+        {
+            hitWallAngle = Vector3.Angle(hitWallLeft.normal, Vector3.up);
+            prevWallDirect = WallRunDirect.Left;
+            wallRunMoveDirect = -transform.right + transform.forward;
+        }
+        canWallRun = hitWallAngle > 0 ? hitWallAngle < WallRunMaxAngle : false;
+
+        if(canWallRun && !isWallRunning)
+        {
+            canWallRun = InitializeWallRun();
+        }
+
+        return canWallRun;
+    }
+
+    bool InitializeWallRun()
+    {
+        currentJumpCount = 0;
+        Gravity = tempGravity * WallRunGravityMultiplier;
+        velocity = Vector3.zero;
+
+        bool isToCloseToGround = Physics.Raycast(transform.position, -transform.up, WallRunMinimumHeight + controller.Height);
+        if (isToCloseToGround && !isJumping && !isWallJumping) return false;
+
+        return true;
     }
 
     void PlayerWallJump()
@@ -276,18 +311,57 @@ public class PlayerMovement : MonoBehaviour
         {
             if (CanChangeWallJumpDirect)
             {
-                velocity = PlayerCamera.transform.forward * WallJumpForce;
+                velocity = PlayerCamera.transform.forward * WallJumpForce.x;
             } else
             {
-                velocity = transform.right * (isWallRight ? -1f : 1f) * WallJumpForce;
+                Vector3 hitNormal = isWallRight ? hitWallRight.normal 
+                    : isWallLeft ? hitWallLeft.normal 
+                    : isWallFront ? hitWallFront.normal 
+                    : isWallBack ? hitWallBack.normal 
+                    : transform.forward;
+                velocity = hitNormal * WallJumpForce;
             }
 
-            velocity.y = Mathf.Sqrt(JumpForce * -3.0f * Gravity.y);
+            velocity.y = Mathf.Sqrt(WallJumpForce.y * -3.0f * Gravity.y);
             currentJumpCount++;
             elapsedSinceJump = 0;
             isWallJumping = true;
             WallJump = false;
         }
+    }
+
+    bool PlayerCanWallJump()
+    {
+        if(timeOnWall > MaxTimeOnWall)
+        {
+            if (isWallRunning) PushOffWall();
+            return false;
+        }
+
+        bool canWallJump = Input.GetKeyUp(WallRunKey);
+        if (!canWallJump) return false;
+
+        PlayerUpdateWallHit();
+
+        return isWallRight || isWallLeft || isWallFront || isWallBack;
+    }
+
+    void PushOffWall()
+    {
+        Vector3 hitNormal = isWallRight ? hitWallRight.normal
+                    : isWallLeft ? hitWallLeft.normal
+                    : isWallFront ? hitWallFront.normal
+                    : isWallBack ? hitWallBack.normal
+                    : transform.forward;
+        velocity = hitNormal * WallPushForce;
+    }
+
+    void PlayerUpdateWallHit()
+    {
+        isWallRight = Physics.Raycast(transform.position, transform.right, out hitWallRight, 1f, WallRunLayer);
+        isWallLeft = Physics.Raycast(transform.position, -transform.right, out hitWallLeft, 1f, WallRunLayer);
+        isWallFront = Physics.Raycast(transform.position, transform.forward, out hitWallFront, 1f, WallRunLayer);
+        isWallBack = Physics.Raycast(transform.position, -transform.forward, out hitWallBack, 1f, WallRunLayer);
     }
 
     void PlayerCrouch()

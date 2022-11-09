@@ -81,5 +81,14 @@ public class Utils : MonoBehaviour
         controller.MaxBounces = maxBounces;
         return controller;
     }
+
+    public enum WallRunDirect
+    {
+        Right,
+        Left,
+        Up,
+        Down,
+        Stop
+    }
 }
 

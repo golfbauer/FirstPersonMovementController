@@ -34,6 +34,22 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] [OnChangedCall("OnVariableChange")] private float jumpForce = 1.0f;
     [SerializeField] [OnChangedCall("OnVariableChange")] private int countAllowedJumps = 1;
 
+    [Header("WallRun Configurations")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunSpeed = 20f;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunMaxAngle = 100f;
+    [SerializeField][OnChangedCall("OnVariableChange")] private int wallRunLayer = 1 << 7;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float maxTimeOnWall = 500f;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunGravityMultiplier = 0f;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunMinimumHeight = 1f;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float timeToTiltCameraWallRun = 0.5f;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float maxCameraTilt = 20f;
+
+
+    [Header("WallJump Configurations")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 wallJumpForce = new Vector2(10f, 2f);
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallPushForce = 2f;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool canChangeWallJumpDirect = true;
+
     [Header("Crouch Configurations")]
     [SerializeField] [OnChangedCall("OnVariableChange")] private float crouchHeight;
     [SerializeField] [OnChangedCall("OnVariableChange")] private float standingHeight;
@@ -55,6 +71,8 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode crouchKey = KeyCode.C;
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode slideKey = KeyCode.C;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode wallRunKey = KeyCode.Space;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode wallJumpKey;
 
     private PlayerCameraLook mouseLookCamera;
     private PlayerMovement playerMovement;
@@ -99,10 +117,11 @@ public class PlayerMovementController : MonoBehaviour
             maxBounces
         );
 
-        mouseLookCamera = Utils.CreatePlayerCameraLook(playerCamera, playerTransform, mouseSensivity);
+        mouseLookCamera = Utils.CreatePlayerCameraLook(playerCamera, playerTransform, mouseSensivity, timeToTiltCameraWallRun, maxCameraTilt);
 
         playerMovement = Utils.CreateMovement(
             this.gameObject,
+            playerCamera,
             moveSpeed,
             sprintSpeed,
             sprintKey,
@@ -120,7 +139,18 @@ public class PlayerMovementController : MonoBehaviour
             slideSpeed,
             timeSlide,
             canCancelSlide,
-            slideControll
+            slideControll,
+            wallRunSpeed,
+            wallRunMaxAngle,
+            wallRunLayer,
+            maxTimeOnWall,
+            wallRunGravityMultiplier,
+            wallRunMinimumHeight,
+            wallRunKey,
+            wallJumpForce,
+            wallPushForce,
+            canChangeWallJumpDirect,
+            wallJumpKey
             );
 
     }
@@ -145,10 +175,13 @@ public class PlayerMovementController : MonoBehaviour
             {
                 mouseLookCamera.PlayerTransform = playerTransform;
                 mouseLookCamera.MouseSensitivity = mouseSensivity;
+                mouseLookCamera.MaxCameraTilt = maxCameraTilt;
+                mouseLookCamera.TimeToTiltCameraWallRun = timeToTiltCameraWallRun;
             }
 
             if (playerMovement != null)
             {
+                playerMovement.PlayerCamera = playerCamera;
                 playerMovement.MoveSpeed = moveSpeed;
                 playerMovement.SprintSpeed = sprintSpeed;
                 playerMovement.SprintKey = sprintKey;
@@ -162,11 +195,26 @@ public class PlayerMovementController : MonoBehaviour
                 playerMovement.Gravity = gravity;
                 playerMovement.JumpForce = jumpForce;
                 playerMovement.CountAllowedJumps = countAllowedJumps;
+
                 playerMovement.SlideKey = slideKey;
                 playerMovement.SlideSpeed = slideSpeed;
                 playerMovement.TimeSlide = timeSlide;
                 playerMovement.CanCancelSlide = canCancelSlide;
                 playerMovement.SlideControl = slideControll;
+
+                playerMovement.WallRunSpeed = wallRunSpeed;
+                playerMovement.WallRunMaxAngle = wallRunMaxAngle;
+                playerMovement.WallRunLayer = 1 << wallRunLayer;
+                playerMovement.MaxTimeOnWall = maxTimeOnWall;
+                playerMovement.WallRunGravityMultiplier = wallRunGravityMultiplier;
+                playerMovement.WallRunMinimumHeight = wallRunMinimumHeight;
+                playerMovement.WallRunKey = wallRunKey;
+
+                playerMovement.WallJumpForce = wallJumpForce;
+                playerMovement.WallPushForce = wallPushForce;
+                playerMovement.CanChangeWallJumpDirect = canChangeWallJumpDirect;
+                playerMovement.WallJumpKey = wallJumpKey;
+
             }
         }
     }

@@ -6,17 +6,26 @@ public class Utils : MonoBehaviour
     public const float Epsilon = 0.001f;
     public const float MaxAngleShoveRadians = 90f;
 
-	public static PlayerCameraLook CreatePlayerCameraLook(GameObject target, Transform playerTransform, float mouseSensitivity)
+	public static PlayerCameraLook CreatePlayerCameraLook(
+        GameObject target,
+        Transform playerTransform,
+        float mouseSensitivity,
+        float timeToTiltCameraWallRun,
+        float maxCameraTilt
+        )
     {
         PlayerCameraLook mouseLook = target.AddComponent<PlayerCameraLook>();
         mouseLook.MouseSensitivity = mouseSensitivity;
         mouseLook.PlayerTransform = playerTransform;
+        mouseLook.TimeToTiltCameraWallRun = timeToTiltCameraWallRun;
+        mouseLook.MaxCameraTilt = maxCameraTilt;
 
         return mouseLook;
     }
 
     public static PlayerMovement CreateMovement(
         GameObject target,
+        GameObject playerCamera,
         float moveSpeed, 
         float sprintSpeed, 
         KeyCode sprintKey, 
@@ -34,10 +43,22 @@ public class Utils : MonoBehaviour
         float slideSpeed,
         float timeSlide,
         bool canCancelSlide,
-        float slideControll
+        float slideControll,
+        float wallRunSpeed,
+        float wallRunMaxAngle,
+        int wallRunLayer,
+        float maxTimeOnWall,
+        float wallRunGravityMultiplier,
+        float wallRunMinimumHeight,
+        KeyCode wallRunKey,
+        Vector2 wallJumpForce,
+        float wallPushForce,
+        bool canChangeWallJumpDirect,
+        KeyCode wallJumpKey
         )
     {
         PlayerMovement movement = target.AddComponent<PlayerMovement>();
+        movement.PlayerCamera = playerCamera;
         movement.MoveSpeed = moveSpeed;
         movement.SprintSpeed = sprintSpeed;
         movement.SprintKey = sprintKey;
@@ -56,6 +77,19 @@ public class Utils : MonoBehaviour
         movement.TimeSlide = timeSlide;
         movement.CanCancelSlide = canCancelSlide;
         movement.SlideControl = slideControll;
+
+        movement.WallRunSpeed = wallRunSpeed;
+        movement.WallRunMaxAngle = wallRunMaxAngle;
+        movement.WallRunLayer = wallRunLayer;
+        movement.MaxTimeOnWall = maxTimeOnWall;
+        movement.WallRunGravityMultiplier = wallRunGravityMultiplier;
+        movement.WallRunMinimumHeight = wallRunMinimumHeight;
+        movement.WallRunKey = wallRunKey;   
+
+        movement.WallJumpForce = wallJumpForce;
+        movement.WallPushForce = wallPushForce;
+        movement.CanChangeWallJumpDirect = canChangeWallJumpDirect;
+        movement.WallJumpKey = wallJumpKey;
 
         return movement;
     }
@@ -82,6 +116,15 @@ public class Utils : MonoBehaviour
         controller.AnglePower = anglePower;
         controller.MaxBounces = maxBounces;
         return controller;
+    }
+
+    public enum WallRunDirect
+    {
+        Right,
+        Left,
+        Up,
+        Down,
+        Stop
     }
 }
 

@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using Unity.VisualScripting;
+using static Utils;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
@@ -16,29 +20,47 @@ public class PlayerMovement : MonoBehaviour
     public float TimeSlide { get; set; }
     public float JumpForce { get; set; }
     public float SlideControl { get; set; }
+    public float WallRunSpeed { get; set; }
+    public float WallRunMaxAngle { get; set; }
+    public Vector2 WallJumpForce { get; set; }
+    public float WallPushForce { get; set; }
+    public float MaxTimeOnWall { get; set; }
+    public int WallRunLayer { get; set; }
+    public float WallRunGravityMultiplier { get; set; }
+    public float WallRunMinimumHeight { get; set; }
     public int CountAllowedJumps { get; set; }
 
     public bool CanCancelSlide { get; set; }
+    public bool CanChangeWallJumpDirect { get; set; }
 
     public KeyCode SprintKey { get; set; }
     public KeyCode JumpKey { get; set; }
     public KeyCode CrouchKey { get; set; }
     public KeyCode SlideKey { get; set; }
+    public KeyCode WallRunKey { get; set; }
+    public KeyCode WallJumpKey { get; set; }
 
     public Vector3 CrouchingCenter { get; set; }
     public Vector3 StandingCenter { get; set; }
     public Vector3 Gravity { get; set; }
+
+    public GameObject PlayerCamera { get; set; }
 
     // Public variables that can be set via Scripts
     public bool Jump { get; set; } = false;
     public bool Sprint { get; set; } = false;
     public bool Slide { get; set; } = false;
     public bool Crouch { get; set; } = false;
+    public bool WallRun { get; set; } = false;
+    public bool WallJump { get; set; } = false;
 
     //Set to true if player is doing the action
     private bool isCrouching;
     private bool isSliding;
     private bool isSprinting;
+    private bool isJumping;
+    private bool isWallRunning;
+    private bool isWallJumping;
 
     private bool onGround;
     private bool crouched;
@@ -52,6 +74,8 @@ public class PlayerMovement : MonoBehaviour
     private bool canSprint => onGround && Input.GetKey(SprintKey);
     private bool canSlide => isSprinting && !crouched && !isSliding && Input.GetKeyDown(SlideKey);
     private bool cancelSlide => CanCancelSlide && Input.GetKeyDown(SlideKey);
+    private bool canWallRun => PlayerCanWallRun();
+    private bool canWallJump => PlayerCanWallJump();
 
     private float elapsedSinceJump;
     private float elapsedSinceNotOnGround;
@@ -63,14 +87,34 @@ public class PlayerMovement : MonoBehaviour
     private float timeElapsed;
     private Vector3 slideDirect;
 
+    private bool isWallRight;
+    private RaycastHit hitWallRight;
+    private bool isWallLeft;
+    private RaycastHit hitWallLeft;
+    private bool isWallFront;
+    private RaycastHit hitWallFront;
+    private bool isWallBack;
+    private RaycastHit hitWallBack;
+
+    private float hitWallAngle;
+    private Vector3 wallRunMoveDirect;
+    private WallRunDirect prevWallDirect;
+    private Vector3 tempGravity;
+    private float timeOnWall;
+
     private Vector3 velocity;
     private Vector3 movement;
 
     private KinematicCharacterController controller;
+    private PlayerCameraLook playerCamera;
 
     private void Start()
     {
         controller = GetComponent<KinematicCharacterController>();
+        playerCamera = PlayerCamera.GetComponent<PlayerCameraLook>();
+
+        tempGravity = Gravity;
+        WallRunLayer = 1 << WallRunLayer;
     }
 
     void Update()
@@ -103,6 +147,10 @@ public class PlayerMovement : MonoBehaviour
         }
 
         PlayerJump();
+
+        PlayerWallRun();
+
+        PlayerWallJump();
 
         PlayerCrouch();
 
@@ -140,15 +188,182 @@ public class PlayerMovement : MonoBehaviour
 
     void PlayerJump()
     {
+        if (isJumping && (onGround || isWallRunning))
+        {
+            isJumping = false;
+        }
+
         if (canJump || Jump)
         {
             velocity.y = Mathf.Sqrt(JumpForce * -3.0f * Gravity.y);
             currentJumpCount++;
             elapsedSinceJump = 0;
             Jump = false;
+            isJumping = true;
         }
 
         elapsedSinceJump += Time.deltaTime;
+    }
+
+    void PlayerWallRun()
+    {
+        if (canWallRun || WallRun)
+        {
+            isWallRunning = true;
+            timeOnWall += Time.deltaTime;
+            Gravity = tempGravity * WallRunGravityMultiplier;
+
+            TiltCameraOnWallRun();
+            movement = wallRunMoveDirect * WallRunSpeed * Time.deltaTime;
+
+        } else
+        {
+            isWallRunning = false;
+            WallRun = false;
+            prevWallDirect = WallRunDirect.Stop;
+            Gravity = tempGravity;
+            if (playerCamera.CameraTiltedRight || playerCamera.CameraTiltedLeft) 
+            { 
+                playerCamera.TiltCamera(); 
+            }
+            if(onGround || isWallJumping) timeOnWall = 0;
+        }
+    }
+
+    void TiltCameraOnWallRun()
+    {
+        if (isWallRight)
+        {
+            playerCamera.TiltLeft();
+            return;
+        }
+        if (isWallLeft)
+        {
+            playerCamera.TiltRight();
+            return;
+        }
+    }
+
+    bool PlayerCanWallRun()
+    {
+        bool checkControls = WallRunKey == KeyCode.None ? !Input.GetKeyDown(WallJumpKey) : Input.GetKey(WallRunKey);
+
+        bool canWallRun = (isJumping || isWallJumping || isWallRunning) && checkControls && timeOnWall < MaxTimeOnWall;
+        if (!canWallRun) return false;
+
+        PlayerUpdateWallHit();
+
+        hitWallAngle = 0;
+
+        if (isWallFront)
+        {
+            hitWallAngle = Vector3.Angle(hitWallFront.normal, Vector3.up);
+            wallRunMoveDirect = transform.right * (prevWallDirect == WallRunDirect.Right ? -1f : 1f) + transform.forward;
+            if (prevWallDirect == WallRunDirect.Stop) wallRunMoveDirect = Vector3.zero;
+        }
+        if (isWallBack)
+        {
+            hitWallAngle = Vector3.Angle(hitWallBack.normal, Vector3.up);
+            if (prevWallDirect == WallRunDirect.Stop) return false;
+            wallRunMoveDirect = transform.right * (prevWallDirect == WallRunDirect.Right ? 1f : -1f) + -transform.forward;
+        }
+        if (isWallRight)
+        {
+            hitWallAngle = Vector3.Angle(hitWallRight.normal, Vector3.up);
+            prevWallDirect = WallRunDirect.Right;
+            wallRunMoveDirect = transform.right + transform.forward;
+        }
+        if (isWallLeft)
+        {
+            hitWallAngle = Vector3.Angle(hitWallLeft.normal, Vector3.up);
+            prevWallDirect = WallRunDirect.Left;
+            wallRunMoveDirect = -transform.right + transform.forward;
+        }
+        canWallRun = hitWallAngle > 0 ? hitWallAngle < WallRunMaxAngle : false;
+
+        if(canWallRun && !isWallRunning)
+        {
+            canWallRun = InitializeWallRun();
+        }
+
+        return canWallRun;
+    }
+
+    bool InitializeWallRun()
+    {
+        currentJumpCount = 0;
+        Gravity = tempGravity * WallRunGravityMultiplier;
+        velocity = Vector3.zero;
+
+        bool isToCloseToGround = Physics.Raycast(transform.position, -transform.up, WallRunMinimumHeight + controller.Height);
+
+        if (isToCloseToGround && !isWallJumping) return false;
+
+        return true;
+    }
+
+    void PlayerWallJump()
+    {
+        if (isWallJumping && (onGround || isWallRunning || isJumping))
+        {
+            isWallJumping = false;
+        }
+
+        if (canWallJump || WallJump)
+        {
+            if (CanChangeWallJumpDirect)
+            {
+                velocity = PlayerCamera.transform.forward * WallJumpForce.x;
+            } else
+            {
+                Vector3 hitNormal = isWallRight ? hitWallRight.normal 
+                    : isWallLeft ? hitWallLeft.normal 
+                    : isWallFront ? hitWallFront.normal 
+                    : isWallBack ? hitWallBack.normal 
+                    : transform.forward;
+                velocity = hitNormal * WallJumpForce.x;
+            }
+
+            velocity.y = Mathf.Sqrt(WallJumpForce.y * -3.0f * Gravity.y);
+            currentJumpCount++;
+            elapsedSinceJump = 0;
+            isWallJumping = true;
+            WallJump = false;
+        }
+    }
+
+    bool PlayerCanWallJump()
+    {
+        if(timeOnWall > MaxTimeOnWall)
+        {
+            if (isWallRunning) PushOffWall();
+            return false;
+        }
+        WallJumpKey = JumpKey;
+        bool canWallJump = WallRunKey == KeyCode.None ? Input.GetKeyDown(WallJumpKey) : Input.GetKeyUp(WallRunKey);
+        if (!canWallJump) return false;
+
+        PlayerUpdateWallHit();
+
+        return isWallRight || isWallLeft || isWallFront || isWallBack;
+    }
+
+    void PushOffWall()
+    {
+        Vector3 hitNormal = isWallRight ? hitWallRight.normal
+                    : isWallLeft ? hitWallLeft.normal
+                    : isWallFront ? hitWallFront.normal
+                    : isWallBack ? hitWallBack.normal
+                    : transform.forward;
+        velocity = hitNormal * WallPushForce;
+    }
+
+    void PlayerUpdateWallHit()
+    {
+        isWallRight = Physics.Raycast(transform.position, transform.right, out hitWallRight, 1f, WallRunLayer);
+        isWallLeft = Physics.Raycast(transform.position, -transform.right, out hitWallLeft, 1f, WallRunLayer);
+        isWallFront = Physics.Raycast(transform.position, transform.forward, out hitWallFront, 1f, WallRunLayer);
+        isWallBack = Physics.Raycast(transform.position, -transform.forward, out hitWallBack, 1f, WallRunLayer);
     }
 
     void PlayerCrouch()

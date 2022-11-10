@@ -21,6 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class KinematicCharacterController : MonoBehaviour
 {
@@ -115,6 +116,7 @@ public class KinematicCharacterController : MonoBehaviour
             // If we are overlapping with something, just exit.
             if (hit.distance == 0)
             {
+                // TODO: I think we can fix the crouching here!!!
                 break;
             }
 

@@ -55,18 +55,27 @@ MonoBehaviour:
   maxBounces: 5
   playerTransform: {fileID: 4129777150225781225}
   playerCamera: {fileID: 4129777150849137025}
-  mouseSensivity: 400
+  mouseSensivity: 200
   moveSpeed: 5
   sprintSpeed: 10
   jumpForce: 2
   countAllowedJumps: 2
+  wallRunSpeed: 20
+  wallRunMaxAngle: 100
+  wallRunLayer: 7
+  maxTimeOnWall: 500
+  wallRunGravityMultiplier: 0
+  wallRunMinimumHeight: 0
+  wallJumpForce: {x: 10, y: 2}
+  wallPushForce: 2
+  canChangeWallJumpDirect: 1
   crouchHeight: 0.5
   standingHeight: 2
   timeToCrouch: 0.25
   crouchingCenter: {x: 0, y: 0.5, z: 0}
   standingCenter: {x: 0, y: 0, z: 0}
-  slideSpeed: 30
-  timeSlide: 1
+  slideSpeed: 20
+  timeSlide: 0.5
   slideControll: 0
   canCancelSlide: 1
   gravity: {x: 0, y: -19.62, z: 0}
@@ -74,6 +83,7 @@ MonoBehaviour:
   jumpKey: 32
   crouchKey: 99
   slideKey: 99
+  wallRunKey: 32
 --- !u!1 &4129777150849137025
 GameObject:
   m_ObjectHideFlags: 0

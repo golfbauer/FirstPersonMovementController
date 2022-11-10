@@ -121,14 +121,20 @@ public class KinematicCharacterController : MonoBehaviour
             float fraction = hit.distance / distance;
 
             Vector3 stairOffsetVector = new Vector3(0, StairOffset, 0);
+            float hitAngle = Vector3.Angle(-hit.normal, remaining);
+            bool horizontalMovement = remaining.x != 0 && remaining.z != 0;
 
-            if (!CastSelf(position + stairOffsetVector, rotation, remaining.normalized, distance, out RaycastHit hit2))
+            if (horizontalMovement
+                && hitAngle < 45
+                && !CastSelf(position + stairOffsetVector, rotation, remaining.normalized, distance, out RaycastHit hit2))
             {
-                if (hit2.distance == 0 && CastSelf(position + stairOffsetVector + remaining, rotation, Vector3.down, stairOffsetVector.magnitude, out RaycastHit groundHit))
+                if (hit2.distance == 0 
+                    && remaining.magnitude > 0.005f 
+                    && CastSelf(position + stairOffsetVector + remaining, rotation, Vector3.down, stairOffsetVector.magnitude, out RaycastHit groundHit))
                 {
                     float snapUpDistance = groundHit.point.y - (position.y - height / 2);
                     if (snapUpDistance > 0)
-                        position += remaining.normalized * (remaining.magnitude ) + Vector3.up * snapUpDistance;
+                        position += remaining.normalized * (remaining.magnitude) + Vector3.up * snapUpDistance;
                     break;
                 }
             }

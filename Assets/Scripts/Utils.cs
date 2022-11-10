@@ -28,7 +28,13 @@ public class Utils : MonoBehaviour
         Vector3 standingCenter,
         KeyCode crouchKey,
         Vector3 gravity,
-        float jumpForce
+        float jumpForce,
+        int countAllowedJumps,
+        KeyCode slideKey,
+        float slideSpeed,
+        float timeSlide,
+        bool canCancelSlide,
+        float slideControll
         )
     {
         PlayerMovement movement = target.AddComponent<PlayerMovement>();
@@ -44,6 +50,12 @@ public class Utils : MonoBehaviour
         movement.CrouchKey = crouchKey;
         movement.Gravity = gravity;
         movement.JumpForce = jumpForce;
+        movement.CountAllowedJumps = countAllowedJumps;
+        movement.SlideKey = slideKey;
+        movement.SlideSpeed = slideSpeed;
+        movement.TimeSlide = timeSlide;
+        movement.CanCancelSlide = canCancelSlide;
+        movement.SlideControl = slideControll;
 
         return movement;
     }

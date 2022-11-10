@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39c782e128bd845959cedc7d4739c6ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  configDuringRuntime: 1
   slopeLimit: 60
   center: {x: 0, y: 0, z: 0}
   height: 2
@@ -58,15 +59,21 @@ MonoBehaviour:
   moveSpeed: 5
   sprintSpeed: 10
   jumpForce: 2
+  countAllowedJumps: 2
   crouchHeight: 0.5
   standingHeight: 2
   timeToCrouch: 0.25
   crouchingCenter: {x: 0, y: 0.5, z: 0}
   standingCenter: {x: 0, y: 0, z: 0}
+  slideSpeed: 30
+  timeSlide: 1
+  slideControll: 0
+  canCancelSlide: 1
   gravity: {x: 0, y: -19.62, z: 0}
   sprintKey: 304
   jumpKey: 32
-  crouchKey: 306
+  crouchKey: 99
+  slideKey: 99
 --- !u!1 &4129777150849137025
 GameObject:
   m_ObjectHideFlags: 0

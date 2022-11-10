@@ -10,8 +10,8 @@ public class PlayerCameraLook : MonoBehaviour
     public bool TiltCameraRight { get; set; }
     public bool CameraTiltedLeft = false;
     public bool CameraTiltedRight = false;
-    public float TimeToTiltCameraWallRun { get; set; } = 0.5f;
-    public float MaxCameraTilt { get; set; } = 20f;
+    public float TimeToTiltCameraWallRun { get; set; }
+    public float MaxCameraTilt { get; set; }
 
 	private float xRotation = 0f;
     private float zRotation = 0f;

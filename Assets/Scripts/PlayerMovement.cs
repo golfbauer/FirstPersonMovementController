@@ -37,6 +37,7 @@ public class PlayerMovement : MonoBehaviour
     public KeyCode CrouchKey { get; set; }
     public KeyCode SlideKey { get; set; }
     public KeyCode WallRunKey { get; set; }
+    public KeyCode WallJumpKey { get; set; }
 
     public Vector3 CrouchingCenter { get; set; }
     public Vector3 StandingCenter { get; set; }
@@ -194,14 +195,6 @@ public class PlayerMovement : MonoBehaviour
         elapsedSinceJump += Time.deltaTime;
     }
 
-
-    // TODO: 
-    // 1. WallRun done by hitting wall, getting loose by pressing jump key
-    // 2. WallJump when hitting end of wall. make it an
-    // 3. Minimum height check will ignore isWallJumping but will take isJumping into account should leave it like this or change it?
-    // 4. Camera look is missing
-
-
     void PlayerWallRun()
     {
         if (canWallRun || WallRun)
@@ -243,7 +236,9 @@ public class PlayerMovement : MonoBehaviour
 
     bool PlayerCanWallRun()
     {
-        bool canWallRun = (isJumping || isWallJumping || isWallRunning) && Input.GetKey(WallRunKey) && timeOnWall < MaxTimeOnWall;
+        bool checkControls = WallRunKey == KeyCode.None ? !Input.GetKeyDown(WallJumpKey) : Input.GetKey(WallRunKey);
+
+        bool canWallRun = (isJumping || isWallJumping || isWallRunning) && checkControls && timeOnWall < MaxTimeOnWall;
         if (!canWallRun) return false;
 
         PlayerUpdateWallHit();
@@ -334,8 +329,8 @@ public class PlayerMovement : MonoBehaviour
             if (isWallRunning) PushOffWall();
             return false;
         }
-
-        bool canWallJump = Input.GetKeyUp(WallRunKey);
+        WallJumpKey = JumpKey;
+        bool canWallJump = WallRunKey == KeyCode.None ? Input.GetKeyDown(WallJumpKey) : Input.GetKeyUp(WallRunKey);
         if (!canWallJump) return false;
 
         PlayerUpdateWallHit();

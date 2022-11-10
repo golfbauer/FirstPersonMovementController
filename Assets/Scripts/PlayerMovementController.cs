@@ -38,6 +38,9 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private float maxTimeOnWall = 500f;
     [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunGravityMultiplier = 0f;
     [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunMinimumHeight = 1f;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float timeToTiltCameraWallRun = 0.5f;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float maxCameraTilt = 20f;
+
 
     [Header("WallJump Configurations")]
     [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 wallJumpForce = new Vector2(10f, 2f);
@@ -66,6 +69,7 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode crouchKey = KeyCode.C;
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode slideKey = KeyCode.C;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode wallRunKey = KeyCode.Space;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode wallJumpKey;
 
     private PlayerCameraLook mouseLookCamera;
     private PlayerMovement playerMovement;
@@ -108,7 +112,7 @@ public class PlayerMovementController : MonoBehaviour
             maxBounces
         );
 
-        mouseLookCamera = Utils.CreatePlayerCameraLook(playerCamera, playerTransform, mouseSensivity);
+        mouseLookCamera = Utils.CreatePlayerCameraLook(playerCamera, playerTransform, mouseSensivity, timeToTiltCameraWallRun, maxCameraTilt);
 
         playerMovement = Utils.CreateMovement(
             this.gameObject,
@@ -140,7 +144,8 @@ public class PlayerMovementController : MonoBehaviour
             wallRunKey,
             wallJumpForce,
             wallPushForce,
-            canChangeWallJumpDirect
+            canChangeWallJumpDirect,
+            wallJumpKey
             );
 
     }
@@ -163,6 +168,8 @@ public class PlayerMovementController : MonoBehaviour
             {
                 mouseLookCamera.PlayerTransform = playerTransform;
                 mouseLookCamera.MouseSensitivity = mouseSensivity;
+                mouseLookCamera.MaxCameraTilt = maxCameraTilt;
+                mouseLookCamera.TimeToTiltCameraWallRun = timeToTiltCameraWallRun;
             }
 
             if (playerMovement != null)
@@ -199,6 +206,7 @@ public class PlayerMovementController : MonoBehaviour
                 playerMovement.WallJumpForce = wallJumpForce;
                 playerMovement.WallPushForce = wallPushForce;
                 playerMovement.CanChangeWallJumpDirect = canChangeWallJumpDirect;
+                playerMovement.WallJumpKey = wallJumpKey;
 
             }
         }

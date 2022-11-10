@@ -6,11 +6,19 @@ public class Utils : MonoBehaviour
     public const float Epsilon = 0.001f;
     public const float MaxAngleShoveRadians = 90f;
 
-	public static PlayerCameraLook CreatePlayerCameraLook(GameObject target, Transform playerTransform, float mouseSensitivity)
+	public static PlayerCameraLook CreatePlayerCameraLook(
+        GameObject target,
+        Transform playerTransform,
+        float mouseSensitivity,
+        float timeToTiltCameraWallRun,
+        float maxCameraTilt
+        )
     {
         PlayerCameraLook mouseLook = target.AddComponent<PlayerCameraLook>();
         mouseLook.MouseSensitivity = mouseSensitivity;
         mouseLook.PlayerTransform = playerTransform;
+        mouseLook.TimeToTiltCameraWallRun = timeToTiltCameraWallRun;
+        mouseLook.MaxCameraTilt = maxCameraTilt;
 
         return mouseLook;
     }
@@ -45,7 +53,8 @@ public class Utils : MonoBehaviour
         KeyCode wallRunKey,
         Vector2 wallJumpForce,
         float wallPushForce,
-        bool canChangeWallJumpDirect
+        bool canChangeWallJumpDirect,
+        KeyCode wallJumpKey
         )
     {
         PlayerMovement movement = target.AddComponent<PlayerMovement>();
@@ -80,6 +89,7 @@ public class Utils : MonoBehaviour
         movement.WallJumpForce = wallJumpForce;
         movement.WallPushForce = wallPushForce;
         movement.CanChangeWallJumpDirect = canChangeWallJumpDirect;
+        movement.WallJumpKey = wallJumpKey;
 
         return movement;
     }

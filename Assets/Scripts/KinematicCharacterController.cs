@@ -16,6 +16,7 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +68,8 @@ public class KinematicCharacterController : MonoBehaviour
     }
 
     public float SlopeLimit { get; set; }
+    public float StairOffset { get; set; }
+    public float StairSnapdownDistance { get; set; }
     public float AnglePower { get; set; } = 0.5f;
     public float MaxBounces { get; set; } = 5;
 
@@ -95,6 +98,7 @@ public class KinematicCharacterController : MonoBehaviour
 
         int bounces = 0;
 
+
         while (bounces < MaxBounces && remaining.magnitude > Utils.Epsilon)
         {
             // Do a cast of the collider to see if an object is hit during this
@@ -117,6 +121,25 @@ public class KinematicCharacterController : MonoBehaviour
             }
 
             float fraction = hit.distance / distance;
+
+            Vector3 stairOffsetVector = new Vector3(0, StairOffset, 0);
+            float hitAngle = Vector3.Angle(-hit.normal, remaining);
+            bool horizontalMovement = remaining.x != 0 && remaining.z != 0;
+
+            if (horizontalMovement
+                && hitAngle < 45
+                && !CastSelf(position + stairOffsetVector, rotation, remaining.normalized, distance, out RaycastHit hit2))
+            {
+                if (hit2.distance == 0 
+                    && remaining.magnitude > 0.005f 
+                    && CastSelf(position + stairOffsetVector + remaining, rotation, Vector3.down, stairOffsetVector.magnitude, out RaycastHit groundHit))
+                {
+                    float snapUpDistance = groundHit.point.y - (position.y - height / 2);
+                    if (snapUpDistance > 0)
+                        position += remaining.normalized * (remaining.magnitude) + Vector3.up * snapUpDistance;
+                    break;
+                }
+            }
 
             // Set the fraction of remaining movement (minus some small value)
             position += remaining * (fraction);
@@ -162,6 +185,20 @@ public class KinematicCharacterController : MonoBehaviour
         return position;
     }
 
+    public bool SnapDown(Vector3 pos, Quaternion rot)
+    {
+        Vector3 feetPos = new Vector3(pos.x, (pos.y - height/2), pos.z);
+        if (Physics.Raycast(feetPos, Vector3.down, out RaycastHit groundHit, Mathf.Infinity))
+        {
+            float distanceToGround = groundHit.distance;
+            if ((distanceToGround >= 0.1f) && (distanceToGround <= StairSnapdownDistance))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public bool CheckGrounded(out RaycastHit groundHit)
     {
         // 0.1f = GroundDistance

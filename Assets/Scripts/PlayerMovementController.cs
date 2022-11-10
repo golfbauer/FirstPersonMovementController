@@ -9,7 +9,10 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] private bool configDuringRuntime = false;
 
     [Header("Kinematic Character Controller")]
+
     [SerializeField] [OnChangedCall("OnVariableChange")] private float slopeLimit;
+    [SerializeField] [OnChangedCall("OnVariableChange")] private float stairOffset;
+    [SerializeField] [OnChangedCall("OnVariableChange")] private float stairSnapdownDistance;
     [SerializeField] [OnChangedCall("OnVariableChange")] private Vector3 center;
     [SerializeField] [OnChangedCall("OnVariableChange")] private float height;
     [SerializeField] [OnChangedCall("OnVariableChange")] private float radius;
@@ -104,7 +107,9 @@ public class PlayerMovementController : MonoBehaviour
     {
         controller = Utils.CreateKinemeticCharacterController(
             this.gameObject, 
-            slopeLimit, 
+            slopeLimit,
+            stairOffset, 
+            stairSnapdownDistance,
             center, 
             height, 
             radius,
@@ -157,6 +162,8 @@ public class PlayerMovementController : MonoBehaviour
             if(controller != null)
             {
                 controller.SlopeLimit = slopeLimit;
+                controller.StairOffset = stairOffset;
+                controller.StairSnapdownDistance = stairSnapdownDistance;
                 controller.Center = center;
                 controller.Height = height;
                 controller.Radius = radius;

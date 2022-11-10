@@ -7,6 +7,8 @@ public class PlayerMovementController : MonoBehaviour
 {
     [Header("Kinematic Character Controller")]
     [SerializeField] private float slopeLimit;
+    [SerializeField] private float stairOffset;
+    [SerializeField] private float stairSnapdownDistance;
     [SerializeField] private Vector3 center;
     [SerializeField] private float height;
     [SerializeField] private float radius;
@@ -51,7 +53,9 @@ public class PlayerMovementController : MonoBehaviour
     {
         controller = Utils.CreateKinemeticCharacterController(
             this.gameObject, 
-            slopeLimit, 
+            slopeLimit,
+            stairOffset, 
+            stairSnapdownDistance,
             center, 
             height, 
             radius,

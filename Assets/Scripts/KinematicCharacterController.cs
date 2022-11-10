@@ -67,6 +67,8 @@ public class KinematicCharacterController : MonoBehaviour
     }
 
     public float SlopeLimit { get; set; }
+    public float StairOffset { get; set; }
+    public float StairSnapdownDistance { get; set; }
     public float AnglePower { get; set; } = 0.5f;
     public float MaxBounces { get; set; } = 5;
 
@@ -95,6 +97,7 @@ public class KinematicCharacterController : MonoBehaviour
 
         int bounces = 0;
 
+
         while (bounces < MaxBounces && remaining.magnitude > Utils.Epsilon)
         {
             // Do a cast of the collider to see if an object is hit during this
@@ -109,7 +112,6 @@ public class KinematicCharacterController : MonoBehaviour
                 break;
             }
 
-
             // If we are overlapping with something, just exit.
             if (hit.distance == 0)
             {
@@ -118,17 +120,15 @@ public class KinematicCharacterController : MonoBehaviour
 
             float fraction = hit.distance / distance;
 
-            Vector3 stairOffset = new Vector3(0, 0.3f, 0);
+            Vector3 stairOffsetVector = new Vector3(0, StairOffset, 0);
 
-            if (!CastSelf(position + stairOffset, rotation, remaining.normalized, distance, out RaycastHit hit2));
+            if (!CastSelf(position + stairOffsetVector, rotation, remaining.normalized, distance, out RaycastHit hit2))
             {
-                //Debug.Log(hit2.distance);
-                if (hit2.distance == 0 && CastSelf(position + stairOffset + remaining, rotation, Vector3.down, stairOffset.magnitude, out RaycastHit groundHit))
+                if (hit2.distance == 0 && CastSelf(position + stairOffsetVector + remaining, rotation, Vector3.down, stairOffsetVector.magnitude, out RaycastHit groundHit))
                 {
                     float snapUpDistance = groundHit.point.y - (position.y - height / 2);
-                    //Debug.Log(snapUpDistance);
                     if (snapUpDistance > 0)
-                        position += remaining.normalized * (remaining.magnitude + 0.05f) + Vector3.up * snapUpDistance;
+                        position += remaining.normalized * (remaining.magnitude ) + Vector3.up * snapUpDistance;
                     break;
                 }
             }
@@ -174,18 +174,21 @@ public class KinematicCharacterController : MonoBehaviour
             bounces++;
         }
 
-        SnapDown(position, rotation, 0.3f);
-
         return position;
     }
 
-    public void SnapDown(Vector3 pos, Quaternion rot, float maxSnapDistance)
+    public bool SnapDown(Vector3 pos, Quaternion rot)
     {
-        if (CastSelf(pos, rot, Vector3.down, Mathf.Infinity, out RaycastHit groundHit))
+        Vector3 feetPos = new Vector3(pos.x, (pos.y - height/2), pos.z);
+        if (Physics.Raycast(feetPos, Vector3.down, out RaycastHit groundHit, Mathf.Infinity))
         {
             float distanceToGround = groundHit.distance;
-            Debug.Log(distanceToGround);
+            if ((distanceToGround >= 0.1f) && (distanceToGround <= StairSnapdownDistance))
+            {
+                return true;
+            }
         }
+        return false;
     }
 
     public bool CheckGrounded(Vector3 velocity, out RaycastHit groundHit)

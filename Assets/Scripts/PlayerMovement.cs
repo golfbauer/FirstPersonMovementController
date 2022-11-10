@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {	
@@ -73,10 +74,13 @@ public class PlayerMovement : MonoBehaviour
         // Attempt to move the player based on player movement
         transform.position = controller.MovePlayer(movement);
 
-        // If player was not falling before movemnt but is falling after movement see if he should be snapped down
+        // If player was not falling before movement but is falling after movement see if he should be snapped down
         if (!falling && !controller.CheckGrounded(Vector3.zero, out RaycastHit groundHitAfterMove)) 
         {
-
+            if (controller.SnapDown(transform.position, transform.rotation))
+            {
+                velocity += Gravity;
+            }
         }
 
         // Move player based on falling speed

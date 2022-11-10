@@ -116,7 +116,7 @@ public class PlayerMovement : MonoBehaviour
         transform.position = controller.MovePlayer(movement);
 
         // If player was not falling before movement but is falling after movement see if he should be snapped down
-        if (!falling && !controller.CheckGrounded(Vector3.zero, out RaycastHit groundHitAfterMove)) 
+        if (onGround && !controller.CheckGrounded(out RaycastHit groundHitAfterMove)) 
         {
             if (controller.SnapDown(transform.position, transform.rotation))
             {

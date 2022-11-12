@@ -7,29 +7,38 @@ public class EnvironmentController : MonoBehaviour
     [SerializeField] private Vector3 startTransform;
     [SerializeField] private Vector3 targetTransform;
     [SerializeField] private float transitionTime;
-
-    private float timeElapsedSinceLarpStart;
-    private float journeyFraction;
     private enum Direction
     {
         Forward,
         Backward
     }
+
+    private float timeSinceLastDirectionChange;
+    private float journeyFraction;
+
     private Direction direction;
+    private Vector3 lastPosition;
+
+    public Vector3 MovementDelta 
+    { 
+        get { return transform.position - lastPosition; } 
+    }  
 
     // Use this for initialization
     void Start()
     {
-        timeElapsedSinceLarpStart = 0;
+        timeSinceLastDirectionChange = 0;
         journeyFraction = 0;
         direction = Direction.Forward;  
+        lastPosition = transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
-        timeElapsedSinceLarpStart += Time.deltaTime;
-        journeyFraction = timeElapsedSinceLarpStart / transitionTime;
+        lastPosition = transform.position;
+        timeSinceLastDirectionChange += Time.deltaTime;
+        journeyFraction = timeSinceLastDirectionChange / transitionTime;
 
         if (direction == Direction.Forward)
         {
@@ -43,7 +52,7 @@ public class EnvironmentController : MonoBehaviour
         if (journeyFraction >= 1)
         {
             journeyFraction = 0;
-            timeElapsedSinceLarpStart = 0;
+            timeSinceLastDirectionChange = 0;
             direction = direction == Direction.Forward ? Direction.Backward : Direction.Forward;
         }
     }

@@ -66,6 +66,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 velocity;
     private Vector3 movement;
 
+    private EnvironmentController dynamicGroundController;
+
     private KinematicCharacterController controller;
 
     private void Start()
@@ -111,6 +113,17 @@ public class PlayerMovement : MonoBehaviour
         if (onGround)
         {
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
+        }
+
+        // Check if Player is standing on a moving plattform and add the plattform movement to player movement if so
+        if (groundHit.collider)
+        {
+            dynamicGroundController = groundHit.collider.gameObject.GetComponent(typeof(EnvironmentController)) as EnvironmentController;
+            if (dynamicGroundController != null)
+            {
+                movement += dynamicGroundController.MovementDelta;
+            }
+
         }
 
         transform.position = controller.MovePlayer(movement);

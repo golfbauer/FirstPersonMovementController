@@ -14602,9 +14602,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3685f00febfbba4c9c0c78738c5081a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movement: 0
   startTransform: {x: 36, y: 1, z: 42}
   targetTransform: {x: 36, y: 4, z: 42}
   transitionTime: 5
+  rotation: 0
+  rotationDirection: 0
+  degreesPerSecond: 0
 --- !u!1 &5048861730111672877
 GameObject:
   m_ObjectHideFlags: 0
@@ -14941,6 +14945,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3685f00febfbba4c9c0c78738c5081a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movement: 0
   startTransform: {x: 40, y: 1, z: 32}
   targetTransform: {x: 30, y: 1, z: 32}
   transitionTime: 5
+  rotation: 0
+  rotationDirection: 0
+  degreesPerSecond: 0

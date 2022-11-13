@@ -118,10 +118,17 @@ public class PlayerMovement : MonoBehaviour
         // Check if Player is standing on a moving plattform and add the plattform movement to player movement if so
         if (groundHit.collider)
         {
-            dynamicGroundController = groundHit.collider.gameObject.GetComponent(typeof(EnvironmentController)) as EnvironmentController;
+            dynamicGroundController = groundHit.collider.gameObject.GetComponent<EnvironmentController>();
             if (dynamicGroundController != null)
             {
-                movement += dynamicGroundController.MovementDelta;
+                if (dynamicGroundController.isMoving)
+                {
+                    movement += dynamicGroundController.MovementDelta;
+                }
+                if (dynamicGroundController.isRotating)
+                {
+                    transform.RotateAround(dynamicGroundController.RotationPoint, Vector3.up, dynamicGroundController.DegreesPerSecond * Time.deltaTime);
+                }
             }
 
         }

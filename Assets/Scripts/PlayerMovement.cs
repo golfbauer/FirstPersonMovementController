@@ -105,6 +105,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 velocity;
     private Vector3 movement;
 
+    private EnvironmentController dynamicGroundController;
+
     private KinematicCharacterController controller;
     private PlayerCameraLook playerCamera;
 
@@ -159,6 +161,24 @@ public class PlayerMovement : MonoBehaviour
         if (onGround)
         {
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
+        }
+
+        // Check if Player is standing on a moving plattform and add the plattform movement to player movement if so
+        if (groundHit.collider)
+        {
+            dynamicGroundController = groundHit.collider.gameObject.GetComponent<EnvironmentController>();
+            if (dynamicGroundController != null)
+            {
+                if (dynamicGroundController.isMoving)
+                {
+                    movement += dynamicGroundController.MovementDelta;
+                }
+                if (dynamicGroundController.isRotating)
+                {
+                    transform.RotateAround(dynamicGroundController.RotationPoint, Vector3.up, dynamicGroundController.DegreesPerSecond * Time.deltaTime);
+                }
+            }
+
         }
 
         transform.position = controller.MovePlayer(movement);

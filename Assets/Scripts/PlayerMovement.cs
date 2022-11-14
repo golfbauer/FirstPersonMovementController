@@ -58,6 +58,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isCrouching;
     private bool isSliding;
     private bool isSprinting;
+    private bool isWalking;
     private bool isJumping;
     private bool isWallRunning;
     private bool isWallJumping;
@@ -72,10 +73,12 @@ public class PlayerMovement : MonoBehaviour
         currentJumpCount < CountAllowedJumps &&
         !isCrouching && !isSliding) && Input.GetKeyDown(JumpKey);
     private bool canSprint => onGround && Input.GetKey(SprintKey);
+    private bool canWalk => onGround;
     private bool canSlide => isSprinting && !crouched && !isSliding && Input.GetKeyDown(SlideKey);
     private bool cancelSlide => CanCancelSlide && Input.GetKeyDown(SlideKey);
     private bool canWallRun => PlayerCanWallRun();
     private bool canWallJump => PlayerCanWallJump();
+    private bool canHeadbob => onGround && !isSliding;
 
     private float elapsedSinceJump;
     private float elapsedSinceNotOnGround;
@@ -101,6 +104,8 @@ public class PlayerMovement : MonoBehaviour
     private WallRunDirect prevWallDirect;
     private Vector3 tempGravity;
     private float timeOnWall;
+
+    private float headBobTimer;
 
     private Vector3 velocity;
     private Vector3 movement;
@@ -135,16 +140,9 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        if (canSprint || Sprint)
-        {
-            movement = MoveDirect(SprintSpeed);
-            isSprinting = true;
-        }
-        else
-        {
-            movement = MoveDirect(MoveSpeed);
-            isSprinting = false;
-        }
+        PlayerWalk();
+
+        PlayerRun();
 
         PlayerJump();
 
@@ -174,6 +172,27 @@ public class PlayerMovement : MonoBehaviour
 
         // Move player based on falling speed
         transform.position = controller.MovePlayer(velocity * Time.deltaTime);
+
+        PlayerHeadBob();
+    }
+
+    void PlayerWalk()
+    {
+        if (canWalk) {
+            isWalking = true;
+            movement = MoveDirect(MoveSpeed);
+            if (movement == Vector3.zero) isWalking = false;
+        }
+    }
+
+    void PlayerRun()
+    {
+        if (canSprint || Sprint)
+        {
+            isSprinting = true;
+            movement = MoveDirect(SprintSpeed);
+            if (movement == Vector3.zero) isSprinting = false;
+        }
     }
 
     private Vector3 MoveDirect(float moveSpeed)
@@ -446,6 +465,28 @@ public class PlayerMovement : MonoBehaviour
             isSliding = false;
             Crouch = true;
         }
+    }
+
+    void PlayerHeadBob()
+    {
+        if (canHeadbob)
+        {
+            float bobSpeed = GetBobSpeed();
+            float bobAmount = GetBobAmount();
+
+            headBobTimer += Time.deltaTime * bobSpeed;
+            playerCamera.HeadBobCamera(headBobTimer, bobAmount);
+        }
+    }
+
+    float GetBobSpeed()
+    {
+        return isCrouching ? 5f : isSprinting ? 5f : isWalking ? 5f : 5f;
+    }
+
+    float GetBobAmount()
+    {
+        return isCrouching ? 0.1f : isSprinting ? 0.1f : 0.1f;
     }
 }
 

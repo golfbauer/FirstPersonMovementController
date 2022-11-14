@@ -17,9 +17,13 @@ public class PlayerCameraLook : MonoBehaviour
     private float zRotation = 0f;
     private bool isTiltingCamera;
 
+    private float bobTimer = 0f;
+    private float defaultPositionY;
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        defaultPositionY = transform.localPosition.y;
     }
 
     void Update()
@@ -77,6 +81,14 @@ public class PlayerCameraLook : MonoBehaviour
             CameraTiltedLeft = false;
             CameraTiltedRight = false;
         }
+    }
+
+    public void HeadBobCamera(float timer, float bobAmount)
+    {
+        transform.localPosition = new Vector3(
+            transform.localPosition.x,
+            defaultPositionY + Mathf.Sin(timer) * bobAmount,
+            transform.localPosition.z);
     }
 }
 

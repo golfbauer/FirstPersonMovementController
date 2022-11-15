@@ -17,8 +17,7 @@ public class PlayerCameraLook : MonoBehaviour
     private float zRotation = 0f;
     private bool isTiltingCamera;
 
-    private float bobTimer = 0f;
-    private float defaultPositionY;
+    public float defaultPositionY;
 
     void Start()
     {

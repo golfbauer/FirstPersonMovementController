@@ -29,6 +29,12 @@ public class PlayerMovement : MonoBehaviour
     public float WallRunGravityMultiplier { get; set; }
     public float WallRunMinimumHeight { get; set; }
     public int CountAllowedJumps { get; set; }
+    public Vector2 CrouchHeadBobWalk { get; set; }
+    public Vector2 CrouchHeadBobSprint { get; set; }
+    public Vector2 CrouchHeadBobDefault { get; set; }
+    public Vector2 SprintHeadBob { get; set; }
+    public Vector2 WalkHeadBob { get; set; }
+    public Vector2 DefaultHeadBob { get; set; }
 
     public bool CanCancelSlide { get; set; }
     public bool CanChangeWallJumpDirect { get; set; }
@@ -73,7 +79,7 @@ public class PlayerMovement : MonoBehaviour
         currentJumpCount < CountAllowedJumps &&
         !isCrouching && !isSliding) && Input.GetKeyDown(JumpKey);
     private bool canSprint => onGround && Input.GetKey(SprintKey);
-    private bool canWalk => onGround;
+    private bool canWalk => onGround && !isSprinting;
     private bool canSlide => isSprinting && !crouched && !isSliding && Input.GetKeyDown(SlideKey);
     private bool cancelSlide => CanCancelSlide && Input.GetKeyDown(SlideKey);
     private bool canWallRun => PlayerCanWallRun();
@@ -106,6 +112,9 @@ public class PlayerMovement : MonoBehaviour
     private float timeOnWall;
 
     private float headBobTimer;
+    private float prevBobSpeed;
+    private float prevBobAmount;
+    private bool prevCameraTop;
 
     private Vector3 velocity;
     private Vector3 movement;
@@ -154,6 +163,8 @@ public class PlayerMovement : MonoBehaviour
 
         PlayerSlide();
 
+        PlayerHeadBob();
+
         if (onGround)
         {
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
@@ -172,12 +183,15 @@ public class PlayerMovement : MonoBehaviour
 
         // Move player based on falling speed
         transform.position = controller.MovePlayer(velocity * Time.deltaTime);
-
-        PlayerHeadBob();
     }
 
     void PlayerWalk()
     {
+        if(isWalking && !canWalk)
+        {
+            isWalking = false;
+        }
+
         if (canWalk) {
             isWalking = true;
             movement = MoveDirect(MoveSpeed);
@@ -187,6 +201,11 @@ public class PlayerMovement : MonoBehaviour
 
     void PlayerRun()
     {
+        if(isSprinting && !canSprint)
+        {
+            isSprinting = false;
+        }
+
         if (canSprint || Sprint)
         {
             isSprinting = true;
@@ -471,22 +490,53 @@ public class PlayerMovement : MonoBehaviour
     {
         if (canHeadbob)
         {
-            float bobSpeed = GetBobSpeed();
-            float bobAmount = GetBobAmount();
+            Vector2 headBobFactors = GetHeadBobFactors();
 
-            headBobTimer += Time.deltaTime * bobSpeed;
-            playerCamera.HeadBobCamera(headBobTimer, bobAmount);
+            float bobSpeed = headBobFactors.x;
+            float bobAmount = headBobFactors.y;
+
+            if (headBobFactors == Vector2.zero) 
+            { 
+                FinishPlayerHeadBob();
+            } else
+            {
+                prevBobAmount = bobAmount;
+                prevBobSpeed = bobSpeed;
+                prevCameraTop = playerCamera.transform.localPosition.y > playerCamera.defaultPositionY;
+
+                headBobTimer += Time.deltaTime * bobSpeed;
+                playerCamera.HeadBobCamera(headBobTimer, bobAmount);
+            }
+            return;
         }
+        headBobTimer = 0f;
     }
 
-    float GetBobSpeed()
+    void FinishPlayerHeadBob()
     {
-        return isCrouching ? 5f : isSprinting ? 5f : isWalking ? 5f : 5f;
+        if(
+            (prevCameraTop && playerCamera.transform.localPosition.y <= playerCamera.defaultPositionY) || 
+            (!prevCameraTop && playerCamera.transform.localPosition.y >= playerCamera.defaultPositionY))
+        {
+            headBobTimer = 0f;
+            return;
+        }
+        if (headBobTimer / Mathf.PI > (int)Math.Round(headBobTimer / Mathf.PI))
+        {
+            float interfaceWithx = (int)Math.Round(headBobTimer / Mathf.PI) * Mathf.PI + Mathf.PI;
+            headBobTimer = interfaceWithx - ((headBobTimer / Mathf.PI) % 1) * Mathf.PI;
+        }
+        headBobTimer += Time.deltaTime * prevBobSpeed;
+        playerCamera.HeadBobCamera(headBobTimer, prevBobAmount);
     }
 
-    float GetBobAmount()
+    public Vector2 GetHeadBobFactors()
     {
-        return isCrouching ? 0.1f : isSprinting ? 0.1f : 0.1f;
-    }
+        if (crouched)
+            {
+                return isWalking ? CrouchHeadBobWalk : isSprinting ? CrouchHeadBobSprint : CrouchHeadBobDefault;
+            }
+            return isWalking ? WalkHeadBob : isSprinting ? SprintHeadBob : DefaultHeadBob;
+        }
 }
 

@@ -6,6 +6,8 @@ using static Utils;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UIElements;
+using Newtonsoft.Json.Linq;
+using TMPro;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -13,6 +15,10 @@ public class PlayerMovement : MonoBehaviour
     // Public variables that can be set via Unity Editor
     public float MoveSpeed { get; set; }
     public float SprintSpeed { get; set; }
+    public float AirSpeed { get; set; }
+    public float GroundToAirMomentumRetentionRate { get { return groundToAirMomentumRetentionRate; } set { groundToAirMomentumRetentionRate = Math.Clamp(value, 0, 1); }}
+    public float AirboreMomentumDeclineRate { get { return airboreMomentumDeclineRate; } set { airboreMomentumDeclineRate = Math.Clamp(value, 0, 1); }}
+    public float GroundedMomentumDeclineRate { get { return groundedMomentumDeclineRate;  } set { groundedMomentumDeclineRate = value; }}
     public float SlideSpeed { get; set; }
     public float CrouchHeight { get; set; }
     public float StandingHeight { get; set; }
@@ -39,7 +45,6 @@ public class PlayerMovement : MonoBehaviour
     public KeyCode SlideKey { get; set; }
     public KeyCode WallRunKey { get; set; }
     public KeyCode WallJumpKey { get; set; }
-
     public Vector3 CrouchingCenter { get; set; }
     public Vector3 StandingCenter { get; set; }
     public Vector3 Gravity { get; set; }
@@ -104,6 +109,11 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 velocity;
     private Vector3 movement;
+    private Vector3 momentum;
+    private float groundToAirMomentumRetentionRate;
+    private float airboreMomentumDeclineRate;
+    private float groundedMomentumDeclineRate;
+
 
     private EnvironmentController dynamicGroundController;
 
@@ -117,6 +127,8 @@ public class PlayerMovement : MonoBehaviour
 
         tempGravity = Gravity;
         WallRunLayer = 1 << WallRunLayer;
+
+        GroundedMomentumDeclineRate = 10;
     }
 
     void Update()
@@ -181,6 +193,8 @@ public class PlayerMovement : MonoBehaviour
 
         }
 
+        momentum = movement;
+
         transform.position = controller.MovePlayer(movement);
 
         // If player was not falling before movement but is falling after movement see if he should be snapped down
@@ -198,10 +212,16 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 MoveDirect(float moveSpeed)
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
+        float moveX = Input.GetAxisRaw("Horizontal");
+        float moveZ = Input.GetAxisRaw("Vertical");
 
         Vector3 moveDirect = transform.right * moveX + transform.forward * moveZ;
+
+        if (moveDirect == Vector3.zero)
+        {
+             
+            return momentum.normalized * (momentum.magnitude - (groundedMomentumDeclineRate * MathF.Pow(Time.deltaTime, 2))); 
+        }
 
         return moveDirect * moveSpeed * Time.deltaTime;
     }

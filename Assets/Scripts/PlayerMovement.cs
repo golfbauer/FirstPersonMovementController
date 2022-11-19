@@ -114,7 +114,7 @@ public class PlayerMovement : MonoBehaviour
     private float headBobTimer;
     private float prevBobSpeed;
     private float prevBobAmount;
-    private bool prevCameraTop;
+    private bool prevIsCameraTop;
 
     private Vector3 velocity;
     private Vector3 movement;
@@ -502,7 +502,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 prevBobAmount = bobAmount;
                 prevBobSpeed = bobSpeed;
-                prevCameraTop = playerCamera.transform.localPosition.y > playerCamera.defaultPositionY;
+                prevIsCameraTop = playerCamera.transform.localPosition.y > playerCamera.defaultPositionY;
 
                 headBobTimer += Time.deltaTime * bobSpeed;
                 playerCamera.HeadBobCamera(headBobTimer, bobAmount);
@@ -515,8 +515,8 @@ public class PlayerMovement : MonoBehaviour
     void FinishPlayerHeadBob()
     {
         if(
-            (prevCameraTop && playerCamera.transform.localPosition.y <= playerCamera.defaultPositionY) || 
-            (!prevCameraTop && playerCamera.transform.localPosition.y >= playerCamera.defaultPositionY))
+            (prevIsCameraTop && playerCamera.transform.localPosition.y <= playerCamera.defaultPositionY) || 
+            (!prevIsCameraTop && playerCamera.transform.localPosition.y >= playerCamera.defaultPositionY))
         {
             headBobTimer = 0f;
             return;

@@ -54,7 +54,13 @@ public class Utils : MonoBehaviour
         Vector2 wallJumpForce,
         float wallPushForce,
         bool canChangeWallJumpDirect,
-        KeyCode wallJumpKey
+        KeyCode wallJumpKey,
+        Vector2 crouchHeadBobWalk,
+        Vector2 crouchHeadBobSprint,
+        Vector2 crouchHeadBobDefault,
+        Vector2 sprintHeadBob,
+        Vector2 walkHeadBob,
+        Vector2 defaultHeadBob
         )
     {
         PlayerMovement movement = target.AddComponent<PlayerMovement>();
@@ -90,6 +96,13 @@ public class Utils : MonoBehaviour
         movement.WallPushForce = wallPushForce;
         movement.CanChangeWallJumpDirect = canChangeWallJumpDirect;
         movement.WallJumpKey = wallJumpKey;
+
+        movement.CrouchHeadBobDefault = crouchHeadBobDefault;
+        movement.CrouchHeadBobWalk = crouchHeadBobWalk;
+        movement.CrouchHeadBobSprint = crouchHeadBobSprint;
+        movement.DefaultHeadBob = defaultHeadBob;
+        movement.WalkHeadBob = walkHeadBob;
+        movement.SprintHeadBob = sprintHeadBob;
 
         return movement;
     }

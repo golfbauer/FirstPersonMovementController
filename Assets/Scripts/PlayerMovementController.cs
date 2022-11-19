@@ -44,7 +44,6 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private float timeToTiltCameraWallRun = 0.5f;
     [SerializeField][OnChangedCall("OnVariableChange")] private float maxCameraTilt = 20f;
 
-
     [Header("WallJump Configurations")]
     [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 wallJumpForce = new Vector2(10f, 2f);
     [SerializeField][OnChangedCall("OnVariableChange")] private float wallPushForce = 2f;
@@ -73,6 +72,14 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode slideKey = KeyCode.C;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode wallRunKey = KeyCode.Space;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode wallJumpKey;
+
+    [Header("Head Bob Configurations")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 crouchHeadBobWalk;
+    [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 crouchHeadBobSprint;
+    [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 crouchHeadBobDefault;
+    [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 sprintHeadBob;
+    [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 walkHeadBob;
+    [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 defaultHeadBob;
 
     private PlayerCameraLook mouseLookCamera;
     private PlayerMovement playerMovement;
@@ -150,7 +157,13 @@ public class PlayerMovementController : MonoBehaviour
             wallJumpForce,
             wallPushForce,
             canChangeWallJumpDirect,
-            wallJumpKey
+            wallJumpKey,
+            crouchHeadBobWalk,
+            crouchHeadBobSprint,
+            crouchHeadBobDefault,
+            sprintHeadBob,
+            walkHeadBob,
+            defaultHeadBob
             );
 
     }
@@ -215,6 +228,12 @@ public class PlayerMovementController : MonoBehaviour
                 playerMovement.CanChangeWallJumpDirect = canChangeWallJumpDirect;
                 playerMovement.WallJumpKey = wallJumpKey;
 
+                playerMovement.CrouchHeadBobDefault = crouchHeadBobDefault;
+                playerMovement.CrouchHeadBobWalk = crouchHeadBobWalk;
+                playerMovement.CrouchHeadBobSprint = crouchHeadBobSprint;
+                playerMovement.DefaultHeadBob = defaultHeadBob;
+                playerMovement.WalkHeadBob = walkHeadBob;
+                playerMovement.SprintHeadBob = sprintHeadBob;
             }
         }
     }

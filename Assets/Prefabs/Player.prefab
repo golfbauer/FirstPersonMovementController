@@ -48,6 +48,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   configDuringRuntime: 1
   slopeLimit: 60
+  stairOffset: 0.3
+  stairSnapdownDistance: 0.9
   center: {x: 0, y: 0, z: 0}
   height: 2
   radius: 0.5
@@ -66,6 +68,8 @@ MonoBehaviour:
   maxTimeOnWall: 500
   wallRunGravityMultiplier: 0
   wallRunMinimumHeight: 0
+  timeToTiltCameraWallRun: 0.5
+  maxCameraTilt: 20
   wallJumpForce: {x: 10, y: 2}
   wallPushForce: 2
   canChangeWallJumpDirect: 1
@@ -84,6 +88,13 @@ MonoBehaviour:
   crouchKey: 99
   slideKey: 99
   wallRunKey: 32
+  wallJumpKey: 0
+  crouchHeadBobWalk: {x: 0, y: 0}
+  crouchHeadBobSprint: {x: 0, y: 0}
+  crouchHeadBobDefault: {x: 0, y: 0}
+  sprintHeadBob: {x: 0, y: 0}
+  walkHeadBob: {x: 0, y: 0}
+  defaultHeadBob: {x: 0, y: 0}
 --- !u!1 &4129777150849137025
 GameObject:
   m_ObjectHideFlags: 0

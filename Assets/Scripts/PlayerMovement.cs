@@ -29,6 +29,12 @@ public class PlayerMovement : MonoBehaviour
     public float WallRunGravityMultiplier { get; set; }
     public float WallRunMinimumHeight { get; set; }
     public int CountAllowedJumps { get; set; }
+    public Vector2 CrouchHeadBobWalk { get; set; }
+    public Vector2 CrouchHeadBobSprint { get; set; }
+    public Vector2 CrouchHeadBobDefault { get; set; }
+    public Vector2 SprintHeadBob { get; set; }
+    public Vector2 WalkHeadBob { get; set; }
+    public Vector2 DefaultHeadBob { get; set; }
 
     public bool CanCancelSlide { get; set; }
     public bool CanChangeWallJumpDirect { get; set; }
@@ -48,7 +54,6 @@ public class PlayerMovement : MonoBehaviour
 
     // Public variables that can be set via Scripts
     public bool Jump { get; set; } = false;
-    public bool Sprint { get; set; } = false;
     public bool Slide { get; set; } = false;
     public bool Crouch { get; set; } = false;
     public bool WallRun { get; set; } = false;
@@ -58,6 +63,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isCrouching;
     private bool isSliding;
     private bool isSprinting;
+    private bool isWalking;
     private bool isJumping;
     private bool isWallRunning;
     private bool isWallJumping;
@@ -76,6 +82,7 @@ public class PlayerMovement : MonoBehaviour
     private bool cancelSlide => CanCancelSlide && Input.GetKeyDown(SlideKey);
     private bool canWallRun => PlayerCanWallRun();
     private bool canWallJump => PlayerCanWallJump();
+    private bool canHeadbob => onGround && !isSliding;
 
     private float elapsedSinceJump;
     private float elapsedSinceNotOnGround;
@@ -101,6 +108,11 @@ public class PlayerMovement : MonoBehaviour
     private WallRunDirect prevWallDirect;
     private Vector3 tempGravity;
     private float timeOnWall;
+
+    private float headBobTimer;
+    private float prevBobSpeed;
+    private float prevBobAmount;
+    private bool prevIsCameraTop;
 
     private Vector3 velocity;
     private Vector3 movement;
@@ -137,16 +149,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        if (canSprint || Sprint)
-        {
-            movement = MoveDirect(SprintSpeed);
-            isSprinting = true;
-        }
-        else
-        {
-            movement = MoveDirect(MoveSpeed);
-            isSprinting = false;
-        }
+        PlayerMove();
 
         PlayerJump();
 
@@ -157,6 +160,8 @@ public class PlayerMovement : MonoBehaviour
         PlayerCrouch();
 
         PlayerSlide();
+
+        PlayerHeadBob();
 
         if (onGround)
         {
@@ -194,6 +199,28 @@ public class PlayerMovement : MonoBehaviour
 
         // Move player based on falling speed
         transform.position = controller.MovePlayer(velocity * Time.deltaTime);
+    }
+
+    void PlayerMove()
+    {
+
+        if (canSprint)
+        {
+            movement = MoveDirect(SprintSpeed);
+            isSprinting = true;
+            isWalking = false;
+        } else
+        {
+            movement = MoveDirect(MoveSpeed);
+            isWalking = true;
+            isSprinting = false;
+        }
+
+        if(movement == Vector3.zero)
+        {
+            isSprinting = false;
+            isWalking = false;
+        }
     }
 
     private Vector3 MoveDirect(float moveSpeed)
@@ -467,5 +494,58 @@ public class PlayerMovement : MonoBehaviour
             Crouch = true;
         }
     }
+
+    void PlayerHeadBob()
+    {
+        if (canHeadbob)
+        {
+            Vector2 headBobFactors = GetHeadBobFactors();
+
+            float bobSpeed = headBobFactors.x;
+            float bobAmount = headBobFactors.y;
+
+            if (headBobFactors == Vector2.zero) 
+            { 
+                FinishPlayerHeadBob();
+            } else
+            {
+                prevBobAmount = bobAmount;
+                prevBobSpeed = bobSpeed;
+                prevIsCameraTop = playerCamera.transform.localPosition.y > playerCamera.defaultPositionY;
+
+                headBobTimer += Time.deltaTime * bobSpeed;
+                playerCamera.HeadBobCamera(headBobTimer, bobAmount);
+            }
+            return;
+        }
+        headBobTimer = 0f;
+    }
+
+    void FinishPlayerHeadBob()
+    {
+        if(
+            (prevIsCameraTop && playerCamera.transform.localPosition.y <= playerCamera.defaultPositionY) || 
+            (!prevIsCameraTop && playerCamera.transform.localPosition.y >= playerCamera.defaultPositionY))
+        {
+            headBobTimer = 0f;
+            return;
+        }
+        if (headBobTimer / Mathf.PI > (int)Math.Round(headBobTimer / Mathf.PI))
+        {
+            float interfaceWithx = (int)Math.Round(headBobTimer / Mathf.PI) * Mathf.PI + Mathf.PI;
+            headBobTimer = interfaceWithx - ((headBobTimer / Mathf.PI) % 1) * Mathf.PI;
+        }
+        headBobTimer += Time.deltaTime * prevBobSpeed;
+        playerCamera.HeadBobCamera(headBobTimer, prevBobAmount);
+    }
+
+    public Vector2 GetHeadBobFactors()
+    {
+        if (crouched)
+            {
+                return isWalking ? CrouchHeadBobWalk : isSprinting ? CrouchHeadBobSprint : CrouchHeadBobDefault;
+            }
+            return isWalking ? WalkHeadBob : isSprinting ? SprintHeadBob : DefaultHeadBob;
+        }
 }
 

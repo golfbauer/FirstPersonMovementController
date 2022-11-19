@@ -54,7 +54,6 @@ public class PlayerMovement : MonoBehaviour
 
     // Public variables that can be set via Scripts
     public bool Jump { get; set; } = false;
-    public bool Sprint { get; set; } = false;
     public bool Slide { get; set; } = false;
     public bool Crouch { get; set; } = false;
     public bool WallRun { get; set; } = false;
@@ -79,7 +78,6 @@ public class PlayerMovement : MonoBehaviour
         currentJumpCount < CountAllowedJumps &&
         !isCrouching && !isSliding) && Input.GetKeyDown(JumpKey);
     private bool canSprint => onGround && Input.GetKey(SprintKey);
-    private bool canWalk => onGround && !isSprinting;
     private bool canSlide => isSprinting && !crouched && !isSliding && Input.GetKeyDown(SlideKey);
     private bool cancelSlide => CanCancelSlide && Input.GetKeyDown(SlideKey);
     private bool canWallRun => PlayerCanWallRun();
@@ -149,9 +147,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        PlayerWalk();
-
-        PlayerRun();
+        PlayerMove();
 
         PlayerJump();
 
@@ -185,32 +181,23 @@ public class PlayerMovement : MonoBehaviour
         transform.position = controller.MovePlayer(velocity * Time.deltaTime);
     }
 
-    void PlayerWalk()
+    void PlayerMove()
     {
-        if(isWalking && !canWalk)
+
+        if (canSprint)
         {
-            isWalking = false;
-        }
-
-        if (canWalk) {
-            isWalking = true;
+            movement = MoveDirect(SprintSpeed);
+            isSprinting = true;
+        } else
+        {
             movement = MoveDirect(MoveSpeed);
-            if (movement == Vector3.zero) isWalking = false;
+            isWalking = true;
         }
-    }
 
-    void PlayerRun()
-    {
-        if(isSprinting && !canSprint)
+        if(movement == Vector3.zero)
         {
             isSprinting = false;
-        }
-
-        if (canSprint || Sprint)
-        {
-            isSprinting = true;
-            movement = MoveDirect(SprintSpeed);
-            if (movement == Vector3.zero) isSprinting = false;
+            isWalking = false;
         }
     }
 

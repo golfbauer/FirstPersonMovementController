@@ -188,10 +188,12 @@ public class PlayerMovement : MonoBehaviour
         {
             movement = MoveDirect(SprintSpeed);
             isSprinting = true;
+            isWalking = false;
         } else
         {
             movement = MoveDirect(MoveSpeed);
             isWalking = true;
+            isSprinting = false;
         }
 
         if(movement == Vector3.zero)

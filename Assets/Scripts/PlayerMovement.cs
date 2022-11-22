@@ -6,6 +6,7 @@ using static Utils;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UIElements;
+using System.Net;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -67,9 +68,11 @@ public class PlayerMovement : MonoBehaviour
     private bool isJumping;
     private bool isWallRunning;
     private bool isWallJumping;
+    private bool isGrappling;
 
     private bool onGround;
     private bool crouched;
+    private bool projectOnPlane => onGround && !isGrappling;
 
     //Check whether player is allowed to perform action
     private bool canCrouch => onGround && !isSliding && Input.GetKeyDown(CrouchKey);
@@ -83,9 +86,11 @@ public class PlayerMovement : MonoBehaviour
     private bool canWallRun => PlayerCanWallRun();
     private bool canWallJump => PlayerCanWallJump();
     private bool canHeadbob => onGround && !isSliding;
+    private bool canGrapple => PlayerCanGrapple();
 
     private float elapsedSinceJump;
     private float elapsedSinceNotOnGround;
+    private float elapsedSinceGrapple;
 
     private int currentJumpCount;
 
@@ -113,6 +118,17 @@ public class PlayerMovement : MonoBehaviour
     private float prevBobSpeed;
     private float prevBobAmount;
     private bool prevIsCameraTop;
+
+    private int grappleLayer;
+    private float maxGrappleDistance = 100;
+    private float grappleDelayTime;
+    private RaycastHit grappleHit;
+    private Vector3 grappleStartPoint;
+    private float grappleCoolDown = 0;
+    private KeyCode grappleKey = KeyCode.Mouse1;
+    private float grappleSpeed = 5f;
+    private bool grapplingAnimation;
+    private float testTimeAnimation;
 
     private Vector3 velocity;
     private Vector3 movement;
@@ -161,9 +177,22 @@ public class PlayerMovement : MonoBehaviour
 
         PlayerSlide();
 
+        if (grapplingAnimation)
+        {
+            testTimeAnimation += Time.deltaTime;
+        } else
+        {
+            testTimeAnimation = 0;
+        }
+        if(testTimeAnimation > 1)
+        {
+            grapplingAnimation = false;
+        }
+        PlayerGrapple();
+
         PlayerHeadBob();
 
-        if (onGround)
+        if (projectOnPlane)
         {
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
         }
@@ -268,7 +297,7 @@ public class PlayerMovement : MonoBehaviour
             isWallRunning = false;
             WallRun = false;
             prevWallDirect = WallRunDirect.Stop;
-            Gravity = tempGravity;
+            if(!isGrappling) Gravity = tempGravity;
             if (playerCamera.CameraTiltedRight || playerCamera.CameraTiltedLeft) 
             { 
                 playerCamera.TiltCamera(); 
@@ -386,7 +415,6 @@ public class PlayerMovement : MonoBehaviour
             if (isWallRunning) PushOffWall();
             return false;
         }
-        WallJumpKey = JumpKey;
         bool canWallJump = WallRunKey == KeyCode.None ? Input.GetKeyDown(WallJumpKey) : Input.GetKeyUp(WallRunKey);
         if (!canWallJump) return false;
 
@@ -411,6 +439,55 @@ public class PlayerMovement : MonoBehaviour
         isWallLeft = Physics.Raycast(transform.position, -transform.right, out hitWallLeft, 1f, WallRunLayer);
         isWallFront = Physics.Raycast(transform.position, transform.forward, out hitWallFront, 1f, WallRunLayer);
         isWallBack = Physics.Raycast(transform.position, -transform.forward, out hitWallBack, 1f, WallRunLayer);
+    }
+
+    void PlayerGrapple()
+    {
+        if (canGrapple || isGrappling)
+        {
+            isGrappling = true;
+            if (grapplingAnimation)
+            {
+                movement = Vector3.zero;
+                return;
+            }
+            Vector3 moveDirect = (grappleHit.point - grappleStartPoint).normalized;
+            if (CheckGrappleHit(moveDirect))
+            {
+                isJumping = true;
+                isGrappling = false;
+                return;
+            }
+            movement = moveDirect * 50f * Time.deltaTime;
+            return;
+        }
+        isGrappling = false;
+        elapsedSinceGrapple += Time.deltaTime;
+    }
+
+    bool PlayerCanGrapple()
+    {
+        if (Input.GetKeyDown(grappleKey) && elapsedSinceGrapple > grappleCoolDown)
+        {
+            Transform camera = playerCamera.transform;
+            if (Physics.Raycast(camera.position, camera.forward, out grappleHit, maxGrappleDistance))
+            {
+                grappleStartPoint = transform.position;
+                grapplingAnimation = true;
+                Gravity = Vector3.zero;
+                velocity = Vector3.zero;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool CheckGrappleHit(Vector3 moveDirect)
+    {
+        bool hitWall = Physics.Raycast(transform.position, moveDirect, out RaycastHit wallHit, controller.Radius + 0.1f);
+        Debug.DrawRay(transform.position, moveDirect * controller.Radius, Color.blue);
+        return hitWall;
     }
 
     void PlayerCrouch()
@@ -547,5 +624,13 @@ public class PlayerMovement : MonoBehaviour
             }
             return isWalking ? WalkHeadBob : isSprinting ? SprintHeadBob : DefaultHeadBob;
         }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (isGrappling)
+        {
+
+        }
+    }
 }
 

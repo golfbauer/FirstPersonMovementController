@@ -125,8 +125,8 @@ public class PlayerMovement : MonoBehaviour
     private RaycastHit grappleHit;
     private Vector3 grappleStartPoint;
     private float grappleCoolDown = 0;
-    private KeyCode grappleKey = KeyCode.Mouse1;
-    private float grappleSpeed = 5f;
+    private KeyCode grappleKey = KeyCode.F;
+    private float grappleSpeed = 50f;
     private bool grapplingAnimation;
     private float testTimeAnimation;
 
@@ -452,15 +452,16 @@ public class PlayerMovement : MonoBehaviour
                 return;
             }
             Vector3 moveDirect = (grappleHit.point - grappleStartPoint).normalized;
-            if (CheckGrappleHit(moveDirect))
+            if (controller.CheckObjectHit(moveDirect))
             {
                 isJumping = true;
                 isGrappling = false;
                 return;
             }
-            movement = moveDirect * 50f * Time.deltaTime;
+            movement = moveDirect * grappleSpeed * Time.deltaTime;
             return;
         }
+
         isGrappling = false;
         elapsedSinceGrapple += Time.deltaTime;
     }
@@ -481,13 +482,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         return false;
-    }
-
-    bool CheckGrappleHit(Vector3 moveDirect)
-    {
-        bool hitWall = Physics.Raycast(transform.position, moveDirect, out RaycastHit wallHit, controller.Radius + 0.1f);
-        Debug.DrawRay(transform.position, moveDirect * controller.Radius, Color.blue);
-        return hitWall;
     }
 
     void PlayerCrouch()

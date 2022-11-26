@@ -131,6 +131,7 @@ public class PlayerMovement : MonoBehaviour
     private bool prevIsCameraTop;
 
     public RaycastHit grappleHit;
+    public Vector3 localGrappleHitPoint;
     private Vector3 grappleMoveDirect;
 
     private Vector3 velocity;
@@ -451,6 +452,7 @@ public class PlayerMovement : MonoBehaviour
                 isGrappling = false;
                 return;
             }
+            grappleMoveDirect = (grappleHit.collider.transform.position + localGrappleHitPoint - transform.position).normalized;
             movement = grappleMoveDirect * GrappleForceFunction () * GrappleSpeed * Time.deltaTime;
             return;
         }
@@ -484,7 +486,7 @@ public class PlayerMovement : MonoBehaviour
 
     void InitializeGrapple()
     {
-        grappleMoveDirect = (grappleHit.point - transform.position).normalized;
+        localGrappleHitPoint = grappleHit.point - grappleHit.collider.transform.position;
         grapplingAnimation = true;
         TempChangeGravity(Vector3.zero);
         velocity = Vector3.zero;

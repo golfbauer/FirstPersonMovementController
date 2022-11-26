@@ -49,6 +49,13 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private float wallPushForce = 2f;
     [SerializeField][OnChangedCall("OnVariableChange")] private bool canChangeWallJumpDirect = true;
 
+    [Header("Grapple Configurations")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private int grappleLayer = 1 << 7;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float maxGrappleDistance;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float grappleCoolDown;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float grappleSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool canCancelGrapple;
+
     [Header("Crouch Configurations")]
     [SerializeField] [OnChangedCall("OnVariableChange")] private float crouchHeight;
     [SerializeField] [OnChangedCall("OnVariableChange")] private float standingHeight;
@@ -72,6 +79,7 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] [OnChangedCall("OnVariableChange")] private KeyCode slideKey = KeyCode.C;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode wallRunKey = KeyCode.Space;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode wallJumpKey;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode grappleKey;
 
     [Header("Head Bob Configurations")]
     [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 crouchHeadBobWalk;
@@ -163,7 +171,13 @@ public class PlayerMovementController : MonoBehaviour
             crouchHeadBobDefault,
             sprintHeadBob,
             walkHeadBob,
-            defaultHeadBob
+            defaultHeadBob,
+            grappleLayer,
+            grappleCoolDown,
+            grappleSpeed,
+            maxGrappleDistance,
+            grappleKey,
+            canCancelGrapple
             );
 
     }
@@ -234,6 +248,13 @@ public class PlayerMovementController : MonoBehaviour
                 playerMovement.DefaultHeadBob = defaultHeadBob;
                 playerMovement.WalkHeadBob = walkHeadBob;
                 playerMovement.SprintHeadBob = sprintHeadBob;
+
+                playerMovement.GrappleLayer = 1 << grappleLayer;
+                playerMovement.GrappleCoolDown = grappleCoolDown;
+                playerMovement.GrappleSpeed = grappleSpeed;
+                playerMovement.MaxGrappleDistance = maxGrappleDistance;
+                playerMovement.GrappleKey = grappleKey;
+                playerMovement.CanCancelGrapple = canCancelGrapple;
             }
         }
     }

@@ -60,7 +60,13 @@ public class Utils : MonoBehaviour
         Vector2 crouchHeadBobDefault,
         Vector2 sprintHeadBob,
         Vector2 walkHeadBob,
-        Vector2 defaultHeadBob
+        Vector2 defaultHeadBob,
+        int grappleLayer,
+        float grappleCoolDown,
+        float grappleSpeed,
+        float maxGrappleDistance,
+        KeyCode grappleKey,
+        bool canCancelGrapple
         )
     {
         PlayerMovement movement = target.AddComponent<PlayerMovement>();
@@ -103,6 +109,13 @@ public class Utils : MonoBehaviour
         movement.DefaultHeadBob = defaultHeadBob;
         movement.WalkHeadBob = walkHeadBob;
         movement.SprintHeadBob = sprintHeadBob;
+
+        movement.GrappleLayer = grappleLayer;
+        movement.GrappleCoolDown = grappleCoolDown;
+        movement.GrappleSpeed = grappleSpeed;
+        movement.MaxGrappleDistance = maxGrappleDistance;
+        movement.GrappleKey = grappleKey;
+        movement.CanCancelGrapple = canCancelGrapple;
 
         return movement;
     }

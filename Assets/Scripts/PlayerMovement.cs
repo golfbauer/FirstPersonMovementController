@@ -6,6 +6,7 @@ using static Utils;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UIElements;
+using System.Net;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -22,13 +23,19 @@ public class PlayerMovement : MonoBehaviour
     public float SlideControl { get; set; }
     public float WallRunSpeed { get; set; }
     public float WallRunMaxAngle { get; set; }
-    public Vector2 WallJumpForce { get; set; }
     public float WallPushForce { get; set; }
     public float MaxTimeOnWall { get; set; }
-    public int WallRunLayer { get; set; }
     public float WallRunGravityMultiplier { get; set; }
     public float WallRunMinimumHeight { get; set; }
+    public float MaxGrappleDistance { get; set; }
+    public float GrappleCoolDown { get; set; }
+    public float GrappleSpeed { get; set; }
+
     public int CountAllowedJumps { get; set; }
+    public int WallRunLayer { get; set; }
+    public int GrappleLayer { get; set; }
+
+    public Vector2 WallJumpForce { get; set; }
     public Vector2 CrouchHeadBobWalk { get; set; }
     public Vector2 CrouchHeadBobSprint { get; set; }
     public Vector2 CrouchHeadBobDefault { get; set; }
@@ -37,6 +44,7 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 DefaultHeadBob { get; set; }
 
     public bool CanCancelSlide { get; set; }
+    public bool CanCancelGrapple { get; set; }
     public bool CanChangeWallJumpDirect { get; set; }
 
     public KeyCode SprintKey { get; set; }
@@ -45,6 +53,7 @@ public class PlayerMovement : MonoBehaviour
     public KeyCode SlideKey { get; set; }
     public KeyCode WallRunKey { get; set; }
     public KeyCode WallJumpKey { get; set; }
+    public KeyCode GrappleKey { get; set; }
 
     public Vector3 CrouchingCenter { get; set; }
     public Vector3 StandingCenter { get; set; }
@@ -67,9 +76,12 @@ public class PlayerMovement : MonoBehaviour
     private bool isJumping;
     private bool isWallRunning;
     private bool isWallJumping;
+    public bool isGrappling;
 
     private bool onGround;
     private bool crouched;
+    private bool projectOnPlane => onGround && !isGrappling;
+    public bool grapplingAnimation;
 
     //Check whether player is allowed to perform action
     private bool canCrouch => onGround && !isSliding && Input.GetKeyDown(CrouchKey);
@@ -83,9 +95,13 @@ public class PlayerMovement : MonoBehaviour
     private bool canWallRun => PlayerCanWallRun();
     private bool canWallJump => PlayerCanWallJump();
     private bool canHeadbob => onGround && !isSliding;
+    private bool canGrapple => PlayerCanGrapple();
 
     private float elapsedSinceJump;
     private float elapsedSinceNotOnGround;
+    private float elapsedSinceGrapple;
+
+    private float grappleTime;
 
     private int currentJumpCount;
 
@@ -106,13 +122,17 @@ public class PlayerMovement : MonoBehaviour
     private float hitWallAngle;
     private Vector3 wallRunMoveDirect;
     private WallRunDirect prevWallDirect;
-    private Vector3 tempGravity;
+    private Vector3 prevGravity;
     private float timeOnWall;
 
     private float headBobTimer;
     private float prevBobSpeed;
     private float prevBobAmount;
     private bool prevIsCameraTop;
+
+    public RaycastHit grappleHit;
+    public Vector3 localGrappleHitPoint;
+    private Vector3 grappleMoveDirect;
 
     private Vector3 velocity;
     private Vector3 movement;
@@ -127,8 +147,9 @@ public class PlayerMovement : MonoBehaviour
         controller = GetComponent<KinematicCharacterController>();
         playerCamera = PlayerCamera.GetComponent<PlayerCameraLook>();
 
-        tempGravity = Gravity;
+        prevGravity = Gravity;
         WallRunLayer = 1 << WallRunLayer;
+        GrappleLayer = 1 << GrappleLayer;
     }
 
     void Update()
@@ -161,9 +182,11 @@ public class PlayerMovement : MonoBehaviour
 
         PlayerSlide();
 
+        PlayerGrapple();
+
         PlayerHeadBob();
 
-        if (onGround)
+        if (projectOnPlane)
         {
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
         }
@@ -258,7 +281,7 @@ public class PlayerMovement : MonoBehaviour
         {
             isWallRunning = true;
             timeOnWall += Time.deltaTime;
-            Gravity = tempGravity * WallRunGravityMultiplier;
+            Gravity = prevGravity * WallRunGravityMultiplier;
 
             TiltCameraOnWallRun();
             movement = wallRunMoveDirect * WallRunSpeed * Time.deltaTime;
@@ -268,7 +291,7 @@ public class PlayerMovement : MonoBehaviour
             isWallRunning = false;
             WallRun = false;
             prevWallDirect = WallRunDirect.Stop;
-            Gravity = tempGravity;
+            UndoChangeGravity();
             if (playerCamera.CameraTiltedRight || playerCamera.CameraTiltedLeft) 
             { 
                 playerCamera.TiltCamera(); 
@@ -339,7 +362,7 @@ public class PlayerMovement : MonoBehaviour
     bool InitializeWallRun()
     {
         currentJumpCount = 0;
-        Gravity = tempGravity * WallRunGravityMultiplier;
+        TempChangeGravity(Gravity * WallRunGravityMultiplier);
         velocity = Vector3.zero;
 
         bool isToCloseToGround = Physics.Raycast(transform.position, -transform.up, WallRunMinimumHeight + controller.Height);
@@ -386,7 +409,6 @@ public class PlayerMovement : MonoBehaviour
             if (isWallRunning) PushOffWall();
             return false;
         }
-        WallJumpKey = JumpKey;
         bool canWallJump = WallRunKey == KeyCode.None ? Input.GetKeyDown(WallJumpKey) : Input.GetKeyUp(WallRunKey);
         if (!canWallJump) return false;
 
@@ -411,6 +433,87 @@ public class PlayerMovement : MonoBehaviour
         isWallLeft = Physics.Raycast(transform.position, -transform.right, out hitWallLeft, 1f, WallRunLayer);
         isWallFront = Physics.Raycast(transform.position, transform.forward, out hitWallFront, 1f, WallRunLayer);
         isWallBack = Physics.Raycast(transform.position, -transform.forward, out hitWallBack, 1f, WallRunLayer);
+    }
+
+    void PlayerGrapple()
+    {
+        if (canGrapple || isGrappling)
+        {
+            isGrappling = true;
+            grappleTime += Time.deltaTime;
+            if (grapplingAnimation)
+            {
+                movement = Vector3.zero;
+                return;
+            }
+            if (controller.CheckObjectHit(grappleMoveDirect))
+            {
+                isJumping = true;
+                isGrappling = false;
+                return;
+            }
+            grappleMoveDirect = (grappleHit.collider.transform.position + localGrappleHitPoint - transform.position).normalized;
+            movement = grappleMoveDirect * GrappleForceFunction () * GrappleSpeed * Time.deltaTime;
+            return;
+        }
+
+        UndoChangeGravity();
+        isGrappling = false;
+        ResetGrappleTime();
+        elapsedSinceGrapple += Time.deltaTime;
+    }
+
+    bool PlayerCanGrapple()
+    {
+        if(CanCancelGrapple && isGrappling && !grapplingAnimation && Input.GetKeyDown(GrappleKey))
+        {
+            isGrappling = false;
+            currentJumpCount = 1;
+            return false;
+        }
+        if (Input.GetKeyDown(GrappleKey) && elapsedSinceGrapple > GrappleCoolDown)
+        {
+            Transform camera = playerCamera.transform;
+            if (Physics.Raycast(camera.position, camera.forward, out grappleHit, MaxGrappleDistance, GrappleLayer))
+            {
+                InitializeGrapple();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void InitializeGrapple()
+    {
+        localGrappleHitPoint = grappleHit.point - grappleHit.collider.transform.position;
+        grapplingAnimation = true;
+        TempChangeGravity(Vector3.zero);
+        velocity = Vector3.zero;
+    }
+
+    void ResetGrappleTime()
+    {
+        grappleTime = 1f;
+    }
+
+    float GrappleForceFunction()
+    {
+        return grappleTime * grappleTime * grappleTime;
+    }
+
+    void TempChangeGravity(Vector3 gravity)
+    {
+        if(Gravity == prevGravity)
+        {
+            prevGravity = Gravity;
+            Gravity = gravity;
+        }
+    }
+
+    void UndoChangeGravity()
+    {
+        if(!isGrappling && !isWallRunning) Gravity = prevGravity;
     }
 
     void PlayerCrouch()

@@ -237,5 +237,10 @@ public class KinematicCharacterController : MonoBehaviour
         // Return if any objects were hit
         return didHit;
     }
+
+    public bool CheckObjectHit(Vector3 moveDirect)
+    {
+        return CastSelf(transform.position, transform.rotation, moveDirect, 0.1f, out RaycastHit groundHit);
+    }
 }
 

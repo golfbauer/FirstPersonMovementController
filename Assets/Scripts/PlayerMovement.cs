@@ -44,6 +44,7 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 DefaultHeadBob { get; set; }
 
     public bool CanCancelSlide { get; set; }
+    public bool CanCancelGrapple { get; set; }
     public bool CanChangeWallJumpDirect { get; set; }
 
     public KeyCode SprintKey { get; set; }
@@ -458,6 +459,12 @@ public class PlayerMovement : MonoBehaviour
 
     bool PlayerCanGrapple()
     {
+        if(CanCancelGrapple && isGrappling && !grapplingAnimation && Input.GetKeyDown(GrappleKey))
+        {
+            isGrappling = false;
+            currentJumpCount = 1;
+            return false;
+        }
         if (Input.GetKeyDown(GrappleKey) && elapsedSinceGrapple > GrappleCoolDown)
         {
             Transform camera = playerCamera.transform;

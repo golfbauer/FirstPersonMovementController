@@ -49,7 +49,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &477278985
 Transform:
   m_ObjectHideFlags: 0
@@ -294,6 +294,7 @@ MonoBehaviour:
   maxGrappleDistance: 100
   grappleCoolDown: 0
   grappleSpeed: 30
+  canCancelGrapple: 1
   crouchHeight: 0.5
   standingHeight: 2
   timeToCrouch: 0.25

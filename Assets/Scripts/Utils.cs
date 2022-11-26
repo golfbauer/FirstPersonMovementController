@@ -65,7 +65,8 @@ public class Utils : MonoBehaviour
         float grappleCoolDown,
         float grappleSpeed,
         float maxGrappleDistance,
-        KeyCode grappleKey
+        KeyCode grappleKey,
+        bool canCancelGrapple
         )
     {
         PlayerMovement movement = target.AddComponent<PlayerMovement>();
@@ -114,6 +115,7 @@ public class Utils : MonoBehaviour
         movement.GrappleSpeed = grappleSpeed;
         movement.MaxGrappleDistance = maxGrappleDistance;
         movement.GrappleKey = grappleKey;
+        movement.CanCancelGrapple = canCancelGrapple;
 
         return movement;
     }

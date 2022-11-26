@@ -54,6 +54,7 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private float maxGrappleDistance;
     [SerializeField][OnChangedCall("OnVariableChange")] private float grappleCoolDown;
     [SerializeField][OnChangedCall("OnVariableChange")] private float grappleSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool canCancelGrapple;
 
     [Header("Crouch Configurations")]
     [SerializeField] [OnChangedCall("OnVariableChange")] private float crouchHeight;
@@ -175,7 +176,8 @@ public class PlayerMovementController : MonoBehaviour
             grappleCoolDown,
             grappleSpeed,
             maxGrappleDistance,
-            grappleKey
+            grappleKey,
+            canCancelGrapple
             );
 
     }
@@ -247,11 +249,12 @@ public class PlayerMovementController : MonoBehaviour
                 playerMovement.WalkHeadBob = walkHeadBob;
                 playerMovement.SprintHeadBob = sprintHeadBob;
 
-                playerMovement.GrappleLayer = grappleLayer;
+                playerMovement.GrappleLayer = 1 << grappleLayer;
                 playerMovement.GrappleCoolDown = grappleCoolDown;
                 playerMovement.GrappleSpeed = grappleSpeed;
                 playerMovement.MaxGrappleDistance = maxGrappleDistance;
                 playerMovement.GrappleKey = grappleKey;
+                playerMovement.CanCancelGrapple = canCancelGrapple;
             }
         }
     }

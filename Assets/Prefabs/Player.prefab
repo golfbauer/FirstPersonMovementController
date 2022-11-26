@@ -293,7 +293,7 @@ MonoBehaviour:
   grappleLayer: 7
   maxGrappleDistance: 100
   grappleCoolDown: 0
-  grappleSpeed: 30
+  grappleSpeed: 10
   canCancelGrapple: 1
   crouchHeight: 0.5
   standingHeight: 2

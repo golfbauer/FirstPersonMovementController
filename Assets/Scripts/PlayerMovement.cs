@@ -101,6 +101,8 @@ public class PlayerMovement : MonoBehaviour
     private float elapsedSinceNotOnGround;
     private float elapsedSinceGrapple;
 
+    private float grappleTime;
+
     private int currentJumpCount;
 
     private float slideX;
@@ -437,6 +439,7 @@ public class PlayerMovement : MonoBehaviour
         if (canGrapple || isGrappling)
         {
             isGrappling = true;
+            grappleTime += Time.deltaTime;
             if (grapplingAnimation)
             {
                 movement = Vector3.zero;
@@ -448,12 +451,13 @@ public class PlayerMovement : MonoBehaviour
                 isGrappling = false;
                 return;
             }
-            movement = grappleMoveDirect * GrappleSpeed * Time.deltaTime;
+            movement = grappleMoveDirect * GrappleForceFunction () * GrappleSpeed * Time.deltaTime;
             return;
         }
 
         UndoChangeGravity();
         isGrappling = false;
+        ResetGrappleTime();
         elapsedSinceGrapple += Time.deltaTime;
     }
 
@@ -484,6 +488,16 @@ public class PlayerMovement : MonoBehaviour
         grapplingAnimation = true;
         TempChangeGravity(Vector3.zero);
         velocity = Vector3.zero;
+    }
+
+    void ResetGrappleTime()
+    {
+        grappleTime = 1f;
+    }
+
+    float GrappleForceFunction()
+    {
+        return grappleTime * grappleTime * grappleTime;
     }
 
     void TempChangeGravity(Vector3 gravity)

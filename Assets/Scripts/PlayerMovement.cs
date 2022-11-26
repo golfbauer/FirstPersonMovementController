@@ -30,10 +30,14 @@ public class PlayerMovement : MonoBehaviour
     public float MaxGrappleDistance { get; set; }
     public float GrappleCoolDown { get; set; }
     public float GrappleSpeed { get; set; }
+    public float MaxDashTime { get; set; } = 1.5f;
+    public float DashControl { get; set; } = 0f;
+    public float DashSpeed { get; set; } = 30f;
 
     public int CountAllowedJumps { get; set; }
     public int WallRunLayer { get; set; }
     public int GrappleLayer { get; set; }
+    public int MaxDashCount { get; set; } = 1;
 
     public Vector2 WallJumpForce { get; set; }
     public Vector2 CrouchHeadBobWalk { get; set; }
@@ -45,6 +49,7 @@ public class PlayerMovement : MonoBehaviour
 
     public bool CanCancelSlide { get; set; }
     public bool CanCancelGrapple { get; set; }
+    public bool CanCancelDash { get; set; } = true;
     public bool CanChangeWallJumpDirect { get; set; }
 
     public KeyCode SprintKey { get; set; }
@@ -54,6 +59,7 @@ public class PlayerMovement : MonoBehaviour
     public KeyCode WallRunKey { get; set; }
     public KeyCode WallJumpKey { get; set; }
     public KeyCode GrappleKey { get; set; }
+    public KeyCode DashKey { get; set; } = KeyCode.LeftShift;
 
     public Vector3 CrouchingCenter { get; set; }
     public Vector3 StandingCenter { get; set; }
@@ -77,6 +83,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isWallRunning;
     private bool isWallJumping;
     public bool isGrappling;
+    private bool isDashing;
 
     private bool onGround;
     private bool crouched;
@@ -96,6 +103,7 @@ public class PlayerMovement : MonoBehaviour
     private bool canWallJump => PlayerCanWallJump();
     private bool canHeadbob => onGround && !isSliding;
     private bool canGrapple => PlayerCanGrapple();
+    private bool canDash => isJumping && !onGround && !isDashing && Input.GetKeyDown(DashKey);
 
     private float elapsedSinceJump;
     private float elapsedSinceNotOnGround;
@@ -107,7 +115,7 @@ public class PlayerMovement : MonoBehaviour
 
     private float slideX;
     private float slideZ;
-    private float timeElapsed;
+    private float slideTimeElapsed;
     private Vector3 slideDirect;
 
     private bool isWallRight;
@@ -133,6 +141,12 @@ public class PlayerMovement : MonoBehaviour
     public RaycastHit grappleHit;
     public Vector3 localGrappleHitPoint;
     private Vector3 grappleMoveDirect;
+
+    private int currentDashCount;
+    private float currentDashTime;
+    private float dashX;
+    private float dashZ;
+    private Vector3 dashDirect;
 
     private Vector3 velocity;
     private Vector3 movement;
@@ -181,6 +195,8 @@ public class PlayerMovement : MonoBehaviour
         PlayerCrouch();
 
         PlayerSlide();
+
+        PlayerDash();
 
         PlayerGrapple();
 
@@ -513,7 +529,7 @@ public class PlayerMovement : MonoBehaviour
 
     void UndoChangeGravity()
     {
-        if(!isGrappling && !isWallRunning) Gravity = prevGravity;
+        if(!isGrappling && !isWallRunning && !isDashing) Gravity = prevGravity;
     }
 
     void PlayerCrouch()
@@ -568,7 +584,7 @@ public class PlayerMovement : MonoBehaviour
             slideX = Input.GetAxis("Horizontal");
             slideZ = Input.GetAxis("Vertical");
             slideDirect = transform.right * slideX + transform.forward * slideZ;
-            timeElapsed = 0;
+            slideTimeElapsed = 0;
 
             isSliding = true;
             Slide = false;
@@ -576,25 +592,63 @@ public class PlayerMovement : MonoBehaviour
 
         if (isSliding)
         {
-            if (cancelSlide && timeElapsed > 0)
+            if (cancelSlide && slideTimeElapsed > 0)
             {
                 isSliding = false;
                 Crouch = true;
                 return;
             }
 
-            if (timeElapsed < TimeSlide)
+            if (slideTimeElapsed < TimeSlide)
             {
                 Vector3 currentSlideDirect =
                     slideDirect * (1f - SlideControl) +
                     (SlideControl * (slideX * transform.right + transform.forward * slideZ));
                 movement = currentSlideDirect * SlideSpeed * Time.deltaTime;
 
-                timeElapsed += Time.deltaTime;
+                slideTimeElapsed += Time.deltaTime;
                 return;
             }
             isSliding = false;
             Crouch = true;
+        }
+    }
+
+    void PlayerDash()
+    {
+        if (canDash)
+        {
+            dashX = Input.GetAxis("Horizontal");
+            dashZ = Input.GetAxis("Vertical");
+            dashDirect = transform.right * slideX + transform.forward * slideZ;
+            currentDashTime = 0;
+            TempChangeGravity(Vector3.zero);
+            velocity = Vector3.zero;
+
+            isDashing = true;
+            isJumping = false;
+        }
+
+        if (isDashing)
+        {
+            //if (cancelSlide && slideTimeElapsed > 0)
+            //{
+            //    isSliding = false;
+            //    Crouch = true;
+            //    return;
+            //}
+            if (currentDashTime < MaxDashTime)
+            {
+                Vector3 currentDashDirect =
+                    dashDirect * (1f - DashControl) +
+                    (DashControl * (dashX * transform.right + transform.forward * dashZ));
+                movement = currentDashDirect * SlideSpeed * Time.deltaTime;
+
+                currentDashTime += Time.deltaTime;
+                return;
+            }
+            isDashing = false;
+            UndoChangeGravity();
         }
     }
 

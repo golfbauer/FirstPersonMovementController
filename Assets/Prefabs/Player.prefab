@@ -304,6 +304,10 @@ MonoBehaviour:
   timeSlide: 0.5
   slideControll: 0
   canCancelSlide: 1
+  dashSpeed: 20
+  maxDashTime: 0.3
+  dashControll: 0
+  maxDashCount: 3
   gravity: {x: 0, y: -19.62, z: 0}
   sprintKey: 304
   jumpKey: 32
@@ -312,6 +316,7 @@ MonoBehaviour:
   wallRunKey: 32
   wallJumpKey: 0
   grappleKey: 102
+  dashKey: 304
   crouchHeadBobWalk: {x: 0, y: 0}
   crouchHeadBobSprint: {x: 0, y: 0}
   crouchHeadBobDefault: {x: 0, y: 0}

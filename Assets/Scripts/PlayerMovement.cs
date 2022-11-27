@@ -30,14 +30,14 @@ public class PlayerMovement : MonoBehaviour
     public float MaxGrappleDistance { get; set; }
     public float GrappleCoolDown { get; set; }
     public float GrappleSpeed { get; set; }
-    public float MaxDashTime { get; set; } = 1.5f;
-    public float DashControl { get; set; } = 0f;
-    public float DashSpeed { get; set; } = 30f;
+    public float MaxDashTime { get; set; }
+    public float DashControll { get; set; }
+    public float DashSpeed { get; set; }
 
     public int CountAllowedJumps { get; set; }
     public int WallRunLayer { get; set; }
     public int GrappleLayer { get; set; }
-    public int MaxDashCount { get; set; } = 1;
+    public int MaxDashCount { get; set; }
 
     public Vector2 WallJumpForce { get; set; }
     public Vector2 CrouchHeadBobWalk { get; set; }
@@ -59,7 +59,7 @@ public class PlayerMovement : MonoBehaviour
     public KeyCode WallRunKey { get; set; }
     public KeyCode WallJumpKey { get; set; }
     public KeyCode GrappleKey { get; set; }
-    public KeyCode DashKey { get; set; } = KeyCode.LeftShift;
+    public KeyCode DashKey { get; set; }
 
     public Vector3 CrouchingCenter { get; set; }
     public Vector3 StandingCenter { get; set; }
@@ -103,7 +103,7 @@ public class PlayerMovement : MonoBehaviour
     private bool canWallJump => PlayerCanWallJump();
     private bool canHeadbob => onGround && !isSliding;
     private bool canGrapple => PlayerCanGrapple();
-    private bool canDash => isJumping && !onGround && !isDashing && Input.GetKeyDown(DashKey);
+    private bool canDash => (isJumping || isWallJumping) && !onGround && !isDashing && Input.GetKeyDown(DashKey) && currentDashCount < MaxDashCount;
 
     private float elapsedSinceJump;
     private float elapsedSinceNotOnGround;
@@ -287,7 +287,6 @@ public class PlayerMovement : MonoBehaviour
             Jump = false;
             isJumping = true;
         }
-
         elapsedSinceJump += Time.deltaTime;
     }
 
@@ -620,7 +619,11 @@ public class PlayerMovement : MonoBehaviour
         {
             dashX = Input.GetAxis("Horizontal");
             dashZ = Input.GetAxis("Vertical");
-            dashDirect = transform.right * slideX + transform.forward * slideZ;
+            dashDirect = transform.right * dashX + transform.forward * dashZ;
+            if(dashDirect == Vector3.zero)
+            {
+                dashDirect = transform.forward;
+            }
             currentDashTime = 0;
             TempChangeGravity(Vector3.zero);
             velocity = Vector3.zero;
@@ -631,24 +634,29 @@ public class PlayerMovement : MonoBehaviour
 
         if (isDashing)
         {
-            //if (cancelSlide && slideTimeElapsed > 0)
-            //{
-            //    isSliding = false;
-            //    Crouch = true;
-            //    return;
-            //}
             if (currentDashTime < MaxDashTime)
             {
                 Vector3 currentDashDirect =
-                    dashDirect * (1f - DashControl) +
-                    (DashControl * (dashX * transform.right + transform.forward * dashZ));
-                movement = currentDashDirect * SlideSpeed * Time.deltaTime;
+                    dashDirect * (1f - DashControll) +
+                    (DashControll * (dashX * transform.right + transform.forward * dashZ));
+                movement = currentDashDirect * DashSpeed * Time.deltaTime;
 
                 currentDashTime += Time.deltaTime;
                 return;
             }
             isDashing = false;
+            isJumping = true;
+            currentDashCount++;
             UndoChangeGravity();
+        }
+        ResetDash();
+    }
+
+    void ResetDash()
+    {
+        if(onGround || isWallRunning || isGrappling)
+        {
+            currentDashCount = 0;
         }
     }
 

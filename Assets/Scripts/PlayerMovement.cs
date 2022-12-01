@@ -49,7 +49,6 @@ public class PlayerMovement : MonoBehaviour
 
     public bool CanCancelSlide { get; set; }
     public bool CanCancelGrapple { get; set; }
-    public bool CanCancelDash { get; set; } = true;
     public bool CanChangeWallJumpDirect { get; set; }
 
     public KeyCode SprintKey { get; set; }

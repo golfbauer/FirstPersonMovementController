@@ -69,6 +69,12 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] [OnChangedCall("OnVariableChange")] private float slideControll;
     [SerializeField] [OnChangedCall("OnVariableChange")] private bool canCancelSlide;
 
+    [Header("Dash Configurations")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float dashSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float maxDashTime;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float dashControll;
+    [SerializeField][OnChangedCall("OnVariableChange")] private int maxDashCount;
+
     [Header("Environmental Configurations")]
     [SerializeField] [OnChangedCall("OnVariableChange")] private Vector3 gravity = new Vector3(0, -9.81f, 0);
 
@@ -80,6 +86,7 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode wallRunKey = KeyCode.Space;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode wallJumpKey;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode grappleKey;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode dashKey;
 
     [Header("Head Bob Configurations")]
     [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 crouchHeadBobWalk;
@@ -177,7 +184,12 @@ public class PlayerMovementController : MonoBehaviour
             grappleSpeed,
             maxGrappleDistance,
             grappleKey,
-            canCancelGrapple
+            canCancelGrapple,
+            dashSpeed,
+            maxDashTime,
+            dashControll,
+            maxDashCount,
+            dashKey
             );
 
     }
@@ -255,6 +267,12 @@ public class PlayerMovementController : MonoBehaviour
                 playerMovement.MaxGrappleDistance = maxGrappleDistance;
                 playerMovement.GrappleKey = grappleKey;
                 playerMovement.CanCancelGrapple = canCancelGrapple;
+
+                playerMovement.DashSpeed = dashSpeed;
+                playerMovement.MaxDashTime = maxDashTime;
+                playerMovement.DashControll = dashControll;
+                playerMovement.MaxDashCount = maxDashCount;
+                playerMovement.DashKey = dashKey;
             }
         }
     }

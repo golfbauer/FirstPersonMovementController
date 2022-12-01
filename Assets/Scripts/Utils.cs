@@ -66,7 +66,12 @@ public class Utils : MonoBehaviour
         float grappleSpeed,
         float maxGrappleDistance,
         KeyCode grappleKey,
-        bool canCancelGrapple
+        bool canCancelGrapple,
+        float dashSpeed,
+        float maxDashTime,
+        float dashControll,
+        int maxDashCount,
+        KeyCode dashKey
         )
     {
         PlayerMovement movement = target.AddComponent<PlayerMovement>();
@@ -116,6 +121,12 @@ public class Utils : MonoBehaviour
         movement.MaxGrappleDistance = maxGrappleDistance;
         movement.GrappleKey = grappleKey;
         movement.CanCancelGrapple = canCancelGrapple;
+
+        movement.DashSpeed = dashSpeed;
+        movement.MaxDashTime = maxDashTime;
+        movement.DashControll = dashControll;
+        movement.MaxDashCount = maxDashCount;
+        movement.DashKey = dashKey;
 
         return movement;
     }

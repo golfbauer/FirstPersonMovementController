@@ -1,49 +1,111 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using Vector3 = UnityEngine.Vector3;
 
-public abstract class PlayerFeature
+public abstract class PlayerFeature : MonoBehaviour
 {
+    public PlayerMovementManager manager { get; set; }
+
     // Time since the action was last executed, will reset on action executed
-    float elapsedSinceLastExecution;
+    protected float elapsedSinceLastExecution { get; set; }
+
     // Time since start of execution, will reset when execution finishes
-    float elapsedSinceStartExecution;
+    protected float elapsedSinceStartExecution { get; set; }
 
     // Identifies Feature for manager
-    string identifier;
+    public string Identifier { get; set; }
 
     // Final movement passed on to the manager
-    Vector3 movement;
-
-    // Contains a list of features that will still be checked for actions after this feature performs an action
-    string[] supportedFeatures;
-
-    // Checks as long as action is executed
-    bool isExecutingAction;
+    protected Vector3 velocity { get; set; }
 
     // All Keys that will be checked before performing action
-    KeyCode[] actionKeys;
+    protected KeyCode[] actionKeys { get; set; }
+
+    // Contains a list of features that will still be checked for actions after this feature performs an action
+    public List<string> SupportedFeatures { get; set; }
+
+    // Checks as long as action is executed
+    public bool IsExecutingAction { get; set; }
 
     // Will disable Feature, controlled through the manager
-    bool disableFeature;
+    public bool DisableFeature { get; set; }
 
-
-    public PlayerFeature()
+    private void Start()
     {
+        if (manager == null)
+        {
+            manager = GetComponent<PlayerMovementManager>();
+        }
+        if (manager == null)
+        {
+            throw new System.Exception("Couldnt attach manager to " + Identifier);
+        }
     }
 
-    // Gets called by manager and returns movement
-    public abstract Vector3 CheckAction();
+    /// <summary>
+    /// Gets called by manager
+    /// </summary>
+    public abstract void CheckAction();
 
-    // Checks if the action can be performed
-    public abstract bool CanExecute();
+    /// <summary>
+    /// Checks if the action can be executed
+    /// </summary>
+    /// <returns>True if action will be executed</returns>
+    protected abstract bool CanExecute();
 
-    // Initializes run, will only be called once when isExecutingAction
-    public abstract void Init();
+    /// <summary>
+    /// Initializes run, will only be called once when isExecutingAction
+    /// </summary>
+    protected abstract void Init();
 
-    // Does the calc and returns the current movement
-    public abstract Vector3 ExecuteAction();
+    /// <summary>
+    /// Does the calculation and returns the current movement
+    /// </summary>
+    /// <returns>Calculated velocity</returns>
+    protected abstract Vector3 ExecuteAction();
 
+    /// <summary>
+    /// Update the elapsed Since timers
+    /// </summary>
+    protected void UpdateElapsedSince()
+    {
+        if (IsExecutingAction)
+        {
+            elapsedSinceStartExecution += Time.deltaTime;
+            elapsedSinceLastExecution = 0;
+            return;
+        }
+
+        elapsedSinceLastExecution += Time.deltaTime;
+        elapsedSinceStartExecution = 0;
+    }
+
+    /// <summary>
+    /// Checks if all Input Keys have been pressed
+    /// </summary>
+    /// <returns>True if all keys pressed</returns>
+    protected bool CheckInputGetKeys()
+    {
+        foreach(KeyCode key in actionKeys)
+        {
+            if (!Input.GetKey(key)) return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Checks  if player is in one of the passed states
+    /// </summary>
+    /// <param name="states">List of states player can be in</param>
+    /// <returns>True if player is in one of the states</returns>
+    protected bool IsPlayerInOneOfStates(string[] states)
+    {
+        foreach(string state in states)
+        {
+            if (manager.IsFeatureActive(state)) return true;
+        }
+
+        return false;
+    }
 }
 

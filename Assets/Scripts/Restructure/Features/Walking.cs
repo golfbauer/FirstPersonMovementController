@@ -14,8 +14,7 @@ public class Walking : PlayerFeature
             UpdateElapsedSince();
             return;
         }
-
-        Init();
+        if(!IsExecutingAction) Init();
         velocity = ExecuteAction();
 
         if(velocity != Vector3.zero)
@@ -47,7 +46,7 @@ public class Walking : PlayerFeature
 
         Vector3 moveDirect = transform.right * moveX + transform.forward * moveZ;
 
-        return moveDirect * MoveSpeed * Time.deltaTime;
+        return moveDirect * MoveSpeed;
     }
 }
 

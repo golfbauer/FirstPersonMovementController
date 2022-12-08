@@ -4,16 +4,11 @@ using UnityEngine;
 
 public abstract class PlayerFeature : MonoBehaviour
 {
-    public PlayerMovementManager manager { get; set; }
-
     // Time since the action was last executed, will reset on action executed
     protected float elapsedSinceLastExecution { get; set; }
 
     // Time since start of execution, will reset when execution finishes
     protected float elapsedSinceStartExecution { get; set; }
-
-    // Identifies Feature for manager
-    public string Identifier { get; set; }
 
     // Final movement passed on to the manager
     protected Vector3 velocity { get; set; }
@@ -24,11 +19,17 @@ public abstract class PlayerFeature : MonoBehaviour
     // Contains a list of features that will still be checked for actions after this feature performs an action
     public List<string> SupportedFeatures { get; set; }
 
+    // Identifies Feature for manager
+    public string Identifier { get; set; }
+
     // Checks as long as action is executed
     public bool IsExecutingAction { get; set; }
 
     // Will disable Feature, controlled through the manager
     public bool DisableFeature { get; set; }
+
+
+    public PlayerMovementManager manager { get; set; }
 
     private void Start()
     {
@@ -98,7 +99,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// </summary>
     /// <param name="states">List of states player can be in</param>
     /// <returns>True if player is in one of the states</returns>
-    protected bool IsPlayerInOneOfStates(string[] states)
+    protected bool IsPlayerInOneOfStates(List<string> states)
     {
         foreach(string state in states)
         {

@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Jumping : PlayerFeature
 {
 
     public int MaxJumpCount { get; set; }
     public Vector3 JumpForce { get; set; }
-    public float MoveCap { get; set; }
-    private string[] BreakingFeatures { get; set; }
+    public float JumpCap { get; set; }
+    public List<string> BreakingFeatures { get; set; }
 
     private int currentJumpCount;
 
@@ -20,10 +21,10 @@ public class Jumping : PlayerFeature
             return;
         }
 
-        Init();
+        if (!IsExecutingAction) Init();
         velocity = ExecuteAction();
 
-        manager.AddVelocity(velocity, MoveCap);
+        manager.AddVelocity(velocity, JumpCap);
         IsExecutingAction = true;
         UpdateElapsedSince();
     }

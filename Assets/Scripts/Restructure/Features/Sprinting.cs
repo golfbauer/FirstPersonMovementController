@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class NewMonoBehaviour : Walking
+public class Sprinting : Walking
 {
     protected override bool CanExecute()
     {

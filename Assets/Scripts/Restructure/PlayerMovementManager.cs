@@ -10,10 +10,10 @@ public class PlayerMovementManager : MonoBehaviour
 
     private Vector3 velocity;
     private Vector3 movement;
-    private float groundedVelocityDeclineRate;
-    private float airborneVelocityDeclineRate;
 
 
+    public float GroundedVelocityDeclineRate { get; set; }
+    public float AirborneVelocityDeclineRate { get; set; }
     public Vector3 BaseGravity { get; set; }
     public float GravityMultiplier { get; set; } = 1;
     public Vector3 Gravity
@@ -71,11 +71,11 @@ public class PlayerMovementManager : MonoBehaviour
     {
         if (IsGrounded())
         {
-            velocity = velocity.normalized * (velocity.magnitude - groundedVelocityDeclineRate);
+            velocity = velocity.normalized * (velocity.magnitude - GroundedVelocityDeclineRate);
         } 
         else
         {
-            velocity = velocity.normalized * (velocity.magnitude - airborneVelocityDeclineRate);
+            velocity = velocity.normalized * (velocity.magnitude - AirborneVelocityDeclineRate);
         }
     }
 

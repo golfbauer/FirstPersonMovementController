@@ -54,5 +54,8 @@ public class PlayerMovementFactory : MonoBehaviour
     void InitializeManager()
     {
         manager = this.AddComponent<PlayerMovementManager>();
+        manager.BaseGravity = new Vector3(0, -9.81f, 0);
+        manager.GroundedVelocityDeclineRate = 5;
+        manager.AirborneVelocityDeclineRate = 0;
     }
 }

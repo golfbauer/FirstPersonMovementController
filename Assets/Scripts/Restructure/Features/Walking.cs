@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Walking : PlayerFeature
 {
+
     public float MoveSpeed { get; set; }
     public float MoveCap { get; set; }
 
@@ -15,11 +17,11 @@ public class Walking : PlayerFeature
             return;
         }
         if(!IsExecutingAction) Init();
-        velocity = ExecuteAction();
+        Velocity = ExecuteAction();
 
-        if(velocity != Vector3.zero)
+        if(Velocity != Vector3.zero)
         {
-            manager.AddVelocity(velocity, MoveCap);
+            manager.AddVelocity(Velocity, MoveCap);
             IsExecutingAction = true;
             UpdateElapsedSince();
             return;
@@ -41,8 +43,8 @@ public class Walking : PlayerFeature
 
     protected override Vector3 ExecuteAction()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
+        float moveX = Input.GetAxisRaw("Horizontal");
+        float moveZ = Input.GetAxisRaw("Vertical");
 
         Vector3 moveDirect = transform.right * moveX + transform.forward * moveZ;
 

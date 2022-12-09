@@ -5,16 +5,16 @@ using UnityEngine;
 public abstract class PlayerFeature : MonoBehaviour
 {
     // Time since the action was last executed, will reset on action executed
-    protected float elapsedSinceLastExecution { get; set; }
+    protected float ElapsedSinceLastExecution { get; set; }
 
     // Time since start of execution, will reset when execution finishes
-    protected float elapsedSinceStartExecution { get; set; }
+    protected float ElapsedSinceStartExecution { get; set; }
 
     // Final movement passed on to the manager
-    protected Vector3 velocity { get; set; }
+    protected Vector3 Velocity { get; set; }
 
     // All Keys that will be checked before performing action
-    protected KeyCode[] actionKeys { get; set; }
+    public KeyCode[] ActionKeys { get; set; }
 
     // Contains a list of features that will still be checked for actions after this feature performs an action
     public List<string> SupportedFeatures { get; set; }
@@ -27,7 +27,6 @@ public abstract class PlayerFeature : MonoBehaviour
 
     // Will disable Feature, controlled through the manager
     public bool DisableFeature { get; set; }
-
 
     public PlayerMovementManager manager { get; set; }
 
@@ -72,13 +71,13 @@ public abstract class PlayerFeature : MonoBehaviour
     {
         if (IsExecutingAction)
         {
-            elapsedSinceStartExecution += Time.deltaTime;
-            elapsedSinceLastExecution = 0;
+            ElapsedSinceStartExecution += Time.deltaTime;
+            ElapsedSinceLastExecution = 0;
             return;
         }
 
-        elapsedSinceLastExecution += Time.deltaTime;
-        elapsedSinceStartExecution = 0;
+        ElapsedSinceLastExecution += Time.deltaTime;
+        ElapsedSinceStartExecution = 0;
     }
 
     /// <summary>
@@ -87,7 +86,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// <returns>True if all keys pressed</returns>
     protected bool CheckInputGetKeys()
     {
-        foreach(KeyCode key in actionKeys)
+        foreach(KeyCode key in ActionKeys)
         {
             if (!Input.GetKey(key)) return false;
         }

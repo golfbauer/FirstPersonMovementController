@@ -11,6 +11,14 @@ public class PlayerMovementManager : MonoBehaviour
     private Vector3 velocity;
     private Vector3 movement;
 
+    private Vector2 HorizontalVelocity
+    {
+        get { return new Vector2(velocity.x, velocity.z); }
+        set { velocity.x = value.x; velocity.z = value.y; }
+    }
+
+    private bool idle;
+
 
     public float GroundedVelocityDeclineRate { get; set; }
     public float AirborneVelocityDeclineRate { get; set; }
@@ -30,35 +38,61 @@ public class PlayerMovementManager : MonoBehaviour
 
     RaycastHit groundHit;
 
+    private void Awake()
+    {
+        kcc = GetComponent<KinematicCharacterController>();
+
+        features = new Dictionary<string, PlayerFeature>();
+        activeFeatures = new List<string>();
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        kcc = GetComponent<KinematicCharacterController>();
+        movement = Vector3.zero;
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        ApplyFriction();
-        ApplyGravity();
+        idle = true;
 
         List<string> supportedFeatures = new List<string>();
         foreach (String featureId in activeFeatures)
         {
             PlayerFeature feature = features[featureId];
             feature.CheckAction();
-            supportedFeatures.AddRange(feature.SupportedFeatures);
 
-            if (!feature.IsExecutingAction)
+
+            if (feature.IsExecutingAction)
             {
-                activeFeatures.Remove(featureId);
+                idle = false;
+
+                supportedFeatures.AddRange(feature.SupportedFeatures);
+                continue;
             }
+
+            activeFeatures.Remove(featureId);
 
         }
 
+        foreach (PlayerFeature feature in features.Values)
+        {
+            feature.CheckAction();
+
+            if (feature.IsExecutingAction)
+            {
+                idle = false;
+            }
+        }
+
+        ApplyFriction();
+        ApplyGravity();
+
 
         movement = velocity * Time.deltaTime;
+        Debug.Log(idle);
         if (ProjectOnPlane)
         {
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
@@ -69,42 +103,47 @@ public class PlayerMovementManager : MonoBehaviour
 
     private void ApplyFriction()
     {
-        if (IsGrounded())
+        if (idle)
         {
-            velocity = velocity.normalized * (velocity.magnitude - GroundedVelocityDeclineRate);
-        } 
-        else
-        {
-            velocity = velocity.normalized * (velocity.magnitude - AirborneVelocityDeclineRate);
+            if (IsGrounded())
+            {
+                HorizontalVelocity = HorizontalVelocity.normalized * (HorizontalVelocity.magnitude - (GroundedVelocityDeclineRate * Time.deltaTime));
+            } 
+            else
+            {
+                HorizontalVelocity = HorizontalVelocity.normalized * (HorizontalVelocity.magnitude - (AirborneVelocityDeclineRate * Time.deltaTime));
+            }
         }
     }
 
     private void ApplyGravity()
     {
-        if (!IsGrounded()) 
+        if (IsGrounded() && velocity.y < 0) 
         {
-            velocity += Gravity;
+            velocity.y = 0;
         }
+
+        velocity += Gravity * Time.deltaTime;
     }
 
     /// <summary>
     /// Adds Velocity to PlayerMovementManager.velocity up to the specified maxSpeed
     /// </summary>
     /// <param name="velocity">Velocity to add. This value should be in units/s and not relative to Time.deltaTime</param>
-    /// <param name="maxSpeed">Maximum magnitude of the PlayerMovementManager.velocity vector. This method will add up the the specified value but won't reduce the velocity if it is already higher.</param>
+    /// <param name="maxSpeed">Maximum magnitude of horizontal (x and z) part of the PlayerMovementManager.velocity vector. This method will add up the the specified value but won't reduce the velocity if it is already higher.</param>
     public void AddVelocity(Vector3 velocityDelta, float maxSpeed) 
     {
-        float startSpeed = velocity.magnitude;
+        float startSpeed = HorizontalVelocity.magnitude;
 
         velocity += velocityDelta * Time.deltaTime;
        
-        if (startSpeed > maxSpeed && velocity.magnitude > startSpeed)
+        if (startSpeed > maxSpeed && HorizontalVelocity.magnitude > startSpeed)
         {
-            velocity = velocity.normalized * startSpeed;
+            HorizontalVelocity = HorizontalVelocity.normalized * startSpeed;
         } 
-        if (startSpeed < maxSpeed && velocity.magnitude > maxSpeed)
+        if (startSpeed < maxSpeed && HorizontalVelocity.magnitude > maxSpeed)
         {
-            velocity = velocity.normalized * maxSpeed;
+            HorizontalVelocity = HorizontalVelocity.normalized * maxSpeed;
         }
     }
 

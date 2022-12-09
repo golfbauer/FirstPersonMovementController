@@ -22,9 +22,9 @@ public class Jumping : PlayerFeature
         }
 
         if (!IsExecutingAction) Init();
-        velocity = ExecuteAction();
+        Velocity = ExecuteAction();
 
-        manager.AddVelocity(velocity, JumpCap);
+        manager.AddVelocity(Velocity, JumpCap);
         IsExecutingAction = true;
         UpdateElapsedSince();
     }

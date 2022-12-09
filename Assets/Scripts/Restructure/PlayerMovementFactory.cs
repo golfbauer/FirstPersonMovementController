@@ -5,11 +5,39 @@ using UnityEngine;
 
 public class PlayerMovementFactory : MonoBehaviour
 {
+
+    [Header("Debugging")]
+    [Header("Kinematic Character Controller")]
+
+    [SerializeField] private float slopeLimit;
+    [SerializeField] private float stairOffset;
+    [SerializeField] private float stairSnapdownDistance;
+    [SerializeField] private Vector3 center;
+    [SerializeField] private float height;
+    [SerializeField] private float radius;
+    [SerializeField] private float anglePower;
+    [SerializeField] private float maxBounces;
+
     private PlayerMovementManager manager;
+    private KinematicCharacterController controller;
+
+    public KinematicCharacterController Controller
+    {
+        get
+        {
+            return controller;
+        }
+    }
+
+    private void Awake()
+    {
+        InitializeKinematicCharacterController();
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+
 
         InitializeManager();
 
@@ -21,9 +49,10 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void InitializeWalking()
     {
-        Walking walking = this.AddComponent<Walking>();
-        walking.MoveSpeed = 10f;
-        walking.MoveCap = 10f;
+        Walking walking = gameObject.AddComponent<Walking>();
+        walking.MoveSpeed = 20f;
+        walking.MoveCap = 5f;
+        walking.ActionKeys = new KeyCode[] { };
         walking.SupportedFeatures = new List<string>();
         walking.Identifier = "Walking";
         manager.AddFeature(walking.Identifier, walking);
@@ -32,8 +61,9 @@ public class PlayerMovementFactory : MonoBehaviour
     void InitializeSprinting()
     {
         Sprinting sprinting = this.AddComponent<Sprinting>();
-        sprinting.MoveSpeed = 10f;
+        sprinting.MoveSpeed = 20f;
         sprinting.MoveCap = 10f;
+        sprinting.ActionKeys = new KeyCode[] { KeyCode.LeftShift };
         sprinting.SupportedFeatures = new List<string>();
         sprinting.Identifier = "Sprinting";
         manager.AddFeature(sprinting.Identifier, sprinting);
@@ -45,6 +75,7 @@ public class PlayerMovementFactory : MonoBehaviour
         jumping.MaxJumpCount = 2;
         jumping.JumpForce = new Vector3(0, 10f, 0);
         jumping.JumpCap = 30f;
+        jumping.ActionKeys = new KeyCode[] { KeyCode.Space };
         jumping.BreakingFeatures = new List<string>();
         jumping.SupportedFeatures = new List<string>();
         jumping.Identifier = "Jumping";
@@ -55,7 +86,22 @@ public class PlayerMovementFactory : MonoBehaviour
     {
         manager = this.AddComponent<PlayerMovementManager>();
         manager.BaseGravity = new Vector3(0, -9.81f, 0);
-        manager.GroundedVelocityDeclineRate = 5;
+        manager.GroundedVelocityDeclineRate = 15;
         manager.AirborneVelocityDeclineRate = 0;
+    }
+
+    void InitializeKinematicCharacterController()
+    {
+        controller = Utils.CreateKinemeticCharacterController(
+            this.gameObject,
+            slopeLimit,
+            stairOffset,
+            stairSnapdownDistance,
+            center,
+            height,
+            radius,
+            anglePower,
+            maxBounces
+        );
     }
 }

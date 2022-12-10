@@ -50,7 +50,7 @@ public class PlayerMovementFactory : MonoBehaviour
     void InitializeWalking()
     {
         Walking walking = gameObject.AddComponent<Walking>();
-        walking.MoveSpeed = 20f;
+        walking.MoveSpeed = 40f;
         walking.MoveCap = 5f;
         walking.ActionKeys = new KeyCode[] { };
         walking.SupportedFeatures = new List<string>();
@@ -61,7 +61,7 @@ public class PlayerMovementFactory : MonoBehaviour
     void InitializeSprinting()
     {
         Sprinting sprinting = this.AddComponent<Sprinting>();
-        sprinting.MoveSpeed = 20f;
+        sprinting.MoveSpeed = 40f;
         sprinting.MoveCap = 10f;
         sprinting.ActionKeys = new KeyCode[] { KeyCode.LeftShift };
         sprinting.SupportedFeatures = new List<string>();
@@ -86,7 +86,7 @@ public class PlayerMovementFactory : MonoBehaviour
     {
         manager = this.AddComponent<PlayerMovementManager>();
         manager.BaseGravity = new Vector3(0, -9.81f, 0);
-        manager.GroundedVelocityDeclineRate = 15;
+        manager.GroundedVelocityDeclineRate = 20f;
         manager.AirborneVelocityDeclineRate = 0;
     }
 

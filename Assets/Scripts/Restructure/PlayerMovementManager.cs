@@ -17,9 +17,6 @@ public class PlayerMovementManager : MonoBehaviour
         set { velocity.x = value.x; velocity.z = value.y; }
     }
 
-    private bool idle;
-
-
     public float GroundedVelocityDeclineRate { get; set; }
     public float AirborneVelocityDeclineRate { get; set; }
     public Vector3 BaseGravity { get; set; }
@@ -56,35 +53,16 @@ public class PlayerMovementManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        idle = true;
-
-        List<string> supportedFeatures = new List<string>();
-        foreach (String featureId in activeFeatures)
-        {
-            PlayerFeature feature = features[featureId];
-            feature.CheckAction();
-
-
-            if (feature.IsExecutingAction)
-            {
-                idle = false;
-
-                supportedFeatures.AddRange(feature.SupportedFeatures);
-                continue;
-            }
-
-            activeFeatures.Remove(featureId);
-
-        }
 
         foreach (PlayerFeature feature in features.Values)
         {
             feature.CheckAction();
-
             if (feature.IsExecutingAction)
             {
-                idle = false;
+                activeFeatures.Add(feature.Identifier);
+                continue;
             }
+            activeFeatures.Remove(feature.Identifier);
         }
 
         ApplyFriction();
@@ -92,7 +70,6 @@ public class PlayerMovementManager : MonoBehaviour
 
 
         movement = velocity * Time.deltaTime;
-        Debug.Log(idle);
         if (ProjectOnPlane)
         {
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
@@ -103,16 +80,13 @@ public class PlayerMovementManager : MonoBehaviour
 
     private void ApplyFriction()
     {
-        if (idle)
+        if (IsGrounded())
         {
-            if (IsGrounded())
-            {
-                HorizontalVelocity = HorizontalVelocity.normalized * (HorizontalVelocity.magnitude - (GroundedVelocityDeclineRate * Time.deltaTime));
-            } 
-            else
-            {
-                HorizontalVelocity = HorizontalVelocity.normalized * (HorizontalVelocity.magnitude - (AirborneVelocityDeclineRate * Time.deltaTime));
-            }
+            HorizontalVelocity = HorizontalVelocity.normalized * Math.Max(0, (HorizontalVelocity.magnitude - (GroundedVelocityDeclineRate * Time.deltaTime)));
+        } 
+        else
+        {
+            HorizontalVelocity = HorizontalVelocity.normalized * Math.Max(0, (HorizontalVelocity.magnitude - (AirborneVelocityDeclineRate * Time.deltaTime)));
         }
     }
 

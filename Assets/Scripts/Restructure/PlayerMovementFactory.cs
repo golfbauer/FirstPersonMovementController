@@ -18,6 +18,8 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField] private float anglePower;
     [SerializeField] private float maxBounces;
 
+    [SerializeField] private GameObject playerCamera;
+
     private PlayerMovementManager manager;
     private KinematicCharacterController controller;
 
@@ -37,14 +39,12 @@ public class PlayerMovementFactory : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-
+        InitializeCameraController();
         InitializeManager();
 
         InitializeWalking();
         InitializeSprinting();
         InitializeJumping();
-
     }
 
     void InitializeWalking()
@@ -103,5 +103,12 @@ public class PlayerMovementFactory : MonoBehaviour
             anglePower,
             maxBounces
         );
+    }
+
+    void InitializeCameraController()
+    {
+        CameraController cameraController = playerCamera.AddComponent<CameraController>();
+        cameraController.PlayerTransform = transform;
+        cameraController.MouseSensitivity = 100f;
     }
 }

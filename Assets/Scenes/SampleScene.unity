@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -702,6 +702,7 @@ MonoBehaviour:
   radius: 0.5
   anglePower: 0.5
   maxBounces: 5
+  playerCamera: {fileID: 2114581198}
 --- !u!43 &536330788
 Mesh:
   m_ObjectHideFlags: 0
@@ -4240,6 +4241,11 @@ Mesh:
     offset: 0
     size: 0
     path: 
+--- !u!1 &2114581198 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4129777150849137025, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+  m_PrefabInstance: {fileID: 4129777150423864560}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1628244722895910110
 PrefabInstance:
   m_ObjectHideFlags: 0

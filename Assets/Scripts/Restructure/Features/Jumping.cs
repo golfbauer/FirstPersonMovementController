@@ -31,7 +31,7 @@ public class Jumping : PlayerFeature
 
     protected override bool CanExecute()
     {
-        if (!CheckInputGetKeys()) return false;
+        if (!CheckInputGetKeysDown()) return false;
 
         if (currentJumpCount == 0 && !manager.IsGrounded()) return false;
 

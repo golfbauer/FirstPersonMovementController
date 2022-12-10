@@ -73,8 +73,8 @@ public class PlayerMovementFactory : MonoBehaviour
     {
         Jumping jumping = this.AddComponent<Jumping>();
         jumping.MaxJumpCount = 2;
-        jumping.JumpForce = new Vector3(0, 100f, 0);
-        jumping.JumpCap = 30f;
+        jumping.JumpForce = new Vector3(0, 3000f, 0);
+        jumping.JumpCap = 3000f;
         jumping.ActionKeys = new KeyCode[] { KeyCode.Space };
         jumping.BreakingFeatures = new List<string>();
         jumping.SupportedFeatures = new List<string>();

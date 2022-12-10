@@ -81,7 +81,7 @@ public abstract class PlayerFeature : MonoBehaviour
     }
 
     /// <summary>
-    /// Checks if all Input Keys have been pressed
+    /// Checks if all Input Keys have been hold down
     /// </summary>
     /// <returns>True if all keys pressed</returns>
     protected bool CheckInputGetKeys()
@@ -89,6 +89,19 @@ public abstract class PlayerFeature : MonoBehaviour
         foreach(KeyCode key in ActionKeys)
         {
             if (!Input.GetKey(key)) return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Checks if all Input Keys have been pressed
+    /// </summary>
+    /// <returns>True if all keys pressed</returns>
+    protected bool CheckInputGetKeysDown()
+    {
+        foreach (KeyCode key in ActionKeys)
+        {
+            if (!Input.GetKeyDown(key)) return false;
         }
         return true;
     }

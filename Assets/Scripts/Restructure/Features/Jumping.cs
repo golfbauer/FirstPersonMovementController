@@ -10,7 +10,7 @@ public class Jumping : PlayerFeature
     public float JumpCap { get; set; }
     public List<string> BreakingFeatures { get; set; }
 
-    private int currentJumpCount;
+    public int CurrentJumpCount;
 
     public override void CheckAction()
     {
@@ -33,11 +33,11 @@ public class Jumping : PlayerFeature
     {
         if (!CheckInputGetKeysDown()) return false;
 
-        if (currentJumpCount == 0 && !manager.IsGrounded()) return false;
+        if (CurrentJumpCount == 0 && !manager.IsGrounded()) return false;
 
-        if (currentJumpCount >= MaxJumpCount) return false;
+        if (CurrentJumpCount >= MaxJumpCount) return false;
 
-        if (IsPlayerInOneOfStates(BreakingFeatures)) return false;
+        if (CheckIfFeaturesActive(BreakingFeatures)) return false;
 
         return true;
     }

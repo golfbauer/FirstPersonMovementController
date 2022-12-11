@@ -30,7 +30,7 @@ public abstract class PlayerFeature : MonoBehaviour
 
     public PlayerMovementManager manager { get; set; }
 
-    private void Start()
+    protected void Start()
     {
         if (manager == null)
         {
@@ -107,11 +107,24 @@ public abstract class PlayerFeature : MonoBehaviour
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    protected bool CheckInputGetKeysUp()
+    {
+        foreach (KeyCode key in ActionKeys)
+        {
+            if (!Input.GetKeyUp(key)) return false;
+        }
+        return true;
+    }
+
+    /// <summary>
     /// Checks  if player is in one of the passed states
     /// </summary>
     /// <param name="states">List of states player can be in</param>
     /// <returns>True if player is in one of the states</returns>
-    protected bool IsPlayerInOneOfStates(List<string> states)
+    protected bool CheckIfFeaturesActive(List<string> states)
     {
         foreach(string state in states)
         {

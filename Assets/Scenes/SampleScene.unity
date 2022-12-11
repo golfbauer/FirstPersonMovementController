@@ -677,32 +677,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &453433242 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4129777150225781224, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-  m_PrefabInstance: {fileID: 4129777150423864560}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &453433243
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 453433242}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be55738884ac5476e9f256a9dd1b328c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slopeLimit: 60
-  stairOffset: 0.3
-  stairSnapdownDistance: 0.9
-  center: {x: 0, y: 0, z: 0}
-  height: 2
-  radius: 0.5
-  anglePower: 0.5
-  maxBounces: 5
-  playerCamera: {fileID: 2114581198}
 --- !u!43 &536330788
 Mesh:
   m_ObjectHideFlags: 0
@@ -4241,11 +4215,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &2114581198 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4129777150849137025, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-  m_PrefabInstance: {fileID: 4129777150423864560}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1628244722895910110
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4742,7 +4711,5 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 298859791, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
-    - {fileID: 243443, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}

@@ -224,8 +224,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4129777150225781225}
-  - component: {fileID: 298859791}
   - component: {fileID: 243443}
+  - component: {fileID: 453433243}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -251,78 +251,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &298859791
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4129777150225781224}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39c782e128bd845959cedc7d4739c6ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  configDuringRuntime: 1
-  slopeLimit: 60
-  stairOffset: 0.3
-  stairSnapdownDistance: 0.9
-  center: {x: 0, y: 0, z: 0}
-  height: 2
-  radius: 0.5
-  anglePower: 0.5
-  maxBounces: 5
-  playerTransform: {fileID: 4129777150225781225}
-  playerCamera: {fileID: 4129777150849137025}
-  mouseSensivity: 200
-  moveSpeed: 5
-  sprintSpeed: 10
-  jumpForce: 2
-  countAllowedJumps: 2
-  wallRunSpeed: 20
-  wallRunMaxAngle: 100
-  wallRunLayer: 7
-  maxTimeOnWall: 500
-  wallRunGravityMultiplier: 0
-  wallRunMinimumHeight: 0
-  timeToTiltCameraWallRun: 0.5
-  maxCameraTilt: 20
-  wallJumpForce: {x: 10, y: 2}
-  wallPushForce: 2
-  canChangeWallJumpDirect: 1
-  grappleLayer: 7
-  maxGrappleDistance: 100
-  grappleCoolDown: 0
-  grappleSpeed: 10
-  canCancelGrapple: 1
-  crouchHeight: 0.5
-  standingHeight: 2
-  timeToCrouch: 0.25
-  crouchingCenter: {x: 0, y: 0.5, z: 0}
-  standingCenter: {x: 0, y: 0, z: 0}
-  slideSpeed: 20
-  timeSlide: 0.5
-  slideControll: 0
-  canCancelSlide: 1
-  dashSpeed: 20
-  maxDashTime: 0.3
-  dashControll: 0
-  maxDashCount: 3
-  gravity: {x: 0, y: -19.62, z: 0}
-  sprintKey: 304
-  jumpKey: 32
-  crouchKey: 99
-  slideKey: 99
-  wallRunKey: 32
-  wallJumpKey: 0
-  grappleKey: 102
-  dashKey: 304
-  crouchHeadBobWalk: {x: 0, y: 0}
-  crouchHeadBobSprint: {x: 0, y: 0}
-  crouchHeadBobDefault: {x: 0, y: 0}
-  sprintHeadBob: {x: 0, y: 0}
-  walkHeadBob: {x: 0, y: 0}
-  defaultHeadBob: {x: 0, y: 0}
 --- !u!114 &243443
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -337,6 +265,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lr: {fileID: 477278989}
   grapplingGunPos: {fileID: 477278985}
+--- !u!114 &453433243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4129777150225781224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be55738884ac5476e9f256a9dd1b328c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slopeLimit: 60
+  stairOffset: 0.3
+  stairSnapdownDistance: 0.9
+  center: {x: 0, y: 0, z: 0}
+  height: 2
+  radius: 0.5
+  anglePower: 0.5
+  maxBounces: 5
+  playerCamera: {fileID: 4129777150849137025}
 --- !u!1 &4129777150849137025
 GameObject:
   m_ObjectHideFlags: 0

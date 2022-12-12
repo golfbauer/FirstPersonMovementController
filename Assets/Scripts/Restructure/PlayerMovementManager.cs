@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerMovementManager : MonoBehaviour
 {
 
-    private KinematicCharacterController kcc;
+    public KinematicCharacterController Kcc { get; private set; }
 
     private Vector3 velocity;
     private Vector3 movement;
@@ -37,7 +37,7 @@ public class PlayerMovementManager : MonoBehaviour
 
     private void Awake()
     {
-        kcc = GetComponent<KinematicCharacterController>();
+        Kcc = GetComponent<KinematicCharacterController>();
 
         features = new Dictionary<string, PlayerFeature>();
         activeFeatures = new List<string>();
@@ -53,6 +53,10 @@ public class PlayerMovementManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        ProjectOnPlane = true;
+
+        ApplyFriction();
+        ApplyGravity();
 
         foreach (PlayerFeature feature in features.Values)
         {
@@ -65,16 +69,19 @@ public class PlayerMovementManager : MonoBehaviour
             activeFeatures.Remove(feature.Identifier);
         }
 
-        ApplyFriction();
-        ApplyGravity();
+        Debug.Log(velocity);
 
+        if (IsGrounded() && ProjectOnPlane && velocity.y > 0 )
+        {
+            velocity.y= 0;
+        }
 
         movement = velocity * Time.deltaTime;
         if (ProjectOnPlane)
         {
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
         }
-        transform.position = kcc.MovePlayer(movement);
+        transform.position = Kcc.MovePlayer(movement);
 
     }
 
@@ -141,7 +148,7 @@ public class PlayerMovementManager : MonoBehaviour
     /// <returns>True if there is an object <= 0.1f below the player or if player is standing on slope with an angle greater then slope limit; otherwise false</returns>
     public bool IsGrounded()
     {
-        return kcc.CheckGrounded(out groundHit);
+        return Kcc.CheckGrounded(out groundHit);
     }
 
     /// <summary>
@@ -184,6 +191,20 @@ public class PlayerMovementManager : MonoBehaviour
     public bool IsFeatureActive(string featureId)
     {
         return activeFeatures.Contains(featureId);
+    }
+
+    public void SetFeatureActive(string featureId)
+    {
+        if (!IsFeatureAdded(featureId)) {
+            throw new ArgumentException("Feature " + featureId + " needs to be added to manager before it can be set active.");
+        }
+
+        activeFeatures.Add(featureId);
+    }
+
+    public void SetFeatureNotActive(string featureId)
+    {
+        activeFeatures.Remove(featureId);
     }
 
 }

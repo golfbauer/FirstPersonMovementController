@@ -49,6 +49,7 @@ public class Jumping : PlayerFeature
 
     protected override Vector3 ExecuteAction()
     {
+        manager.ProjectOnPlane = false;
         return JumpForce;
     }
 

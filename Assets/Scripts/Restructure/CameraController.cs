@@ -34,9 +34,9 @@ public class CameraController : MonoBehaviour
         PlayerTransform.Rotate(Vector3.up * mouseX);
     }
 
-    public void TiltCamera(float targetTitl, float time)
+    public void TiltCamera(float targetTilt, float time)
     {
-        if (!isTiltingCamera) StartCoroutine(TiltingCamera(targetTitl, time));
+        if (!isTiltingCamera) StartCoroutine(TiltingCamera(targetTilt, time));
     }
 
     IEnumerator TiltingCamera(float targetTilt, float time)
@@ -54,5 +54,10 @@ public class CameraController : MonoBehaviour
 
         isTiltingCamera = false;
         zRotation = targetTilt;
+    }
+
+    public void SetCameraHeight(float targetHeight)
+    {
+        transform.position = new Vector3(transform.position.x, transform.position.y + targetHeight, transform.position.z);
     }
 }

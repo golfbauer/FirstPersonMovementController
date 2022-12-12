@@ -45,6 +45,7 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeWalking();
         InitializeSprinting();
         InitializeJumping();
+        InitializeCrouching();
         InitializeWallJump();
         InitializeWallRun();
         InitializeGrapple();
@@ -84,6 +85,19 @@ public class PlayerMovementFactory : MonoBehaviour
         jumping.SupportedFeatures = new List<string>();
         jumping.Identifier = "Jumping";
         manager.AddFeature(jumping.Identifier, jumping);
+    }
+
+    void InitializeCrouching()
+    {
+        Crouching crouching = this.AddComponent<Crouching>();
+        crouching.ActionKeys = new KeyCode[] { KeyCode.LeftControl };
+        crouching.Identifier = "Crouching";
+
+        crouching.TimeToCrouch = 1f;
+        crouching.HeightDifference = 0.5f;
+
+        crouching.CameraController = cameraController;
+        manager.AddFeature(crouching.Identifier, crouching);
     }
 
     void InitializeWallJump()

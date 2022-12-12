@@ -6,25 +6,30 @@ public class Jumping : PlayerFeature
 {
 
     public int MaxJumpCount { get; set; }
-    public Vector3 JumpForce { get; set; }
-    public float JumpCap { get; set; }
+    public float JumpHeight { get; set; }
     public List<string> BreakingFeatures { get; set; }
 
     public int CurrentJumpCount;
 
     public override void CheckAction()
     {
+
         if (DisableFeature || !CanExecute())
         {
             IsExecutingAction = !CheckIsExecuting();
             UpdateElapsedSince();
+
+            if (manager.IsGrounded()) CurrentJumpCount = 0; 
+
             return;
         }
 
         if (!IsExecutingAction) Init();
         Velocity = ExecuteAction();
 
-        manager.AddVelocity(Velocity, JumpCap);
+        manager.AddRawVelocity(Velocity);
+        CurrentJumpCount++;
+
         IsExecutingAction = true;
         UpdateElapsedSince();
     }
@@ -50,7 +55,7 @@ public class Jumping : PlayerFeature
     protected override Vector3 ExecuteAction()
     {
         manager.ProjectOnPlane = false;
-        return JumpForce;
+        return new Vector3(0,  Mathf.Sqrt(JumpHeight * -2.0f * manager.Gravity.y), 0);
     }
 
     private bool CheckIsExecuting()

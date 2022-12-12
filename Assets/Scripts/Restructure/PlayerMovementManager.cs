@@ -53,7 +53,10 @@ public class PlayerMovementManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ProjectOnPlane = true;
+        if (velocity.y <= 0)
+        {
+            ProjectOnPlane= true;  
+        }
 
         ApplyFriction();
         ApplyGravity();
@@ -68,8 +71,6 @@ public class PlayerMovementManager : MonoBehaviour
             }
             activeFeatures.Remove(feature.Identifier);
         }
-
-        Debug.Log(velocity);
 
         if (IsGrounded() && ProjectOnPlane && velocity.y > 0 )
         {
@@ -129,6 +130,17 @@ public class PlayerMovementManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Adds Velocity directly to PlayerMovementManager.velocity up to the specified maxSpeed. 
+    /// This is inteded for forces that are applied instantaneously (like a jump or push) as 
+    /// opposed to forces that are applyied continuously (like walking).
+    /// </summary>
+    /// <param name="velocity">Velocity to add.</param>
+    public void AddRawVelocity(Vector3 velocityDelta)
+    {
+        velocity += velocityDelta;
+    }
+
+    /// <summary>
     /// Sets velocity to the specified Value
     /// </summary>
     /// <param name="velocity"></param>
@@ -148,7 +160,7 @@ public class PlayerMovementManager : MonoBehaviour
     /// <returns>True if there is an object <= 0.1f below the player or if player is standing on slope with an angle greater then slope limit; otherwise false</returns>
     public bool IsGrounded()
     {
-        return Kcc.CheckGrounded(out groundHit);
+        return velocity.y <= 0 && Kcc.CheckGrounded(out groundHit);
     }
 
     /// <summary>

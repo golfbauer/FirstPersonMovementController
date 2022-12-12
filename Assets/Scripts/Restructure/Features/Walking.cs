@@ -43,6 +43,7 @@ public class Walking : PlayerFeature
 
     protected override Vector3 ExecuteAction()
     {
+
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveZ = Input.GetAxisRaw("Vertical");
 

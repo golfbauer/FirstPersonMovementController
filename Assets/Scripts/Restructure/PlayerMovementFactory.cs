@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements.Experimental;
 
 public class PlayerMovementFactory : MonoBehaviour
 {
@@ -46,6 +47,7 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeSprinting();
         InitializeJumping();
         InitializeCrouching();
+        InitializeSliding();
         InitializeWallJump();
         InitializeWallRun();
         InitializeGrapple();
@@ -99,6 +101,19 @@ public class PlayerMovementFactory : MonoBehaviour
         manager.AddFeature(crouching.Identifier, crouching);
     }
 
+    void InitializeSliding()
+    {
+        Sliding sliding = this.AddComponent<Sliding>();
+        sliding.ActionKeys = new KeyCode[] { KeyCode.C };
+        sliding.Identifier = "Sliding";
+
+        sliding.MoveCap = 30f;
+        sliding.MoveSpeed = 30f;
+        sliding.MoveControll = 0f;
+        sliding.MoveTime = 1f;
+        manager.AddFeature(sliding.Identifier, sliding);
+    }
+
     void InitializeWallJump()
     {
         WallJumping wallJumping = this.AddComponent<WallJumping>();
@@ -106,7 +121,6 @@ public class PlayerMovementFactory : MonoBehaviour
         wallJumping.Identifier = "WallJumping";
 
         wallJumping.WallJumpForce = new Vector3(3f, 3000f);
-        wallJumping.WallJumpCap = 50f;
 
         wallJumping.CameraController = cameraController;
         manager.AddFeature(wallJumping.Identifier, wallJumping);

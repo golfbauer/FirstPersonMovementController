@@ -9,7 +9,9 @@ public class Crouching : PlayerFeature
     public float TimeToCrouch { get; set; }
     public float HeightDifference { get; set; }
 
-    private bool isCrouched;
+    public bool IsCrouched;
+    public bool Crouch;
+
     private float targetHeight;
     private float currentHeight;
 
@@ -28,6 +30,7 @@ public class Crouching : PlayerFeature
         {
             Init();
             IsExecutingAction = true;
+            Crouch = false;
         }
 
         if (IsExecutingAction)
@@ -41,6 +44,9 @@ public class Crouching : PlayerFeature
     protected override bool CanExecute()
     {
         if (IsExecutingAction) return false;
+
+        if (Crouch) return true;
+
         if (!CheckKeys()) return false;
         if (!manager.IsGrounded()) return false;
         if (CheckFeatures()) return false;
@@ -54,7 +60,7 @@ public class Crouching : PlayerFeature
         {
             float heightDifference = Mathf.Lerp(currentHeight, targetHeight, ElapsedSinceStartExecution / TimeToCrouch);
 
-            if (isCrouched)
+            if (IsCrouched)
             {
                 transform.position = new Vector3(transform.position.x, transform.position.y + (heightDifference - kcc.Height), transform.position.z);
             }
@@ -66,13 +72,13 @@ public class Crouching : PlayerFeature
         }
 
         IsExecutingAction = false;
-        isCrouched = !isCrouched;
+        IsCrouched = !IsCrouched;
         return Vector3.zero;
     }
 
     protected override void Init()
     {
-        if(isCrouched)
+        if(IsCrouched)
         {
             currentHeight = kcc.Height;
             targetHeight = kcc.Height + HeightDifference;
@@ -93,6 +99,7 @@ public class Crouching : PlayerFeature
         List<string> requiredFeatures = new List<string>
         {
             "isSliding",
+            "isSprinting"
         };
 
         return CheckIfFeaturesActive(requiredFeatures);

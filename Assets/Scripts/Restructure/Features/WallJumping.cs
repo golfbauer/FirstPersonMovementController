@@ -5,7 +5,6 @@ using UnityEngine;
 public class WallJumping : PlayerFeature
 {
     public Vector2 WallJumpForce { get; set; }
-    public float WallJumpCap { get; set; }
     public CameraController CameraController { get; set; }
 
     public override void CheckAction()
@@ -17,7 +16,7 @@ public class WallJumping : PlayerFeature
         {
             if (!IsExecutingAction) Init();
             Velocity = ExecuteAction();
-            manager.AddVelocity(Velocity, WallJumpCap);
+            manager.AddRawVelocity(Velocity);
             IsExecutingAction = true;
         }
 

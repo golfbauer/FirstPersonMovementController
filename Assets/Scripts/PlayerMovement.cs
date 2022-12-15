@@ -167,10 +167,9 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(transform.position);
         if (transform.position.y <= - 100)
         {
-            transform.position = new Vector3(138.5f, 1.5f, 0f);
+            transform.position = new Vector3(271f, 16.5f, 54f);
         }
 
         onGround = controller.CheckGrounded(out RaycastHit groundHit);

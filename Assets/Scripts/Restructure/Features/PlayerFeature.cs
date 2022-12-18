@@ -38,17 +38,16 @@ public abstract class PlayerFeature : MonoBehaviour
     protected Vector3 velocity;
 
     protected PlayerMovementManager manager;
-    new protected CameraController camera;
+    public CameraController CameraController;
 
 
     /// <summary>
-    /// Start method called once and init manager, kcc and camera controller.
+    /// Start method called once and init manager
     /// If these are not needed this method shold be overwritten.
     /// </summary>
     protected void Start()
     {
         InitManager();
-        InitCameraController();
     }
 
     /// <summary>
@@ -66,24 +65,6 @@ public abstract class PlayerFeature : MonoBehaviour
             throw new System.NullReferenceException(
                "Could not get manager for Feature " + Identifier + ". If you dont need the manager overwrite Start()"
                );
-        }
-    }
-
-    /// <summary>
-    /// Initializes Camera controller
-    /// </summary>
-    /// <exception cref="System.NullReferenceException"></exception>
-    protected void InitCameraController()
-    {
-        if (camera == null)
-        {
-            camera = GetComponent<CameraController>();
-        }
-        if (camera == null)
-        {
-            throw new System.NullReferenceException(
-                "Could not get camera controller for Feature " + Identifier + ". If you dont need the camera controller overwrite Start()"
-                );
         }
     }
 

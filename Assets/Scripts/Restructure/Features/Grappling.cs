@@ -11,7 +11,6 @@ public class Grappling : PlayerFeature
     public string[] GrappleLayers { get; set; }
     public bool CanCancelGrapple { get; set; }
 
-    public CameraController CameraController;
     public bool GrapplingAnimation;
     public RaycastHit GrappleHit;
 

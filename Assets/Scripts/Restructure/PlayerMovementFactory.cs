@@ -108,6 +108,7 @@ public class PlayerMovementFactory : MonoBehaviour
         sliding.DisabelingFeatures = new List<string>();
         sliding.DisabelingFeatures.Add("Walking");
         sliding.DisabelingFeatures.Add("Sprinting");
+        sliding.CameraController = cameraController;
 
         sliding.MoveCap = 30f;
         sliding.MoveSpeed = 30f;
@@ -171,10 +172,12 @@ public class PlayerMovementFactory : MonoBehaviour
         Dashing dashing = this.AddComponent<Dashing>();
         dashing.ActionKeys = new KeyCode[] { KeyCode.LeftShift };
         dashing.Identifier = "Dashing";
+        dashing.RequiredFeatures = new List<string>();
         dashing.RequiredFeatures.Add("Jumping");
         dashing.DisabelingFeatures = new List<string>();
         dashing.DisabelingFeatures.Add("Walking");
         dashing.DisabelingFeatures.Add("Sprinting");
+        dashing.CameraController = cameraController;
 
         dashing.MoveCap = 30f;
         dashing.MoveSpeed = 30f;

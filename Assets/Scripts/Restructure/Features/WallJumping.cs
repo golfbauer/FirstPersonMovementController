@@ -5,7 +5,6 @@ using UnityEngine;
 public class WallJumping : PlayerFeature
 {
     public Vector2 WallJumpForce { get; set; }
-    public CameraController CameraController { get; set; }
 
     public override void CheckAction()
     {

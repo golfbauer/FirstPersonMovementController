@@ -17,7 +17,6 @@ public class WallRunning : PlayerFeature
     public float WallRunMinimumHeight { get; set; }
     public float TimeToTiltCamera { get; set; }
     public float CameraTiltAngle { get; set; }
-    public CameraController CameraController { get; set; }
 
     private float prevGravityMultiplier;
     private Vector3 wallRunMoveDirect;

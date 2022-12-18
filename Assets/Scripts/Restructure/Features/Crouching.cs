@@ -16,7 +16,6 @@ public class Crouching : PlayerFeature
     private float currentHeight;
 
     private KinematicCharacterController kcc;
-    public CameraController CameraController;
 
     new private void Start()
     {

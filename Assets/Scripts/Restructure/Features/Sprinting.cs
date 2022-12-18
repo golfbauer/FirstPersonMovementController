@@ -3,9 +3,9 @@ using System.Collections;
 
 public class Sprinting : Walking
 {
-    protected override bool CanExecute()
+    new protected bool CanExecute()
     {
-        return manager.IsGrounded() && CheckInputGetKeys();
+        return manager.IsGrounded() && CheckAllInputGetKeys();
     }
 }
 

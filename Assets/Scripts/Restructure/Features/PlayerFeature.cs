@@ -4,20 +4,8 @@ using UnityEngine;
 
 public abstract class PlayerFeature : MonoBehaviour
 {
-    // Time since the action was last executed, will reset on action executed
-    protected float ElapsedSinceLastExecution { get; set; }
-
-    // Time since start of execution, will reset when execution finishes
-    protected float ElapsedSinceStartExecution { get; set; }
-
-    // Final movement passed on to the manager
-    protected Vector3 Velocity { get; set; }
-
     // All Keys that will be checked before performing action
     public KeyCode[] ActionKeys { get; set; }
-
-    // Contains a list of features that will still be checked for actions after this feature performs an action
-    public List<string> SupportedFeatures { get; set; }
 
     // Identifies Feature for manager
     public string Identifier { get; set; }
@@ -26,11 +14,48 @@ public abstract class PlayerFeature : MonoBehaviour
     public bool IsExecutingAction { get; set; }
 
     // Will disable Feature, controlled through the manager
-    public bool DisableFeature { get; set; }
+    public bool Disabled { get; set; }
 
-    public PlayerMovementManager manager { get; set; }
+    // If this flag is set true the Feature will be executed once
+    public bool Execute { get; set; }
 
+    // Will not execute of one of the features is not active
+    public List<string> RequiredFeatures { get; set; }
+
+    // Will not execute if one feature is active
+    public List<string> ExcludingFeatures { get; set; }
+
+    // Features that will be disabled during Execution
+    public List<string> DisabelingFeatures { get; set; }
+
+    // Time since the action was last executed, will reset on action executed
+    protected float elapsedSinceLastExecution;
+
+    // Time since start of execution, will reset when execution finishes
+    protected float elapsedSinceStartExecution;
+
+    // Final movement passed on to the manager
+    protected Vector3 velocity;
+
+    protected PlayerMovementManager manager;
+    new protected CameraController camera;
+
+
+    /// <summary>
+    /// Start method called once and init manager, kcc and camera controller.
+    /// If these are not needed this method shold be overwritten.
+    /// </summary>
     protected void Start()
+    {
+        InitManager();
+        InitCameraController();
+    }
+
+    /// <summary>
+    /// Initializes Manager
+    /// </summary>
+    /// <exception cref="System.NullReferenceException"></exception>
+    protected void InitManager()
     {
         if (manager == null)
         {
@@ -38,7 +63,27 @@ public abstract class PlayerFeature : MonoBehaviour
         }
         if (manager == null)
         {
-            throw new System.Exception("Couldnt attach manager to " + Identifier);
+            throw new System.NullReferenceException(
+               "Could not get manager for Feature " + Identifier + ". If you dont need the manager overwrite Start()"
+               );
+        }
+    }
+
+    /// <summary>
+    /// Initializes Camera controller
+    /// </summary>
+    /// <exception cref="System.NullReferenceException"></exception>
+    protected void InitCameraController()
+    {
+        if (camera == null)
+        {
+            camera = GetComponent<CameraController>();
+        }
+        if (camera == null)
+        {
+            throw new System.NullReferenceException(
+                "Could not get camera controller for Feature " + Identifier + ". If you dont need the camera controller overwrite Start()"
+                );
         }
     }
 
@@ -51,18 +96,21 @@ public abstract class PlayerFeature : MonoBehaviour
     /// Checks if the action can be executed
     /// </summary>
     /// <returns>True if action will be executed</returns>
-    protected abstract bool CanExecute();
+    protected bool CanExecute()
+    {
+        return true;
+    }
 
     /// <summary>
     /// Initializes run, will only be called once when isExecutingAction
     /// </summary>
-    protected abstract void Init();
+    protected void Init() { }
 
     /// <summary>
     /// Does the calculation and returns the current movement
     /// </summary>
     /// <returns>Calculated velocity</returns>
-    protected abstract Vector3 ExecuteAction();
+    protected void ExecuteAction() { }
 
     /// <summary>
     /// Update the elapsed Since timers
@@ -71,22 +119,22 @@ public abstract class PlayerFeature : MonoBehaviour
     {
         if (IsExecutingAction)
         {
-            ElapsedSinceStartExecution += Time.deltaTime;
-            ElapsedSinceLastExecution = 0;
+            elapsedSinceStartExecution += Time.deltaTime;
+            elapsedSinceLastExecution = 0;
             return;
         }
 
-        ElapsedSinceLastExecution += Time.deltaTime;
-        ElapsedSinceStartExecution = 0;
+        elapsedSinceLastExecution += Time.deltaTime;
+        elapsedSinceStartExecution = 0;
     }
 
     /// <summary>
     /// Checks if all Input Keys have been hold down
     /// </summary>
     /// <returns>True if all keys pressed</returns>
-    protected bool CheckInputGetKeys()
+    protected bool CheckAllInputGetKeys()
     {
-        foreach(KeyCode key in ActionKeys)
+        foreach (KeyCode key in ActionKeys)
         {
             if (!Input.GetKey(key)) return false;
         }
@@ -97,7 +145,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// Checks if all Input Keys have been pressed
     /// </summary>
     /// <returns>True if all keys pressed</returns>
-    protected bool CheckInputGetKeysDown()
+    protected bool CheckAllInputGetKeysDown()
     {
         foreach (KeyCode key in ActionKeys)
         {
@@ -107,10 +155,10 @@ public abstract class PlayerFeature : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// Check if all Input Keys have been released
     /// </summary>
     /// <returns></returns>
-    protected bool CheckInputGetKeysUp()
+    protected bool CheckAllInputGetKeysUp()
     {
         foreach (KeyCode key in ActionKeys)
         {
@@ -120,18 +168,80 @@ public abstract class PlayerFeature : MonoBehaviour
     }
 
     /// <summary>
-    /// Checks  if player is in one of the passed states
+    /// Is used by CanExecute and can be overwritten to change the Key input check
     /// </summary>
-    /// <param name="states">List of states player can be in</param>
-    /// <returns>True if player is in one of the states</returns>
-    protected bool CheckIfFeaturesActive(List<string> states)
+    /// <returns></returns>
+    protected bool CheckKeys()
     {
-        foreach(string state in states)
+        return CheckAllInputGetKeysDown();
+    }
+
+    /// <summary>
+    /// Checks  if if one of passed features is active
+    /// </summary>
+    /// <param name="features">List of feature keys</param>
+    /// <returns>True if one feature is active</returns>
+    protected bool CheckIfFeatureActive(List<string> features)
+    {
+        if (features == null) return true;
+
+        foreach (string feature in features)
         {
-            if (manager.IsFeatureActive(state)) return true;
+            if (manager.IsFeatureActive(feature)) return true;
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Checks if all passed features are active
+    /// </summary>
+    /// <param name="features">List of feature keys</param>
+    /// <returns>True if all features are active</returns>
+    protected bool CheckIfFeaturesActive(List<string> features)
+    {
+        if (features == null) return true;
+
+        foreach (string feature in features)
+        {
+            if (!manager.IsFeatureActive(feature)) return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Checks if all required features are currently active
+    /// </summary>
+    /// <returns> True if all features active</returns>
+    protected bool CheckRequiredFeatures()
+    {
+        return CheckIfFeaturesActive(RequiredFeatures);
+    }
+
+    /// <summary>
+    /// Checks if at least one disabeling features are inactive.
+    /// </summary>
+    /// <returns>Returns true if at least one feature active</returns>
+    protected bool CheckExcludingFeatures()
+    {
+        return CheckIfFeatureActive(ExcludingFeatures);
+    }
+
+    /// <summary>
+    /// Disables features listed in DisabelingFeatures
+    /// </summary>
+    protected void DisableFeatures()
+    {
+        manager.DisableFeatures(DisabelingFeatures);
+    }
+
+    /// <summary>
+    /// Enables features listed in DisabelingFeatures
+    /// </summary>
+    protected void EnableFeatures()
+    {
+        manager.EnableFeatures(DisabelingFeatures);
     }
 }
 

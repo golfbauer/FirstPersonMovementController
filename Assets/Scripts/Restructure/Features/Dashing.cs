@@ -2,97 +2,58 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Dashing : PlayerFeature
+public class Dashing : PlayerFeatureExecuteOverTime
 {
-
-    public float MoveCap { get; set; }
-    public float DashSpeed { get; set; }
-    public float DashControll { get; set; }
-    public float MaxDashTime { get; set; }
     public int MaxDashCount { get; set; }
 
     private float prevGravityMultiplier;
     private int currentDashCount;
-    private float currentDashTime;
-    private float dashX;
-    private float dashZ;
-    private Vector3 dashDirect;
 
     public override void CheckAction()
     {
-        if(!DisableFeature && CanExecute())
-        {
-            Init();
-        } 
-        
-        if(IsExecutingAction) {
-            IsExecutingAction = true;
-            Velocity = ExecuteAction();
-            manager.AddVelocity(Velocity, MoveCap);
-        }
+        base.CheckAction();
 
         ResetDash();
     }
 
-    protected override bool CanExecute()
+    new protected bool CanExecute()
     {
-        if (IsExecutingAction) return false;
         if (manager.IsGrounded()) return false;
-        if (CheckFeatures()) return false;
-        if (!CheckInput()) return false;
+        if (!base.CanExecute()) return false;
         if(!CheckDashCount()) return false;
 
         return true;
     }
 
-    protected override Vector3 ExecuteAction()
+    new protected void ExecuteAction()
     {
-        if (currentDashTime < MaxDashTime)
+        if (elapsedSinceLastExecution < MoveTime)
         {
             Vector3 currentDashDirect =
-                dashDirect * (1f - DashControll) +
-                (DashControll * (dashX * transform.right + transform.forward * dashZ));
-            return currentDashDirect * DashSpeed * Time.deltaTime;
+                moveDirect * (1f - MoveControl) +
+                (MoveControl * (initMoveX * transform.right + transform.forward * initMoveZ));
+            velocity = currentDashDirect * MoveSpeed * Time.deltaTime;
         }
         IsExecutingAction = false;
         ChangeGravityMultiplier(true);
-        //manager.AddActiveFeature("Jumping");
-        return Vector3.zero;
     }
 
-    protected override void Init()
+    new protected void Init()
     {
-        dashX = Input.GetAxis("Horizontal");
-        dashZ = Input.GetAxis("Vertical");
-        dashDirect = transform.right * dashX + transform.forward * dashZ;
-        if (dashDirect == Vector3.zero)
+        base.Init();
+        initMoveX = Input.GetAxis("Horizontal");
+        initMoveZ = Input.GetAxis("Vertical");
+        moveDirect = transform.right * initMoveX + transform.forward * initMoveZ;
+        if (moveDirect == Vector3.zero)
         {
-            dashDirect = transform.forward;
+            moveDirect = transform.forward;
         }
-        currentDashTime = 0;
         ChangeGravityMultiplier(false);
-        IsExecutingAction = true;
-        //manager.RemoveActiveFeature("Jumping");
     }
 
-    private bool CheckInput()
-    {
-        return CheckInputGetKeysDown();
-    }
     private bool CheckDashCount()
     {
         return currentDashCount < MaxDashCount;
-    }
-
-    private bool CheckFeatures()
-    {
-        List<string> requiredFeatures = new List<string>
-        {
-            "isJumping",
-            "isWallJumping"
-        };
-
-        return CheckIfFeaturesActive(requiredFeatures);
     }
 
     private void ChangeGravityMultiplier(bool undoGravity)
@@ -109,7 +70,7 @@ public class Dashing : PlayerFeature
 
     void ResetDash()
     {
-        if ( !IsExecutingAction && (manager.IsGrounded() || manager.IsFeatureActive("WallRunning") || manager.IsFeatureActive("Grappling")))
+        if (!IsExecutingAction && (manager.IsGrounded() || manager.IsFeatureActive("WallRunning") || manager.IsFeatureActive("Grappling")))
         {
             currentDashCount = 0;
         }

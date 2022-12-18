@@ -10,18 +10,18 @@ public class Walking : PlayerFeature
 
     public override void CheckAction()
     {
-        if (DisableFeature || !CanExecute())
+        if (Disabled || !CanExecute())
         {
             IsExecutingAction = false;
             UpdateElapsedSince();
             return;
         }
         if(!IsExecutingAction) Init();
-        Velocity = ExecuteAction();
+        ExecuteAction();
 
-        if(Velocity != Vector3.zero)
+        if(velocity != Vector3.zero)
         {
-            manager.AddVelocity(Velocity, MoveCap);
+            manager.AddVelocity(velocity, MoveCap);
             IsExecutingAction = true;
             UpdateElapsedSince();
             return;
@@ -31,17 +31,7 @@ public class Walking : PlayerFeature
         UpdateElapsedSince();
     }
 
-    protected override bool CanExecute()
-    {
-        return true;
-    }
-
-    protected override void Init()
-    {
-        return;
-    }
-
-    protected override Vector3 ExecuteAction()
+    new protected void ExecuteAction()
     {
 
         float moveX = Input.GetAxisRaw("Horizontal");
@@ -49,7 +39,7 @@ public class Walking : PlayerFeature
 
         Vector3 moveDirect = transform.right * moveX + transform.forward * moveZ;
 
-        return moveDirect * MoveSpeed;
+        velocity = moveDirect * MoveSpeed;
     }
 }
 

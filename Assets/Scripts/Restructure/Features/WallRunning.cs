@@ -37,7 +37,7 @@ public class WallRunning : PlayerFeature
 
     public override void CheckAction()
     {
-        if (DisableFeature || !CanExecute())
+        if (Disabled || !CanExecute())
         {
             IsExecutingAction = false;
             prevWallPosition = WallPosition.None;
@@ -49,17 +49,17 @@ public class WallRunning : PlayerFeature
             isWallRight = isWallLeft = isWallFront = isWallBack = false;
 
             IsExecutingAction = true;
-            Velocity = ExecuteAction();
+            ExecuteAction();
 
             TiltCamera(false);
 
-            manager.AddVelocity(Velocity, MoveCap);
+            manager.AddVelocity(velocity, MoveCap);
         }
 
         UpdateElapsedSince();
     }
 
-    protected override bool CanExecute()
+    new protected bool CanExecute()
     {
         if (!CheckKeyInput()) return false;
 
@@ -78,12 +78,12 @@ public class WallRunning : PlayerFeature
         return true;
     }
 
-    protected override Vector3 ExecuteAction()
+    new protected void ExecuteAction()
     {
-        return wallRunMoveDirect * WallRunSpeed;
+        velocity = wallRunMoveDirect * WallRunSpeed;
     }
 
-    protected override void Init()
+    new protected void Init()
     {
         ChangeGravityMultiplier(false);
     }
@@ -102,7 +102,7 @@ public class WallRunning : PlayerFeature
 
     private bool CheckKeyInput()
     {
-        return CheckInputGetKeys();
+        return CheckAllInputGetKeys();
     }
 
     private bool CheckRequiredFeatures()
@@ -112,12 +112,12 @@ public class WallRunning : PlayerFeature
             "isJumping"
         };
 
-        return CheckIfFeaturesActive(requiredFeatures);
+        return CheckIfFeatureActive(requiredFeatures);
     }
 
     private bool CheckTimeOnWall(RaycastHit hit)
     {
-        if(ElapsedSinceStartExecution >= MaxTimeOnWall)
+        if(elapsedSinceStartExecution >= MaxTimeOnWall)
         {
             PushOffWall(hit);
             return false;

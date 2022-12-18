@@ -2,17 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Sliding : PlayerFeature
+public class Sliding : PlayerFeatureExecuteOverTime
 {
-    public float MoveCap { get; set; }
-    public float MoveSpeed { get; set; }
-    public float MoveControll { get; set; }
-    public float MoveTime { get; set; }
-
-    private float initMoveX;
-    private float initMoveZ;
-    private Vector3 moveDirect;
-
     private Crouching crouching;
 
     new private void Start()
@@ -21,67 +12,36 @@ public class Sliding : PlayerFeature
         crouching = GetComponent<Crouching>();
     }
 
-    public override void CheckAction()
+    new protected bool CanExecute()
     {
-        if (!DisableFeature && CanExecute())
-        {
-            Init();
-            IsExecutingAction = true;
-        }
-
-        if (IsExecutingAction)
-        {
-            Velocity = ExecuteAction();
-            manager.AddVelocity(Velocity, MoveCap);
-        }
-
-        UpdateElapsedSince();
-    }
-
-    protected override bool CanExecute()
-    {
-        if (IsExecutingAction)
-        {
-            return false;
-        }
-        if (!CheckKeys()) return false;
-        if (CheckActiveFeatures()) return false;
+        if(!base.CanExecute()) return false;
         if (crouching.IsCrouched) return false;
 
         return true;
     }
 
-    protected override Vector3 ExecuteAction()
+    new protected void ExecuteAction()
     {
-        if(ElapsedSinceStartExecution < MoveTime)
+        if(elapsedSinceStartExecution < MoveTime)
         {
             Vector3 currentSlideDirect =
-                    moveDirect * (1f - MoveControll) +
-                    (MoveControll * (initMoveX * transform.right + transform.forward * initMoveZ));
-            return currentSlideDirect * MoveSpeed * Time.deltaTime;
+                    moveDirect * (1f - MoveControl) +
+                    (MoveControl * (initMoveX * transform.right + transform.forward * initMoveZ));
+            velocity = currentSlideDirect * MoveSpeed * Time.deltaTime;
+            return;
         }
 
         crouching.Crouch = true;
         IsExecutingAction = false;
-        return Vector3.zero;
     }
 
-    protected override void Init()
+    new protected void Init()
     {
+        base.Init();
         initMoveX = Input.GetAxis("Horizontal");
         initMoveZ = Input.GetAxis("Vertical");
         moveDirect = transform.right * initMoveX + transform.forward * initMoveZ;
         crouching.Crouch = true;
-    }
-
-    private bool CheckKeys()
-    {
-        return CheckInputGetKeysDown();
-    }
-
-    private bool CheckActiveFeatures()
-    {
-        return !manager.IsFeatureActive("IsSliding") && manager.IsFeatureActive("IsSprinting");
     }
 }
 

@@ -9,21 +9,21 @@ public class WallJumping : PlayerFeature
 
     public override void CheckAction()
     {
-        if(DisableFeature || !CanExecute())
+        if(Disabled || !CanExecute())
         {
             IsExecutingAction = !CheckIsExecuting();
         } else
         {
             if (!IsExecutingAction) Init();
-            Velocity = ExecuteAction();
-            manager.AddRawVelocity(Velocity);
+            ExecuteAction();
+            manager.AddRawVelocity(velocity);
             IsExecutingAction = true;
         }
 
         UpdateElapsedSince();
     }
 
-    protected override bool CanExecute()
+    new protected bool CanExecute()
     {
         if (!CheckKeyInput()) return false;
         if (!CheckRequiredFeatures()) return false;
@@ -31,17 +31,12 @@ public class WallJumping : PlayerFeature
         return true;
     }
 
-    protected override Vector3 ExecuteAction()
+    new protected void ExecuteAction()
     {
         Vector3 vel = CameraController.transform.forward;
         vel = new Vector3(vel.x * WallJumpForce.x, vel.y * WallJumpForce.y, vel.z * WallJumpForce.x);
 
-        return vel;
-    }
-
-    protected override void Init()
-    {
-        return;
+        velocity = vel;
     }
 
     private bool CheckIsExecuting()
@@ -52,21 +47,21 @@ public class WallJumping : PlayerFeature
             "isWallRunning"
         };
 
-        return IsExecutingAction && (!manager.IsGrounded() || CheckIfFeaturesActive(requiredFeatures));
+        return IsExecutingAction && (!manager.IsGrounded() || CheckIfFeatureActive(requiredFeatures));
     }
 
     private bool CheckKeyInput()
     {
-        return CheckInputGetKeysUp();
+        return CheckAllInputGetKeysUp();
     }
 
-    private bool CheckRequiredFeatures()
+    new private bool CheckRequiredFeatures()
     {
         List<string> requiredFeatures = new List<string>
         {
             "isWallRunning"
         };
 
-        return CheckIfFeaturesActive(requiredFeatures);
+        return CheckIfFeatureActive(requiredFeatures);
     }
 }

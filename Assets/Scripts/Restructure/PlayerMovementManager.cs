@@ -219,4 +219,33 @@ public class PlayerMovementManager : MonoBehaviour
         activeFeatures.Remove(featureId);
     }
 
+    /// <summary>
+    /// Disables features
+    /// </summary>
+    /// <param name="featureKeys">List of featuers to be disabled</param>
+    public void DisableFeatures(List<string> featureKeys)
+    {
+        foreach(string feature in featureKeys)
+        {
+            if (this.features.TryGetValue(feature, out PlayerFeature value))
+            {
+                value.Disabled = true;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Enables features
+    /// </summary>
+    /// <param name="featureKeys">List of features to be disabled</param>
+    public void EnableFeatures(List<string> featureKeys)
+    {
+        foreach(string featureKey in featureKeys)
+        {
+            if(features.TryGetValue(featureKey, out PlayerFeature value))
+            {
+                value.Disabled = false;
+            }
+        }
+    }
 }

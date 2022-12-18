@@ -41,7 +41,7 @@ public class Crouching : PlayerFeature
         UpdateElapsedSince();
     }
 
-    protected override bool CanExecute()
+    new protected bool CanExecute()
     {
         if (IsExecutingAction) return false;
 
@@ -54,11 +54,11 @@ public class Crouching : PlayerFeature
         return true;
     }
 
-    protected override Vector3 ExecuteAction()
+    new protected void ExecuteAction()
     {
-        if (ElapsedSinceStartExecution < TimeToCrouch)
+        if (elapsedSinceStartExecution < TimeToCrouch)
         {
-            float heightDifference = Mathf.Lerp(currentHeight, targetHeight, ElapsedSinceStartExecution / TimeToCrouch);
+            float heightDifference = Mathf.Lerp(currentHeight, targetHeight, elapsedSinceStartExecution / TimeToCrouch);
 
             if (IsCrouched)
             {
@@ -68,15 +68,15 @@ public class Crouching : PlayerFeature
             CameraController.SetCameraHeight(heightDifference - kcc.Height);
             kcc.Height = heightDifference;
 
-            return Vector3.zero;
+            return;
         }
 
         IsExecutingAction = false;
         IsCrouched = !IsCrouched;
-        return Vector3.zero;
+        return;
     }
 
-    protected override void Init()
+    new protected void Init()
     {
         if(IsCrouched)
         {
@@ -91,7 +91,7 @@ public class Crouching : PlayerFeature
 
     private bool CheckKeys()
     {
-        return CheckInputGetKeysDown();
+        return CheckAllInputGetKeysDown();
     }
 
     private bool CheckFeatures()
@@ -102,6 +102,6 @@ public class Crouching : PlayerFeature
             "isSprinting"
         };
 
-        return CheckIfFeaturesActive(requiredFeatures);
+        return CheckIfFeatureActive(requiredFeatures);
     }
 }

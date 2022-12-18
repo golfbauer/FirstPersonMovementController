@@ -14,7 +14,7 @@ public class Jumping : PlayerFeature
     public override void CheckAction()
     {
 
-        if (DisableFeature || !CanExecute())
+        if (Disabled || !CanExecute())
         {
             IsExecutingAction = !CheckIsExecuting();
             UpdateElapsedSince();
@@ -25,37 +25,37 @@ public class Jumping : PlayerFeature
         }
 
         if (!IsExecutingAction) Init();
-        Velocity = ExecuteAction();
+        ExecuteAction();
 
-        manager.AddRawVelocity(Velocity);
+        manager.AddRawVelocity(velocity);
         CurrentJumpCount++;
 
         IsExecutingAction = true;
         UpdateElapsedSince();
     }
 
-    protected override bool CanExecute()
+    new protected bool CanExecute()
     {
-        if (!CheckInputGetKeysDown()) return false;
+        if (!CheckAllInputGetKeysDown()) return false;
 
         if (CurrentJumpCount == 0 && !manager.IsGrounded()) return false;
 
         if (CurrentJumpCount >= MaxJumpCount) return false;
 
-        if (CheckIfFeaturesActive(BreakingFeatures)) return false;
+        if (CheckIfFeatureActive(BreakingFeatures)) return false;
 
         return true;
     }
 
-    protected override void Init()
+    new protected void Init()
     {
         return;
     }
 
-    protected override Vector3 ExecuteAction()
+    new protected void ExecuteAction()
     {
         manager.ProjectOnPlane = false;
-        return new Vector3(0,  Mathf.Sqrt(JumpHeight * -2.0f * manager.Gravity.y), 0);
+        velocity = new Vector3(0,  Mathf.Sqrt(JumpHeight * -2.0f * manager.Gravity.y), 0);
     }
 
     private bool CheckIsExecuting()

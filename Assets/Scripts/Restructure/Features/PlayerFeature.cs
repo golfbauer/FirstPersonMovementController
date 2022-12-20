@@ -26,7 +26,7 @@ public abstract class PlayerFeature : MonoBehaviour
     public List<string> ExcludingFeatures { get; set; }
 
     // Features that will be disabled during Execution
-    public List<string> DisabelingFeatures { get; set; }
+    public List<string> DisabelFeatures { get; set; }
 
     // Time since the action was last executed, will reset on action executed
     protected float elapsedSinceLastExecution;
@@ -45,7 +45,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// Start method called once and init manager
     /// If these are not needed this method shold be overwritten.
     /// </summary>
-    protected void Start()
+    protected virtual void Start()
     {
         InitManager();
     }
@@ -77,7 +77,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// Checks if the action can be executed
     /// </summary>
     /// <returns>True if action will be executed</returns>
-    protected bool CanExecute()
+    protected virtual bool CanExecute()
     {
         return true;
     }
@@ -85,13 +85,13 @@ public abstract class PlayerFeature : MonoBehaviour
     /// <summary>
     /// Initializes run, will only be called once when isExecutingAction
     /// </summary>
-    protected void Init() { }
+    protected virtual void Init() { }
 
     /// <summary>
     /// Does the calculation and returns the current movement
     /// </summary>
     /// <returns>Calculated velocity</returns>
-    protected void ExecuteAction() { }
+    protected virtual void ExecuteAction() { }
 
     /// <summary>
     /// Update the elapsed Since timers
@@ -152,7 +152,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// Is used by CanExecute and can be overwritten to change the Key input check
     /// </summary>
     /// <returns></returns>
-    protected bool CheckKeys()
+    protected virtual bool CheckKeys()
     {
         return CheckAllInputGetKeysDown();
     }
@@ -164,7 +164,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// <returns>True if one feature is active</returns>
     protected bool CheckIfFeatureActive(List<string> features)
     {
-        if (features == null) return true;
+        if (features == null) return false;
 
         foreach (string feature in features)
         {
@@ -201,7 +201,7 @@ public abstract class PlayerFeature : MonoBehaviour
     }
 
     /// <summary>
-    /// Checks if at least one disabeling features are inactive.
+    /// Checks if at least one excluding feature is active.
     /// </summary>
     /// <returns>Returns true if at least one feature active</returns>
     protected bool CheckExcludingFeatures()
@@ -214,7 +214,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// </summary>
     protected void DisableFeatures()
     {
-        manager.DisableFeatures(DisabelingFeatures);
+        manager.DisableFeatures(DisabelFeatures);
     }
 
     /// <summary>
@@ -222,7 +222,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// </summary>
     protected void EnableFeatures()
     {
-        manager.EnableFeatures(DisabelingFeatures);
+        manager.EnableFeatures(DisabelFeatures);
     }
 }
 

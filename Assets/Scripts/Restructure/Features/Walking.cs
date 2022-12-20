@@ -4,34 +4,33 @@ using System.Collections.Generic;
 
 public class Walking : PlayerFeature
 {
-
     public float MoveSpeed { get; set; }
     public float MoveCap { get; set; }
 
     public override void CheckAction()
     {
-        if (Disabled || !CanExecute())
+        if(Disabled)
         {
-            IsExecutingAction = false;
             UpdateElapsedSince();
+            IsExecutingAction = false;
             return;
         }
-        if(!IsExecutingAction) Init();
+
         ExecuteAction();
 
-        if(velocity != Vector3.zero)
+        if (velocity != Vector3.zero)
         {
             manager.AddVelocity(velocity, MoveCap);
             IsExecutingAction = true;
-            UpdateElapsedSince();
-            return;
+        } else
+        {
+            IsExecutingAction = false;
         }
 
-        IsExecutingAction = false;
         UpdateElapsedSince();
     }
 
-    new protected void ExecuteAction()
+    protected new void ExecuteAction()
     {
 
         float moveX = Input.GetAxisRaw("Horizontal");

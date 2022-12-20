@@ -3,7 +3,20 @@ using System.Collections;
 
 public class Sprinting : Walking
 {
-    new protected bool CanExecute()
+
+    public override void CheckAction()
+    {
+        if(Disabled || !CanExecute())
+        {
+            IsExecutingAction = false;
+            UpdateElapsedSince();
+            return;
+        }
+
+        base.CheckAction();
+    }
+
+    protected new bool CanExecute()
     {
         return manager.IsGrounded() && CheckAllInputGetKeys();
     }

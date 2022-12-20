@@ -7,14 +7,13 @@ public class Sliding : PlayerFeatureExecuteOverTime
     private Crouching crouching;
 
 
-
-    new private void Start()
+    private new void Start()
     {
         base.Start();
         crouching = GetComponent<Crouching>();
     }
 
-    new protected bool CanExecute()
+    protected override bool CanExecute()
     {
         if(!base.CanExecute()) return false;
         if (crouching.IsCrouched) return false;
@@ -22,28 +21,28 @@ public class Sliding : PlayerFeatureExecuteOverTime
         return true;
     }
 
-    new protected void ExecuteAction()
+    protected override void ExecuteAction()
     {
-        if(elapsedSinceStartExecution < MoveTime)
+        if (elapsedSinceStartExecution < MoveTime)
         {
             Vector3 currentSlideDirect =
                     moveDirect * (1f - MoveControl) +
                     (MoveControl * (initMoveX * transform.right + transform.forward * initMoveZ));
-            velocity = currentSlideDirect * MoveSpeed * Time.deltaTime;
+            velocity = currentSlideDirect * MoveSpeed;
             return;
         }
 
-        crouching.Crouch = true;
+        crouching.Execute = true;
         IsExecutingAction = false;
     }
 
-    new protected void Init()
+    protected override void Init()
     {
         base.Init();
         initMoveX = Input.GetAxis("Horizontal");
         initMoveZ = Input.GetAxis("Vertical");
         moveDirect = transform.right * initMoveX + transform.forward * initMoveZ;
-        crouching.Crouch = true;
+        crouching.Execute = true;
     }
 }
 

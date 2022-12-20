@@ -45,13 +45,13 @@ public class PlayerMovementFactory : MonoBehaviour
 
         InitializeWalking();
         InitializeSprinting();
-        //InitializeJumping();
+        InitializeJumping();
         InitializeCrouching();
         InitializeSliding();
+        //InitializeDashing();
         //InitializeWallJump();
         //InitializeWallRun();
         //InitializeGrapple();
-        InitializeDashing();
     }
 
     void InitializeWalking()
@@ -61,6 +61,7 @@ public class PlayerMovementFactory : MonoBehaviour
         walking.MoveCap = 5f;
         walking.ActionKeys = new KeyCode[] { };
         walking.Identifier = "Walking";
+
         manager.AddFeature(walking.Identifier, walking);
     }
 
@@ -71,6 +72,7 @@ public class PlayerMovementFactory : MonoBehaviour
         sprinting.MoveCap = 10f;
         sprinting.ActionKeys = new KeyCode[] { KeyCode.LeftShift };
         sprinting.Identifier = "Sprinting";
+
         manager.AddFeature(sprinting.Identifier, sprinting);
     }
 
@@ -80,8 +82,11 @@ public class PlayerMovementFactory : MonoBehaviour
         jumping.MaxJumpCount = 2;
         jumping.JumpHeight = 3f;
         jumping.ActionKeys = new KeyCode[] { KeyCode.Space };
-        jumping.BreakingFeatures = new List<string>();
         jumping.Identifier = "Jumping";
+        jumping.ExcludingFeatures = new List<string>();
+        jumping.ExcludingFeatures.Add("Sliding");
+        jumping.ExcludingFeatures.Add("Crouching");
+
         manager.AddFeature(jumping.Identifier, jumping);
     }
 
@@ -90,8 +95,11 @@ public class PlayerMovementFactory : MonoBehaviour
         Crouching crouching = this.AddComponent<Crouching>();
         crouching.ActionKeys = new KeyCode[] { KeyCode.LeftControl };
         crouching.Identifier = "Crouching";
+        crouching.ExcludingFeatures = new List<string>();
+        crouching.ExcludingFeatures.Add("Sprinting");
+        crouching.ExcludingFeatures.Add("Sliding");
 
-        crouching.TimeToCrouch = 1f;
+        crouching.TimeToCrouch = 0.5f;
         crouching.HeightDifference = 0.5f;
 
         crouching.CameraController = cameraController;
@@ -105,13 +113,14 @@ public class PlayerMovementFactory : MonoBehaviour
         sliding.Identifier = "Sliding";
         sliding.RequiredFeatures = new List<string>();
         sliding.RequiredFeatures.Add("Sprinting");
-        sliding.DisabelingFeatures = new List<string>();
-        sliding.DisabelingFeatures.Add("Walking");
-        sliding.DisabelingFeatures.Add("Sprinting");
+        sliding.DisabelFeatures = new List<string>();
+        sliding.DisabelFeatures.Add("Walking");
+        sliding.DisabelFeatures.Add("Sprinting");
+        sliding.DisabelFeatures.Add("Jumping");
         sliding.CameraController = cameraController;
 
-        sliding.MoveCap = 30f;
-        sliding.MoveSpeed = 30f;
+        sliding.MoveCap = 15f;
+        sliding.MoveSpeed = 40f;
         sliding.MoveControl = 0f;
         sliding.MoveTime = 1f;
         manager.AddFeature(sliding.Identifier, sliding);
@@ -174,9 +183,9 @@ public class PlayerMovementFactory : MonoBehaviour
         dashing.Identifier = "Dashing";
         dashing.RequiredFeatures = new List<string>();
         dashing.RequiredFeatures.Add("Jumping");
-        dashing.DisabelingFeatures = new List<string>();
-        dashing.DisabelingFeatures.Add("Walking");
-        dashing.DisabelingFeatures.Add("Sprinting");
+        dashing.DisabelFeatures = new List<string>();
+        dashing.DisabelFeatures.Add("Walking");
+        dashing.DisabelFeatures.Add("Sprinting");
         dashing.CameraController = cameraController;
 
         dashing.MoveCap = 30f;

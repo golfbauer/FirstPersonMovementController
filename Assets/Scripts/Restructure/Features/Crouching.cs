@@ -10,26 +10,25 @@ public class Crouching : PlayerFeature
     public float HeightDifference { get; set; }
 
     public bool IsCrouched;
-    public bool Crouch;
 
     private float targetHeight;
     private float currentHeight;
 
     private KinematicCharacterController kcc;
 
-    new private void Start()
+    private new void Start()
     {
         base.Start();
-        kcc = GetComponent<KinematicCharacterController>();
+        kcc = manager.Kcc;
     }
 
     public override void CheckAction()
     {
-        if (CanExecute())
+        if (!Disabled && CanExecute())
         {
             Init();
             IsExecutingAction = true;
-            Crouch = false;
+            Execute = false;
         }
 
         if (IsExecutingAction)
@@ -40,20 +39,20 @@ public class Crouching : PlayerFeature
         UpdateElapsedSince();
     }
 
-    new protected bool CanExecute()
+    protected new bool CanExecute()
     {
         if (IsExecutingAction) return false;
 
-        if (Crouch) return true;
+        if (Execute) return true;
 
         if (!CheckKeys()) return false;
         if (!manager.IsGrounded()) return false;
-        if (CheckFeatures()) return false;
+        if (CheckExcludingFeatures()) return false;
 
         return true;
     }
 
-    new protected void ExecuteAction()
+    protected new void ExecuteAction()
     {
         if (elapsedSinceStartExecution < TimeToCrouch)
         {
@@ -75,7 +74,7 @@ public class Crouching : PlayerFeature
         return;
     }
 
-    new protected void Init()
+    protected new void Init()
     {
         if(IsCrouched)
         {
@@ -86,21 +85,5 @@ public class Crouching : PlayerFeature
 
         currentHeight = kcc.Height;
         targetHeight = kcc.Height - HeightDifference;
-    }
-
-    private bool CheckKeys()
-    {
-        return CheckAllInputGetKeysDown();
-    }
-
-    private bool CheckFeatures()
-    {
-        List<string> requiredFeatures = new List<string>
-        {
-            "isSliding",
-            "isSprinting"
-        };
-
-        return CheckIfFeatureActive(requiredFeatures);
     }
 }

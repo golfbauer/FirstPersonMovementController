@@ -7,7 +7,6 @@ public class Jumping : PlayerFeature
 
     public int MaxJumpCount { get; set; }
     public float JumpHeight { get; set; }
-    public List<string> BreakingFeatures { get; set; }
 
     public int CurrentJumpCount;
 
@@ -17,24 +16,23 @@ public class Jumping : PlayerFeature
         if (Disabled || !CanExecute())
         {
             IsExecutingAction = !CheckIsExecuting();
-            UpdateElapsedSince();
-
             if (manager.IsGrounded()) CurrentJumpCount = 0; 
 
-            return;
+        } else
+        {
+            if (!IsExecutingAction) Init();
+
+            ExecuteAction();
+            manager.AddRawVelocity(velocity);
+
+            CurrentJumpCount++;
+            IsExecutingAction = true;
         }
 
-        if (!IsExecutingAction) Init();
-        ExecuteAction();
-
-        manager.AddRawVelocity(velocity);
-        CurrentJumpCount++;
-
-        IsExecutingAction = true;
         UpdateElapsedSince();
     }
 
-    new protected bool CanExecute()
+    protected new bool CanExecute()
     {
         if (!CheckAllInputGetKeysDown()) return false;
 
@@ -42,17 +40,12 @@ public class Jumping : PlayerFeature
 
         if (CurrentJumpCount >= MaxJumpCount) return false;
 
-        if (CheckIfFeatureActive(BreakingFeatures)) return false;
+        if (CheckExcludingFeatures()) return false;
 
         return true;
     }
 
-    new protected void Init()
-    {
-        return;
-    }
-
-    new protected void ExecuteAction()
+    protected new void ExecuteAction()
     {
         manager.ProjectOnPlane = false;
         velocity = new Vector3(0,  Mathf.Sqrt(JumpHeight * -2.0f * manager.Gravity.y), 0);

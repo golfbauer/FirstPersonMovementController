@@ -31,7 +31,7 @@ public class PlayerMovementManager : MonoBehaviour
     // List of features that have been added to the controller
     private Dictionary<string, PlayerFeature> features;
     // IDs of features that are currently active
-    private List<string> activeFeatures;
+    private HashSet<string> activeFeatures;
 
     RaycastHit groundHit;
 
@@ -40,7 +40,7 @@ public class PlayerMovementManager : MonoBehaviour
         Kcc = GetComponent<KinematicCharacterController>();
 
         features = new Dictionary<string, PlayerFeature>();
-        activeFeatures = new List<string>();
+        activeFeatures = new HashSet<string>();
     }
 
     // Start is called before the first frame update
@@ -69,8 +69,8 @@ public class PlayerMovementManager : MonoBehaviour
                 activeFeatures.Add(feature.Identifier);
                 continue;
             }
-            activeFeatures.Remove(feature.Identifier);
-        }
+                activeFeatures.Remove(feature.Identifier); 
+            }
 
         if (IsGrounded() && ProjectOnPlane && velocity.y > 0 )
         {

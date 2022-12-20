@@ -36,13 +36,15 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
         {
             ExecuteAction();
             manager.AddVelocity(velocity, MoveCap);
+        } else
+        {
             EnableFeatures();
         }
 
         UpdateElapsedSince();
     }
 
-    new protected bool CanExecute()
+    protected virtual new bool CanExecute()
     {
         if (IsExecutingAction)
         {
@@ -55,7 +57,7 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
         return true;
     }
 
-    new protected void Init()
+    protected virtual new void Init()
     {
         IsExecutingAction = true;
         DisableFeatures();

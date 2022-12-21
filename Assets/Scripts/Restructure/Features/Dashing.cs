@@ -16,30 +16,34 @@ public class Dashing : PlayerFeatureExecuteOverTime
         ResetDash();
     }
 
-    new protected bool CanExecute()
+    protected override bool CanExecute()
     {
         if (manager.IsGrounded()) return false;
         if (!base.CanExecute()) return false;
-        if(!CheckDashCount()) return false;
+        if (!CheckDashCount()) return false;
 
         return true;
     }
 
-    new protected void ExecuteAction()
+    protected override void ExecuteAction()
     {
-        if (elapsedSinceLastExecution < MoveTime)
+        if (elapsedSinceStartExecution < MoveTime)
         {
             Vector3 currentDashDirect =
                 moveDirect * (1f - MoveControl) +
                 (MoveControl * (initMoveX * transform.right + transform.forward * initMoveZ));
-            velocity = currentDashDirect * MoveSpeed * Time.deltaTime;
+            velocity = currentDashDirect * MoveSpeed;
+            return;
         }
-        IsExecutingAction = false;
-        ChangeGravityMultiplier(true);
+
+        FinishExecution();
     }
 
-    new protected void Init()
+    protected override void Init()
     {
+        Vector3 managerVelocity = manager.GetVelocity();
+        managerVelocity.y = 0f;
+        manager.SetVelocity(managerVelocity);
         base.Init();
         initMoveX = Input.GetAxis("Horizontal");
         initMoveZ = Input.GetAxis("Vertical");
@@ -51,12 +55,12 @@ public class Dashing : PlayerFeatureExecuteOverTime
         ChangeGravityMultiplier(false);
     }
 
-    private bool CheckDashCount()
+    protected virtual bool CheckDashCount()
     {
         return currentDashCount < MaxDashCount;
     }
 
-    private void ChangeGravityMultiplier(bool undoGravity)
+    protected virtual void ChangeGravityMultiplier(bool undoGravity)
     {
         if (undoGravity)
         {
@@ -68,11 +72,23 @@ public class Dashing : PlayerFeatureExecuteOverTime
         manager.GravityMultiplier = 0;
     }
 
-    void ResetDash()
+    protected virtual void ResetDash()
     {
         if (!IsExecutingAction && (manager.IsGrounded() || manager.IsFeatureActive("WallRunning") || manager.IsFeatureActive("Grappling")))
         {
             currentDashCount = 0;
         }
+    }
+
+    protected override bool CheckRequiredFeatures()
+    {
+        return CheckIfFeatureActive(RequiredFeatures);
+    }
+
+    protected override void FinishExecution()
+    {
+        base.FinishExecution();
+        ChangeGravityMultiplier(true);
+        currentDashCount++;
     }
 }

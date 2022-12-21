@@ -15,8 +15,7 @@ public class Jumping : PlayerFeature
 
         if (Disabled || !CanExecute())
         {
-            IsExecutingAction = !CheckIsExecuting();
-            if (manager.IsGrounded()) CurrentJumpCount = 0; 
+            CheckIsExecuting();
 
         } else
         {
@@ -51,9 +50,18 @@ public class Jumping : PlayerFeature
         velocity = new Vector3(0,  Mathf.Sqrt(JumpHeight * -2.0f * manager.Gravity.y), 0);
     }
 
-    private bool CheckIsExecuting()
+    private void CheckIsExecuting()
     {
-        return IsExecutingAction && (manager.IsGrounded() || manager.IsFeatureActive("Wallrun"));
+        if (manager.IsGrounded() || manager.IsFeatureActive("WallRunning"))
+        {
+            CurrentJumpCount = 0;
+
+            if (IsExecutingAction)
+            {
+                IsExecutingAction = false;
+            }
+        }
+        
     }
 }
 

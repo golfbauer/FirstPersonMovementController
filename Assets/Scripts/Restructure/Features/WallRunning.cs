@@ -4,21 +4,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Utils;
 
-public class WallRunning : PlayerFeature
+public class WallRunning : PlayerFeatureExecuteOverTime
 {
     public float GravityMultiplier { get; set; }
-    public float MoveCap { get; set; }
-    public float WallRunSpeed { get; set; }
     public float PushOfWallForce { get; set; }
     public float MaxTimeOnWall { get; set; }
     public float MaxWallRunAngle { get; set; }
     public float MinWallRunAngle { get; set; }
     public string[] WallRunLayers { get; set; }
-    public float WallRunMinimumHeight { get; set; }
     public float TimeToTiltCamera { get; set; }
     public float CameraTiltAngle { get; set; }
+    public float DistanceToGround { get; set; }
 
-    private float prevGravityMultiplier;
+    private float savedGravityMultiplier;
     private Vector3 wallRunMoveDirect;
     private WallPosition prevWallPosition;
 
@@ -30,29 +28,25 @@ public class WallRunning : PlayerFeature
     new void Start()
     {
         base.Start();
-        prevGravityMultiplier = manager.GravityMultiplier;
+        savedGravityMultiplier = manager.GravityMultiplier;
     }
-
 
     public override void CheckAction()
     {
-        if (Disabled || !CanExecute())
+        if (!Disabled && CanExecute())
         {
-            IsExecutingAction = false;
-            prevWallPosition = WallPosition.None;
-            ChangeGravityMultiplier(true);
-            TiltCamera(true);
+            Init();
+        }
+
+        if (IsExecutingAction)
+        {
+            isWallRight = isWallLeft = isWallFront = isWallBack = false;
+            ExecuteAction();
+            manager.AddVelocity(velocity, MoveCap);
+            TiltCamera(false);
         } else
         {
-            if (!IsExecutingAction) Init();
-            isWallRight = isWallLeft = isWallFront = isWallBack = false;
-
-            IsExecutingAction = true;
-            ExecuteAction();
-
-            TiltCamera(false);
-
-            manager.AddVelocity(velocity, MoveCap);
+            TiltCamera(true);
         }
 
         UpdateElapsedSince();
@@ -60,63 +54,48 @@ public class WallRunning : PlayerFeature
 
     new protected bool CanExecute()
     {
-        if (!CheckKeyInput()) return false;
-
-        if (!CheckRequiredFeatures()) return false;
-
-        if (!CheckWallHit(out RaycastHit hit)) return false;
-
-        if (!CheckTimeOnWall(hit)) return false;
-
-        // Only Check on first WallContact
-        if (!IsExecutingAction)
+        if(IsExecutingAction)
         {
-            if (!CheckDistanceToGround()) return false;
+            return false;
         }
+        if (!CheckKeys()) return false;
+        if (!CheckRequiredFeatures()) return false;
+        if (!CheckWallHit(out RaycastHit hit)) return false;
+        if (CheckDistanceToGround()) return false;
 
         return true;
     }
 
-    new protected void ExecuteAction()
+    protected override void Init()
     {
-        velocity = wallRunMoveDirect * WallRunSpeed;
+        Vector3 managerVelocity = manager.GetVelocity();
+        managerVelocity.y = 0f;
+        manager.SetVelocity(managerVelocity);
+
+        DisableGivenFeatures();
+
+        ChangeGravityMultiplier();
+
+        IsExecutingAction = true;
     }
 
-    new protected void Init()
+    protected bool CheckStillExecuting()
     {
-        ChangeGravityMultiplier(false);
+        if (!CheckKeys()) return false;
+        if (!CheckWallHit(out RaycastHit hit)) return false;
+        if (!CheckTimeOnWall(hit)) return false;
+
+        return true;
     }
 
-    private void ChangeGravityMultiplier(bool undoGravity)
-    {
-        if (undoGravity)
-        {
-            manager.GravityMultiplier = prevGravityMultiplier;
-            return;
-        }
-
-        prevGravityMultiplier = manager.GravityMultiplier;
-        manager.GravityMultiplier = GravityMultiplier;
-    }
-
-    private bool CheckKeyInput()
+    protected override bool CheckKeys()
     {
         return CheckAllInputGetKeys();
     }
 
-    private bool CheckRequiredFeatures()
-    {
-        List<string> requiredFeatures = new List<string>
-        {
-            "isJumping"
-        };
-
-        return CheckIfFeatureActive(requiredFeatures);
-    }
-
     private bool CheckTimeOnWall(RaycastHit hit)
     {
-        if(elapsedSinceStartExecution >= MaxTimeOnWall)
+        if (elapsedSinceStartExecution >= MaxTimeOnWall)
         {
             PushOffWall(hit);
             return false;
@@ -166,7 +145,7 @@ public class WallRunning : PlayerFeature
 
     private bool CheckDistanceToGround()
     {
-        return Physics.Raycast(transform.position, -transform.up, WallRunMinimumHeight);
+        return Physics.Raycast(transform.position, -transform.up, DistanceToGround);
     }
 
     private bool PlayerUpdateWallHit(out RaycastHit hit)
@@ -184,6 +163,36 @@ public class WallRunning : PlayerFeature
         if (isWallBack) return true;
 
         return false;
+    }
+
+    protected override void ExecuteAction()
+    {
+        if(CheckStillExecuting())
+        {
+            velocity = wallRunMoveDirect * MoveSpeed;
+            return;
+        }
+
+        FinishExecution();
+    }
+
+    protected override void FinishExecution()
+    {
+        IsExecutingAction = false;
+        EnableFeatures();
+        prevWallPosition = WallPosition.None;
+        UndoChangeGravityMultiplier();
+    }
+
+    private void ChangeGravityMultiplier()
+    {
+        savedGravityMultiplier = manager.GravityMultiplier;
+        manager.GravityMultiplier = 0f;
+    }
+
+    private void UndoChangeGravityMultiplier()
+    {
+        manager.GravityMultiplier = savedGravityMultiplier;
     }
 
     private void TiltCamera(bool skip)

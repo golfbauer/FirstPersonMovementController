@@ -15,6 +15,8 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
     // Time action is executed
     public float MoveTime { get; set; }
 
+    protected Vector3 initVelocity;
+
     // Initial X direction
     protected float initMoveX;
 
@@ -36,9 +38,6 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
         {
             ExecuteAction();
             manager.AddVelocity(velocity, MoveCap);
-        } else
-        {
-            EnableFeatures();
         }
 
         UpdateElapsedSince();
@@ -60,7 +59,20 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
     protected virtual new void Init()
     {
         IsExecutingAction = true;
-        DisableFeatures();
+        initVelocity = manager.GetVelocity();
+        DisableGivenFeatures();
+    }
+
+    protected virtual void FinishExecution()
+    {
+        ResetToInitVelocity();
+        IsExecutingAction = false;
+        EnableFeatures();
+    }
+
+    protected virtual void ResetToInitVelocity()
+    {
+        manager.SetVelocity(initVelocity);
     }
 }
 

@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public class Sliding : PlayerFeatureExecuteOverTime
 {
-    private Crouching crouching;
+    public bool CanCancelSlide { get; set; }
 
+    private Crouching crouching;
+    private bool cancelSlide => CanCancelSlide && CheckKeys() && elapsedSinceStartExecution > 0;
 
     private new void Start()
     {
@@ -16,6 +19,7 @@ public class Sliding : PlayerFeatureExecuteOverTime
     protected override bool CanExecute()
     {
         if(!base.CanExecute()) return false;
+        if (!manager.IsGrounded()) return false;
         if (crouching.IsCrouched) return false;
 
         return true;
@@ -25,6 +29,11 @@ public class Sliding : PlayerFeatureExecuteOverTime
     {
         if (elapsedSinceStartExecution < MoveTime)
         {
+            if(cancelSlide)
+            {
+                FinishExecution();
+                return;
+            }
             Vector3 currentSlideDirect =
                     moveDirect * (1f - MoveControl) +
                     (MoveControl * (initMoveX * transform.right + transform.forward * initMoveZ));
@@ -32,8 +41,7 @@ public class Sliding : PlayerFeatureExecuteOverTime
             return;
         }
 
-        crouching.Execute = true;
-        IsExecutingAction = false;
+        FinishExecution();
     }
 
     protected override void Init()
@@ -42,6 +50,12 @@ public class Sliding : PlayerFeatureExecuteOverTime
         initMoveX = Input.GetAxis("Horizontal");
         initMoveZ = Input.GetAxis("Vertical");
         moveDirect = transform.right * initMoveX + transform.forward * initMoveZ;
+        crouching.Execute = true;
+    }
+
+    protected override void FinishExecution()
+    {
+        base.FinishExecution();
         crouching.Execute = true;
     }
 }

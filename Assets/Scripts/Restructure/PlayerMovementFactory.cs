@@ -48,9 +48,9 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeJumping();
         InitializeCrouching();
         InitializeSliding();
-        //InitializeDashing();
-        //InitializeWallJump();
-        //InitializeWallRun();
+        InitializeDashing();
+        InitializeWallJump();
+        InitializeWallRun();
         //InitializeGrapple();
     }
 
@@ -80,7 +80,7 @@ public class PlayerMovementFactory : MonoBehaviour
     {
         Jumping jumping = this.AddComponent<Jumping>();
         jumping.MaxJumpCount = 2;
-        jumping.JumpHeight = 3f;
+        jumping.JumpHeight = 5f;
         jumping.ActionKeys = new KeyCode[] { KeyCode.Space };
         jumping.Identifier = "Jumping";
         jumping.ExcludingFeatures = new List<string>();
@@ -93,7 +93,7 @@ public class PlayerMovementFactory : MonoBehaviour
     void InitializeCrouching()
     {
         Crouching crouching = this.AddComponent<Crouching>();
-        crouching.ActionKeys = new KeyCode[] { KeyCode.LeftControl };
+        crouching.ActionKeys = new KeyCode[] { KeyCode.C };
         crouching.Identifier = "Crouching";
         crouching.ExcludingFeatures = new List<string>();
         crouching.ExcludingFeatures.Add("Sprinting");
@@ -101,8 +101,8 @@ public class PlayerMovementFactory : MonoBehaviour
 
         crouching.TimeToCrouch = 0.5f;
         crouching.HeightDifference = 0.5f;
-
         crouching.CameraController = cameraController;
+
         manager.AddFeature(crouching.Identifier, crouching);
     }
 
@@ -113,17 +113,68 @@ public class PlayerMovementFactory : MonoBehaviour
         sliding.Identifier = "Sliding";
         sliding.RequiredFeatures = new List<string>();
         sliding.RequiredFeatures.Add("Sprinting");
-        sliding.DisabelFeatures = new List<string>();
-        sliding.DisabelFeatures.Add("Walking");
-        sliding.DisabelFeatures.Add("Sprinting");
-        sliding.DisabelFeatures.Add("Jumping");
+        sliding.DisableFeatures = new List<string>();
+        sliding.DisableFeatures.Add("Walking");
+        sliding.DisableFeatures.Add("Sprinting");
+        sliding.DisableFeatures.Add("Jumping");
         sliding.CameraController = cameraController;
 
-        sliding.MoveCap = 15f;
-        sliding.MoveSpeed = 40f;
+        sliding.MoveCap = 20f;
+        sliding.MoveSpeed = 100f;
         sliding.MoveControl = 0f;
-        sliding.MoveTime = 1f;
+        sliding.MoveTime = 0.75f;
+        sliding.CanCancelSlide = true;
+
         manager.AddFeature(sliding.Identifier, sliding);
+    }
+
+    void InitializeDashing()
+    {
+        Dashing dashing = this.AddComponent<Dashing>();
+        dashing.ActionKeys = new KeyCode[] { KeyCode.LeftShift };
+        dashing.Identifier = "Dashing";
+        dashing.RequiredFeatures = new List<string>();
+        dashing.RequiredFeatures.Add("Jumping");
+        dashing.RequiredFeatures.Add("WallJumping");
+        dashing.DisableFeatures = new List<string>();
+        dashing.DisableFeatures.Add("Walking");
+        dashing.DisableFeatures.Add("Sprinting");
+        dashing.DisableFeatures.Add("Jumping");
+        dashing.CameraController = cameraController;
+
+        dashing.MoveCap = 30f;
+        dashing.MoveSpeed = 100f;
+        dashing.MoveControl = 0f;
+        dashing.MoveTime = 0.5f;
+        dashing.MaxDashCount = 3;
+
+        manager.AddFeature(dashing.Identifier, dashing);
+    }
+    void InitializeWallRun()
+    {
+        WallRunning wallRunning = this.AddComponent<WallRunning>();
+        wallRunning.ActionKeys = new KeyCode[] { KeyCode.Space };
+        wallRunning.Identifier = "WallRunning";
+        wallRunning.RequiredFeatures = new List<string>();
+        wallRunning.RequiredFeatures.Add("Jumping");
+        wallRunning.DisableFeatures = new List<string>();
+        wallRunning.DisableFeatures.Add("Walking");
+        wallRunning.DisableFeatures.Add("Sprinting");
+        wallRunning.DisableFeatures.Add("Jumping");
+
+        wallRunning.GravityMultiplier = 0;
+        wallRunning.MoveCap = 20f;
+        wallRunning.MoveSpeed = 30f;
+        wallRunning.MaxTimeOnWall = 500;
+        wallRunning.MinWallRunAngle = 80;
+        wallRunning.MaxWallRunAngle = 100;
+        wallRunning.WallRunLayers = new string[] { "WallRun" };
+        wallRunning.DistanceToGround = 0;
+        wallRunning.TimeToTiltCamera = 0.5f;
+        wallRunning.CameraTiltAngle = 15f;
+
+        wallRunning.CameraController = cameraController;
+        manager.AddFeature(wallRunning.Identifier, wallRunning);
     }
 
     void InitializeWallJump()
@@ -136,27 +187,6 @@ public class PlayerMovementFactory : MonoBehaviour
 
         wallJumping.CameraController = cameraController;
         manager.AddFeature(wallJumping.Identifier, wallJumping);
-    }
-
-    void InitializeWallRun()
-    {
-        WallRunning wallRunning = this.AddComponent<WallRunning>();
-        wallRunning.ActionKeys = new KeyCode[] { KeyCode.Space };
-        wallRunning.Identifier = "WallRunning";
-
-        wallRunning.GravityMultiplier = 0;
-        wallRunning.MoveCap = 30f;
-        wallRunning.WallRunSpeed = 30f;
-        wallRunning.MaxTimeOnWall = 500;
-        wallRunning.MinWallRunAngle = 80;
-        wallRunning.MaxWallRunAngle = 100;
-        wallRunning.WallRunLayers = new string[] {"WallRun"};
-        wallRunning.WallRunMinimumHeight = 0;
-        wallRunning.TimeToTiltCamera = 1.5f;
-        wallRunning.CameraTiltAngle = 30f;
-
-        wallRunning.CameraController = cameraController;
-        manager.AddFeature(wallRunning.Identifier, wallRunning);
     }
 
     void InitializeGrapple()
@@ -174,27 +204,6 @@ public class PlayerMovementFactory : MonoBehaviour
 
         grappling.CameraController = cameraController;
         manager.AddFeature(grappling.Identifier, grappling);
-    }
-
-    void InitializeDashing()
-    {
-        Dashing dashing = this.AddComponent<Dashing>();
-        dashing.ActionKeys = new KeyCode[] { KeyCode.LeftShift };
-        dashing.Identifier = "Dashing";
-        dashing.RequiredFeatures = new List<string>();
-        dashing.RequiredFeatures.Add("Jumping");
-        dashing.DisabelFeatures = new List<string>();
-        dashing.DisabelFeatures.Add("Walking");
-        dashing.DisabelFeatures.Add("Sprinting");
-        dashing.CameraController = cameraController;
-
-        dashing.MoveCap = 30f;
-        dashing.MoveSpeed = 30f;
-        dashing.MoveControl = 0f;
-        dashing.MoveTime = 1f;
-        dashing.MaxDashCount = 3;
-
-        manager.AddFeature(dashing.Identifier, dashing);
     }
 
     void InitializeManager()

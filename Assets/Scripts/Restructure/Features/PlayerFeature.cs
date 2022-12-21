@@ -26,7 +26,7 @@ public abstract class PlayerFeature : MonoBehaviour
     public List<string> ExcludingFeatures { get; set; }
 
     // Features that will be disabled during Execution
-    public List<string> DisabelFeatures { get; set; }
+    public List<string> DisableFeatures { get; set; }
 
     // Time since the action was last executed, will reset on action executed
     protected float elapsedSinceLastExecution;
@@ -96,7 +96,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// <summary>
     /// Update the elapsed Since timers
     /// </summary>
-    protected void UpdateElapsedSince()
+    protected virtual void UpdateElapsedSince()
     {
         if (IsExecutingAction)
         {
@@ -195,7 +195,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// Checks if all required features are currently active
     /// </summary>
     /// <returns> True if all features active</returns>
-    protected bool CheckRequiredFeatures()
+    protected virtual bool CheckRequiredFeatures()
     {
         return CheckIfFeaturesActive(RequiredFeatures);
     }
@@ -204,7 +204,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// Checks if at least one excluding feature is active.
     /// </summary>
     /// <returns>Returns true if at least one feature active</returns>
-    protected bool CheckExcludingFeatures()
+    protected virtual bool CheckExcludingFeatures()
     {
         return CheckIfFeatureActive(ExcludingFeatures);
     }
@@ -212,17 +212,17 @@ public abstract class PlayerFeature : MonoBehaviour
     /// <summary>
     /// Disables features listed in DisabelingFeatures
     /// </summary>
-    protected void DisableFeatures()
+    protected virtual void DisableGivenFeatures()
     {
-        manager.DisableFeatures(DisabelFeatures);
+        manager.DisableFeatures(DisableFeatures);
     }
 
     /// <summary>
     /// Enables features listed in DisabelingFeatures
     /// </summary>
-    protected void EnableFeatures()
+    protected virtual void EnableFeatures()
     {
-        manager.EnableFeatures(DisabelFeatures);
+        manager.EnableFeatures(DisableFeatures);
     }
 }
 

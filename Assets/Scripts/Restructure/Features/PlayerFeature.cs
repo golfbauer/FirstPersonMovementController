@@ -214,6 +214,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// </summary>
     protected virtual void DisableGivenFeatures()
     {
+        if (DisableFeatures == null) return;
         manager.DisableFeatures(DisableFeatures);
     }
 
@@ -222,6 +223,7 @@ public abstract class PlayerFeature : MonoBehaviour
     /// </summary>
     protected virtual void EnableFeatures()
     {
+        if (DisableFeatures == null) return;
         manager.EnableFeatures(DisableFeatures);
     }
 }

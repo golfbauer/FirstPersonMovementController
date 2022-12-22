@@ -2,65 +2,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WallJumping : PlayerFeature
+public class WallJumping : PlayerFeatureExecuteOnce
 {
-    public Vector2 WallJumpForce { get; set; }
-
-    public override void CheckAction()
+    private Jumping jumping;
+    
+    protected override void Start()
     {
-        if(Disabled || !CanExecute())
-        {
-            IsExecutingAction = !CheckIsExecuting();
-        } else
-        {
-            if (!IsExecutingAction) Init();
-            ExecuteAction();
-            manager.AddRawVelocity(velocity);
-            IsExecutingAction = true;
-        }
-
-        UpdateElapsedSince();
+        base.Start();
+        jumping = GetComponent<Jumping>();
     }
 
-    new protected bool CanExecute()
+    protected override void ExecuteAction()
     {
-        if (!CheckKeyInput()) return false;
-        if (!CheckRequiredFeatures()) return false;
-
-        return true;
+        velocity = CameraController.transform.forward * MoveForce.x;
+        velocity.y = MoveForce.y;
     }
 
-    new protected void ExecuteAction()
+   protected override void IsExecuting()
     {
-        Vector3 vel = CameraController.transform.forward;
-        vel = new Vector3(vel.x * WallJumpForce.x, vel.y * WallJumpForce.y, vel.z * WallJumpForce.x);
-
-        velocity = vel;
+        EnableFeatures();
+        if (!IsExecutingAction) return;
+        
+        IsExecutingAction = !(manager.IsGrounded() || manager.IsFeatureActive("WallRunning") || manager.IsFeatureActive("Jumping") || manager.IsFeatureActive("Dashing"));
     }
 
-    private bool CheckIsExecuting()
+    protected override void Init()
     {
-        List<string> requiredFeatures = new List<string>
-        {
-            "isJumping",
-            "isWallRunning"
-        };
-
-        return IsExecutingAction && (!manager.IsGrounded() || CheckIfFeatureActive(requiredFeatures));
+        base.Init();
+        jumping.CurrentJumpCount++;
+        manager.SetVelocity(Vector3.zero);
     }
 
-    private bool CheckKeyInput()
+    protected override bool CheckKeys()
     {
         return CheckAllInputGetKeysUp();
-    }
-
-    new private bool CheckRequiredFeatures()
-    {
-        List<string> requiredFeatures = new List<string>
-        {
-            "isWallRunning"
-        };
-
-        return CheckIfFeatureActive(requiredFeatures);
     }
 }

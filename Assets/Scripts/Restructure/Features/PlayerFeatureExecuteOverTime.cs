@@ -42,8 +42,8 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
 
         UpdateElapsedSince();
     }
-
-    protected virtual new bool CanExecute()
+    
+    protected override bool CanExecute()
     {
         if (IsExecutingAction)
         {
@@ -56,7 +56,7 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
         return true;
     }
 
-    protected virtual new void Init()
+    protected override void Init()
     {
         IsExecutingAction = true;
         initVelocity = manager.GetVelocity();

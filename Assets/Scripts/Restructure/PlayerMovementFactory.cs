@@ -182,8 +182,10 @@ public class PlayerMovementFactory : MonoBehaviour
         WallJumping wallJumping = this.AddComponent<WallJumping>();
         wallJumping.ActionKeys = new KeyCode[] { KeyCode.Space };
         wallJumping.Identifier = "WallJumping";
+        wallJumping.RequiredFeatures = new List<string>();
+        wallJumping.RequiredFeatures.Add("WallRunning");
 
-        wallJumping.WallJumpForce = new Vector3(3f, 3000f);
+        wallJumping.MoveForce = new Vector3(10f, 10f);
 
         wallJumping.CameraController = cameraController;
         manager.AddFeature(wallJumping.Identifier, wallJumping);

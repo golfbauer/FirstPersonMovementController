@@ -60,3 +60,6 @@ public class Sliding : PlayerFeatureExecuteOverTime
     }
 }
 
+// TODO:
+// Slide: cancel on no ground
+// Wallrun: when end wall just go camera direct

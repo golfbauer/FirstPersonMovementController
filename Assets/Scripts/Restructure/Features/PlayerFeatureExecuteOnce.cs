@@ -9,7 +9,6 @@ public class PlayerFeatureExecuteOnce : PlayerFeature
     
     public override void CheckAction()
     {
-        Debug.Log(IsExecutingAction);
         if (Disabled || !CanExecute())
         {
             IsExecuting();

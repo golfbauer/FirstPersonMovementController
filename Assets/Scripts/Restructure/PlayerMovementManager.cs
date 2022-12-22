@@ -17,6 +17,9 @@ public class PlayerMovementManager : MonoBehaviour
         set { velocity.x = value.x; velocity.z = value.y; }
     }
 
+    private Vector3 lastParentPosition;
+    private Vector3 currentParentMovement;
+
     public float GroundedVelocityDeclineRate { get; set; }
     public float AirborneVelocityDeclineRate { get; set; }
     public Vector3 BaseGravity { get; set; }
@@ -43,6 +46,20 @@ public class PlayerMovementManager : MonoBehaviour
         activeFeatures = new List<string>();
     }
 
+    private void OnEnable() 
+    {
+        Kcc = GetComponent<KinematicCharacterController>();
+
+        features = new Dictionary<string, PlayerFeature>();
+        activeFeatures = new List<string>();
+
+        foreach (PlayerFeature feature in gameObject.GetComponents<PlayerFeature>()) 
+        {
+            AddFeature(feature.Identifier, feature);
+        }
+        
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -53,11 +70,14 @@ public class PlayerMovementManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        movement = Vector3.zero;
+
         if (velocity.y <= 0)
         {
             ProjectOnPlane= true;  
         }
 
+        ApplyPlatformMovement();
         ApplyFriction();
         ApplyGravity();
 
@@ -77,13 +97,38 @@ public class PlayerMovementManager : MonoBehaviour
             velocity.y= 0;
         }
 
-        movement = velocity * Time.deltaTime;
+        movement = movement + velocity * Time.deltaTime;
         if (ProjectOnPlane)
         {
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
         }
         transform.position = Kcc.MovePlayer(movement);
 
+    }
+
+    private void ApplyPlatformMovement()
+    {
+        if (IsGrounded())
+        {
+            if (lastParentPosition != null)
+            {
+                currentParentMovement = groundHit.transform.position - lastParentPosition;
+            }
+
+            transform.SetParent(groundHit.transform);
+            lastParentPosition = groundHit.transform.position;
+
+        }
+        else
+        {
+            movement = currentParentMovement;
+            transform.SetParent(null);
+
+            if (groundHit.transform != null)
+            {
+                lastParentPosition = groundHit.transform.position;
+            }
+        }
     }
 
     private void ApplyFriction()

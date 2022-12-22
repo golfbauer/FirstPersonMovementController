@@ -78,7 +78,7 @@ public class KinematicCharacterController : MonoBehaviour
 
 
     // Use this for initialization
-    void Start()
+    void Start() 
 	{
         rigidbody = gameObject.AddComponent<Rigidbody>();
         rigidbody.isKinematic = true;

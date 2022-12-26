@@ -1,132 +1,97 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Grappling : PlayerFeature
+public class Grappling : PlayerFeatureExecuteOverTime
 {
-    public float MoveCap { get; set; }
-    public float GrappleCooldown { get; set; }
     public float MaxGrappleDistance { get; set; }
-    public float GrappleSpeed { get; set; }
     public string[] GrappleLayers { get; set; }
-    public bool CanCancelGrapple { get; set; }
 
     public bool GrapplingAnimation;
     public RaycastHit GrappleHit;
 
-    private float prevGravityMultiplier;
-    private Vector3 localGrappleHitPoint;
-    private Vector3 grappleMoveDirect;
-
-    private Jumping jumping;
+    protected Vector3 localGrappleHitPoint;
+    protected Jumping jumping;
 
 
-    new void Start()
+    protected override void Start()
     {
         base.Start();
-        prevGravityMultiplier = manager.GravityMultiplier;
         jumping = GetComponent<Jumping>();
     }
 
-    public override void CheckAction()
+    protected override bool CanExecute()
     {
-        if(Disabled || !CanExecute())
-        {
-            ChangeGravityMultiplier(true);
+        if(!base.CanExecute()) return false;
+        if (!CheckGrappleHit()) return false;
 
-        } else
-        {
-            if (!IsExecutingAction) Init();
-            IsExecutingAction = true;
-            ExecuteAction();
-            manager.AddVelocity(velocity, MoveCap);
-        }
-
-        UpdateElapsedSince();
+        return true;
     }
 
-    new protected bool CanExecute()
-    {
-        if (IsExecutingAction)
-        {
-            if (CancelGrapple()) return false;
-            return true;
-        }
-        if (CheckAllInputGetKeysDown())
-        {
-            if (CheckCooldown()) return false;
-            if (!CheckGrappleHit()) return false;
-            return true;
-        }
-        return false;
-    }
-
-    new protected void ExecuteAction()
-    {
-        if (GrapplingAnimation)
-        {
-            // we need some freeze function
-            manager.SetVelocity(Vector3.zero);
-            return;
-        }
-        //if (manager.kcc.CheckObjectHit(grappleMoveDirect))
-        //{
-        //    manager.AddActiveFeature("Jumping");
-        //    IsExecutingAction = false;
-        //    return Vector3.zero;
-        //}
-        grappleMoveDirect = (GrappleHit.collider.transform.position + localGrappleHitPoint - transform.position).normalized;
-        velocity = grappleMoveDirect * GrappleForceFunction() * GrappleSpeed;
-    }
-
-    new protected void Init()
-    {
-        localGrappleHitPoint = GrappleHit.point - GrappleHit.collider.transform.position;
-        GrapplingAnimation = true;
-        ChangeGravityMultiplier(false);
-    }
-
-    private void ChangeGravityMultiplier(bool undoGravity)
-    {
-        if (undoGravity)
-        {
-            manager.GravityMultiplier = prevGravityMultiplier;
-            return;
-        }
-
-        prevGravityMultiplier = manager.GravityMultiplier;
-        manager.GravityMultiplier = 0;
-    }
-
-    private bool CancelGrapple()
-    {
-        if(CanCancelGrapple && !GrapplingAnimation && CheckAllInputGetKeysDown())
-        {
-            jumping.CurrentJumpCount = 1;
-            IsExecutingAction = false;
-            return true;
-        }
-        return false;
-    }
-
-    private bool CheckCooldown()
-    {
-        return elapsedSinceLastExecution < GrappleCooldown;
-    }
-
-    private bool CheckGrappleHit()
+    protected virtual bool CheckGrappleHit()
     {
         Transform cameraTransform = CameraController.transform;
 
         return Physics.Raycast(cameraTransform.position, cameraTransform.forward, out GrappleHit, MaxGrappleDistance, LayerMask.GetMask(GrappleLayers));
     }
 
-    private float GrappleForceFunction()
+    protected override void Init()
+    {
+        base.Init();
+        manager.ProjectOnPlane = false;
+        localGrappleHitPoint = GrappleHit.point - GrappleHit.collider.transform.position;
+        GrapplingAnimation = true;
+        manager.ChangeGravityMultiplier(0f, Identifier);
+    }
+
+    protected override void ExecuteAction()
+    {
+        if(CheckGrappleAnimation()) return;
+
+        if(CancelGrapple()) return;
+
+        if (CheckForCollision()) return;
+
+        moveDirect = (GrappleHit.collider.transform.position + localGrappleHitPoint - transform.position).normalized;
+        velocity = moveDirect * GrappleForceFunction() * MoveSpeed;
+    }
+
+    protected virtual bool CheckGrappleAnimation(){
+        if (GrapplingAnimation)
+        {
+            manager.Freeze(Identifier);
+            return true;
+        }
+
+        manager.UnFreeze();
+        return false;
+    }
+
+    protected virtual bool CancelGrapple()
+    {
+        if(CanCancelExecution && !GrapplingAnimation && CheckAllInputGetKeysDown())
+        {
+            FinishExecution();
+            return true;
+        }
+        return false;
+    }
+
+    protected virtual bool CheckForCollision(){
+        if (manager.Kcc.CheckObjectHit(moveDirect))
+        {
+           manager.SetVelocity(Vector3.zero);
+           FinishExecution();
+           return true;
+        }
+
+        return false;
+    } 
+
+    protected virtual float GrappleForceFunction()
     {
         return Mathf.Sqrt(elapsedSinceStartExecution);
     }
 
-    new void UpdateElapsedSince()
+    protected override void UpdateElapsedSince()
     {
         if (IsExecutingAction)
         {
@@ -137,5 +102,15 @@ public class Grappling : PlayerFeature
 
         elapsedSinceLastExecution += Time.deltaTime;
         elapsedSinceStartExecution = 1f;
+    }
+
+    protected override void FinishExecution()
+    {
+        jumping.CurrentJumpCount = 1;
+        manager.ProjectOnPlane = true;
+        IsExecutingAction = false;
+        manager.UndoChangeGravityMultiplier(Identifier);
+        manager.SetFeatureActive("Jumping");
+        EnableFeatures();
     }
 }

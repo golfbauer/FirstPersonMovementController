@@ -15,6 +15,15 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
     // Time action is executed
     public float MoveTime { get; set; }
 
+    // Gravity multiplier during execution
+    public float GravityMultiplier { get; set; }
+
+    // Cooldown after execution
+    public float  CoolDown {get; set; }
+
+    // Can the action be cancelled
+    public bool CanCancelExecution { get; set; }
+
     protected Vector3 initVelocity;
 
     // Initial X direction
@@ -49,9 +58,11 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
         {
             return false;
         }
+        
         if (!CheckKeys()) return false;
         if (!CheckRequiredFeatures()) return false;
         if (CheckExcludingFeatures()) return false;
+        if(CheckCooldown()) return false;
 
         return true;
     }
@@ -73,6 +84,11 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
     protected virtual void ResetToInitVelocity()
     {
         manager.SetVelocity(initVelocity);
+    }
+
+    protected virtual bool CheckCooldown()
+    {
+        return elapsedSinceLastExecution < CoolDown;
     }
 }
 

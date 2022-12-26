@@ -6,7 +6,6 @@ using static Utils;
 
 public class WallRunning : PlayerFeatureExecuteOverTime
 {
-    public float GravityMultiplier { get; set; }
     public float PushOfWallForce { get; set; }
     public float MaxTimeOnWall { get; set; }
     public float MaxWallRunAngle { get; set; }
@@ -224,15 +223,13 @@ public class WallRunning : PlayerFeatureExecuteOverTime
 
     private void PushOffWall(RaycastHit hit)
     {
-        manager.AddVelocity(hit.normal * PushOfWallForce, PushOfWallForce);
+        manager.AddRawVelocity(hit.normal * PushOfWallForce);
     }
 
     public enum WallPosition
     {
         Right,
         Left,
-        Front,
-        Back,
         None
     }
 }

@@ -51,7 +51,7 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeDashing();
         InitializeWallJump();
         InitializeWallRun();
-        //InitializeGrapple();
+        InitializeGrapple();
     }
 
     void InitializeWalking()
@@ -170,7 +170,7 @@ public class PlayerMovementFactory : MonoBehaviour
         wallRunning.MaxWallRunAngle = 100;
         wallRunning.WallRunLayers = new string[] { "WallRun" };
         wallRunning.DistanceToGround = 0;
-        wallRunning.TimeToTiltCamera = 0.5f;
+        wallRunning.TimeToTiltCamera = 0.3f;
         wallRunning.CameraTiltAngle = 15f;
 
         wallRunning.CameraController = cameraController;
@@ -196,13 +196,18 @@ public class PlayerMovementFactory : MonoBehaviour
         Grappling grappling = this.AddComponent<Grappling>();
         grappling.ActionKeys = new KeyCode[] { KeyCode.F };
         grappling.Identifier = "Grappling";
+        grappling.DisableFeatures = new List<string>();
+        grappling.DisableFeatures.Add("Walking");
+        grappling.DisableFeatures.Add("Jumping");
+        grappling.DisableFeatures.Add("Dashing");
+        grappling.DisableFeatures.Add("WallRunning");
 
         grappling.MoveCap = 30f;
-        grappling.GrappleCooldown = 1f;
+        grappling.CoolDown = 1f;
         grappling.MaxGrappleDistance = 50f;
-        grappling.GrappleSpeed = 50f;
+        grappling.MoveSpeed = 50f;
         grappling.GrappleLayers = new string[] { "WallRun" };
-        grappling.CanCancelGrapple = true;
+        grappling.CanCancelExecution = true;
 
         grappling.CameraController = cameraController;
         manager.AddFeature(grappling.Identifier, grappling);

@@ -11,6 +11,10 @@ public class PlayerMovementManager : MonoBehaviour
     private Vector3 velocity;
     private Vector3 movement;
 
+    private string frozen;
+    private float prevGravityMultiplier;
+    private string prevGravityMultiplierFeature;
+
     private Vector2 HorizontalVelocity
     {
         get { return new Vector2(velocity.x, velocity.z); }
@@ -53,6 +57,14 @@ public class PlayerMovementManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(frozen != null) {
+            if(this.features.TryGetValue(frozen, out PlayerFeature value)) {
+                value.CheckAction();
+            } else {
+                frozen = null;
+            }
+        }
+
         if (velocity.y <= 0)
         {
             ProjectOnPlane= true;  
@@ -247,5 +259,43 @@ public class PlayerMovementManager : MonoBehaviour
                 value.Disabled = false;
             }
         }
+    }
+
+    /// <summary>
+    /// Freeze player on spot and set velocity to zero
+    /// </summary>
+    public void Freeze(string featureId){
+        this.frozen = featureId;
+        SetVelocity(Vector3.zero);
+    }
+
+    /// <summary>
+    /// Unfreeze player
+    /// </summary>
+    public void UnFreeze(){
+        this.frozen = null;
+    }
+
+    /// <summary>
+    /// Changes the gravity multiplier temporarly. Can only be done by one feature at a time.
+    /// </summary>
+    public void ChangeGravityMultiplier(float multiplier, string featureId)
+    {
+        if(featureId != null) return;
+
+        prevGravityMultiplier = GravityMultiplier;
+        prevGravityMultiplierFeature = featureId;
+        GravityMultiplier = multiplier;
+    }
+
+    /// <summary>
+    /// Undoes the gravity multiplier change. Can only be done by the feature that made the change.
+    /// </summary>
+    public void UndoChangeGravityMultiplier(string featureId)
+    {
+        if (prevGravityMultiplierFeature != featureId) return;
+
+        GravityMultiplier = prevGravityMultiplier;
+        featureId = null;
     }
 }

@@ -119,10 +119,10 @@ public class PlayerMovementFactory : MonoBehaviour
         sliding.DisableFeatures.Add("Jumping");
         sliding.CameraController = cameraController;
 
-        sliding.MoveCap = 20f;
+        sliding.MoveCap = 30f;
         sliding.MoveSpeed = 100f;
         sliding.MoveControl = 0f;
-        sliding.MoveTime = 0.75f;
+        sliding.MoveTime = 2f;
         sliding.CanCancelSlide = true;
 
         manager.AddFeature(sliding.Identifier, sliding);
@@ -144,12 +144,13 @@ public class PlayerMovementFactory : MonoBehaviour
 
         dashing.MoveCap = 30f;
         dashing.MoveSpeed = 100f;
-        dashing.MoveControl = 0f;
+        dashing.MoveControl = 1f;
         dashing.MoveTime = 0.5f;
         dashing.MaxDashCount = 3;
 
         manager.AddFeature(dashing.Identifier, dashing);
     }
+
     void InitializeWallRun()
     {
         WallRunning wallRunning = this.AddComponent<WallRunning>();
@@ -164,7 +165,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
         wallRunning.GravityMultiplier = 0;
         wallRunning.MoveCap = 20f;
-        wallRunning.MoveSpeed = 30f;
+        wallRunning.MoveSpeed = 100f;
         wallRunning.MaxTimeOnWall = 500;
         wallRunning.MinWallRunAngle = 80;
         wallRunning.MaxWallRunAngle = 100;
@@ -185,7 +186,7 @@ public class PlayerMovementFactory : MonoBehaviour
         wallJumping.RequiredFeatures = new List<string>();
         wallJumping.RequiredFeatures.Add("WallRunning");
 
-        wallJumping.MoveForce = new Vector3(10f, 10f);
+        wallJumping.MoveForce = new Vector3(10f, 5f);
 
         wallJumping.CameraController = cameraController;
         manager.AddFeature(wallJumping.Identifier, wallJumping);

@@ -11,6 +11,7 @@ public class CameraController : MonoBehaviour
     private float zRotation;
 
     private bool isTiltingCamera;
+    private Coroutine cameraTiltCoroutine;
 
     void Start()
     {
@@ -36,7 +37,13 @@ public class CameraController : MonoBehaviour
 
     public void TiltCamera(float targetTilt, float time)
     {
-        if (!isTiltingCamera) StartCoroutine(TiltingCamera(targetTilt, time));
+        if(cameraTiltCoroutine != null)
+        {
+            StopCoroutine(cameraTiltCoroutine);
+            cameraTiltCoroutine = null;
+        }
+
+        cameraTiltCoroutine = StartCoroutine(TiltingCamera(targetTilt, time));
     }
 
     IEnumerator TiltingCamera(float targetTilt, float time)
@@ -56,8 +63,8 @@ public class CameraController : MonoBehaviour
         zRotation = targetTilt;
     }
 
-    public void SetCameraHeight(float targetHeight)
+    public void AddCameraHeight(float targetHeight)
     {
-        transform.position = new Vector3(transform.position.x, transform.position.y + targetHeight, transform.position.z);
+        transform.position += Vector3.up * targetHeight;
     }
 }

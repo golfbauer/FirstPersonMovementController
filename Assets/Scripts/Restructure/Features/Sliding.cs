@@ -34,9 +34,10 @@ public class Sliding : PlayerFeatureExecuteOverTime
                 FinishExecution();
                 return;
             }
+            Vector3 moveX = transform.right * Input.GetAxis("Horizontal");
             Vector3 currentSlideDirect =
                     moveDirect * (1f - MoveControl) +
-                    (MoveControl * (initMoveX * transform.right + transform.forward * initMoveZ));
+                    (MoveControl * (moveX + transform.forward * moveDirect.z));
             velocity = currentSlideDirect * MoveSpeed;
             return;
         }
@@ -47,9 +48,7 @@ public class Sliding : PlayerFeatureExecuteOverTime
     protected override void Init()
     {
         base.Init();
-        initMoveX = Input.GetAxis("Horizontal");
-        initMoveZ = Input.GetAxis("Vertical");
-        moveDirect = transform.right * initMoveX + transform.forward * initMoveZ;
+        moveDirect = transform.right * Input.GetAxis("Horizontal") + transform.forward * Input.GetAxis("Vertical");
         crouching.Execute = true;
     }
 
@@ -59,7 +58,3 @@ public class Sliding : PlayerFeatureExecuteOverTime
         crouching.Execute = true;
     }
 }
-
-// TODO:
-// Slide: cancel on no ground
-// Wallrun: when end wall just go camera direct

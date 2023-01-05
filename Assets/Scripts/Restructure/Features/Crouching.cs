@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Crouching : PlayerFeature
+public class Crouching : PlayerFeatureExecuteOverTime
 {
 
     public float TimeToCrouch { get; set; }
@@ -16,7 +16,7 @@ public class Crouching : PlayerFeature
 
     private KinematicCharacterController kcc;
 
-    private new void Start()
+    protected override void Start()
     {
         base.Start();
         kcc = manager.Kcc;
@@ -24,58 +24,55 @@ public class Crouching : PlayerFeature
 
     public override void CheckAction()
     {
-        if (!Disabled && CanExecute())
+        if ((!Disabled && CanExecute()) || Execute)
         {
             Init();
-            IsExecutingAction = true;
-            Execute = false;
         }
 
         if (IsExecutingAction)
         {
+            if(!AllowedToStandUp()) return;
             ExecuteAction();
         }
-
+        
         UpdateElapsedSince();
     }
 
-    protected new bool CanExecute()
+    protected override bool CanExecute()
     {
-        if (IsExecutingAction) return false;
-
-        if (Execute) return true;
-
-        if (!CheckKeys()) return false;
+        if(!base.CanExecute()) return false;
         if (!manager.IsGrounded()) return false;
-        if (CheckExcludingFeatures()) return false;
 
         return true;
     }
 
-    protected new void ExecuteAction()
+    protected override void ExecuteAction()
     {
         if (elapsedSinceStartExecution < TimeToCrouch)
         {
-            float heightDifference = Mathf.Lerp(currentHeight, targetHeight, elapsedSinceStartExecution / TimeToCrouch);
+            float targetControllerHeight = Mathf.Lerp(currentHeight, targetHeight, elapsedSinceStartExecution / TimeToCrouch);
+            float heightDifference = targetControllerHeight - kcc.Height;
+            transform.position += Vector3.up * (heightDifference/2);
+            bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit groundHit, kcc.Height/2);
 
-            if (IsCrouched)
+            if(isGrounded && groundHit.distance < transform.position.y)
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y + (heightDifference - kcc.Height), transform.position.z);
+                transform.position += Vector3.up * (transform.position.y - groundHit.distance) + Vector3.up * 0.1f;
             }
 
-            CameraController.SetCameraHeight(heightDifference - kcc.Height);
-            kcc.Height = heightDifference;
+            CameraController.AddCameraHeight(heightDifference/2);
+            kcc.Height = targetControllerHeight;
 
             return;
         }
 
-        IsExecutingAction = false;
+        FinishExecution();
         IsCrouched = !IsCrouched;
-        return;
     }
 
-    protected new void Init()
+    protected override void Init()
     {
+        base.Init();
         if(IsCrouched)
         {
             currentHeight = kcc.Height;
@@ -85,5 +82,31 @@ public class Crouching : PlayerFeature
 
         currentHeight = kcc.Height;
         targetHeight = kcc.Height - HeightDifference;
+    }
+
+    protected override void FinishExecution()
+    {
+        kcc.Height = targetHeight;
+        IsExecutingAction = false;
+        EnableFeatures();
+    }
+
+    /// <summary>
+    /// Checks if the player is allowed to stand up.
+    /// </summary>
+    /// <returns>True if the player is allowed to stand up, false if not.</returns>
+    protected virtual bool AllowedToStandUp()
+    {
+        if(!IsCrouched) return true;
+        if(Physics.Raycast(transform.position, Vector3.up, out RaycastHit hit, kcc.Height/2 + HeightDifference))
+        {
+            if(elapsedSinceStartExecution <= 0f){
+                IsExecutingAction = false;
+                EnableFeatures();
+            }
+            return false;
+        }
+
+        return true;
     }
 }

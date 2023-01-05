@@ -60,6 +60,7 @@ public class PlayerMovementManager : MonoBehaviour
         if(frozen != null) {
             if(this.features.TryGetValue(frozen, out PlayerFeature value)) {
                 value.CheckAction();
+                return;
             } else {
                 frozen = null;
             }
@@ -279,23 +280,25 @@ public class PlayerMovementManager : MonoBehaviour
     /// <summary>
     /// Changes the gravity multiplier temporarly. Can only be done by one feature at a time.
     /// </summary>
-    public void ChangeGravityMultiplier(float multiplier, string featureId)
+    public bool ChangeGravityMultiplier(float multiplier, string featureId)
     {
-        if(featureId != null) return;
+        if(prevGravityMultiplierFeature != null && prevGravityMultiplierFeature != featureId) return false;
 
         prevGravityMultiplier = GravityMultiplier;
         prevGravityMultiplierFeature = featureId;
         GravityMultiplier = multiplier;
+        return true;
     }
 
     /// <summary>
     /// Undoes the gravity multiplier change. Can only be done by the feature that made the change.
     /// </summary>
-    public void UndoChangeGravityMultiplier(string featureId)
+    public bool UndoChangeGravityMultiplier(string featureId)
     {
-        if (prevGravityMultiplierFeature != featureId) return;
+        if (prevGravityMultiplierFeature != featureId) return false;
 
         GravityMultiplier = prevGravityMultiplier;
-        featureId = null;
+        prevGravityMultiplierFeature = null;
+        return true;
     }
 }

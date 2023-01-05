@@ -4,21 +4,21 @@ using UnityEngine;
 
 public class PlayerFeatureExecuteOnce : PlayerFeature
 {
-
+    // Force added to the player when the action is executed
     public Vector3 MoveForce { get; set; }
     
     public override void CheckAction()
     {
-        if (Disabled || !CanExecute())
-        {
-            IsExecuting();
-        }
-        else
+        if ((!Disabled && CanExecute()) || Execute)
         {
             Init();
             ExecuteAction();
             manager.AddRawVelocity(velocity);
             IsExecutingAction = true;
+        }
+        else
+        {
+            IsExecuting();
         }
 
         UpdateElapsedSince();
@@ -41,6 +41,7 @@ public class PlayerFeatureExecuteOnce : PlayerFeature
 
     protected override void Init()
     {
+        Execute = false;
         DisableGivenFeatures();    
     }
 

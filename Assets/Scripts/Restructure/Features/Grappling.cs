@@ -26,6 +26,10 @@ public class Grappling : PlayerFeatureExecuteOverTime
         return true;
     }
 
+    /// <summary>
+    /// Checks if players grapple has hit an object. If so grapple executes.
+    /// </summary>
+    /// <returns>true if grapple has hit an object</returns>
     protected virtual bool CheckGrappleHit()
     {
         Transform cameraTransform = CameraController.transform;
@@ -39,7 +43,7 @@ public class Grappling : PlayerFeatureExecuteOverTime
         manager.ProjectOnPlane = false;
         localGrappleHitPoint = GrappleHit.point - GrappleHit.collider.transform.position;
         GrapplingAnimation = true;
-        manager.ChangeGravityMultiplier(0f, Identifier);
+        ChangeGravityMultiplier(0f);
     }
 
     protected override void ExecuteAction()
@@ -54,6 +58,10 @@ public class Grappling : PlayerFeatureExecuteOverTime
         velocity = moveDirect * GrappleForceFunction() * MoveSpeed;
     }
 
+    /// <summary>
+    /// Checks if player is in grapple animation. If so it freqqzes the player.
+    /// </summary>
+    /// <returns><c>true</c>, if in grapple animation, <c>false</c> otherwise.</returns>
     protected virtual bool CheckGrappleAnimation(){
         if (GrapplingAnimation)
         {
@@ -65,6 +73,10 @@ public class Grappling : PlayerFeatureExecuteOverTime
         return false;
     }
 
+    /// <summary>
+    /// Cancels the grapple if not in animation and grapple key pressed during execution.
+    /// </summary>
+    /// <returns><c>true</c>, if grapple was canceled, <c>false</c> otherwise.</returns>
     protected virtual bool CancelGrapple()
     {
         if(CanCancelExecution && !GrapplingAnimation && CheckAllInputGetKeysDown())
@@ -75,6 +87,10 @@ public class Grappling : PlayerFeatureExecuteOverTime
         return false;
     }
 
+    /// <summary>
+    /// Checks if player hits an obsticale when grappling if so he stops the grapple.
+    /// </summary>
+    /// <returns><c>true</c>, if for collision was checked, <c>false</c> otherwise.</returns>
     protected virtual bool CheckForCollision(){
         if (manager.Kcc.CheckObjectHit(moveDirect))
         {
@@ -86,6 +102,10 @@ public class Grappling : PlayerFeatureExecuteOverTime
         return false;
     } 
 
+    /// <summary>
+    /// Grapple force function.
+    /// </summary>
+    /// <returns>Speed for the current time.</returns>
     protected virtual float GrappleForceFunction()
     {
         return Mathf.Sqrt(elapsedSinceStartExecution);
@@ -109,7 +129,7 @@ public class Grappling : PlayerFeatureExecuteOverTime
         jumping.CurrentJumpCount = 1;
         manager.ProjectOnPlane = true;
         IsExecutingAction = false;
-        manager.UndoChangeGravityMultiplier(Identifier);
+        UndoChangeGravityMultiplier();
         manager.SetFeatureActive("Jumping");
         EnableFeatures();
     }

@@ -19,6 +19,9 @@ public abstract class PlayerFeature : MonoBehaviour
     // If this flag is set true the Feature will be executed once
     public bool Execute { get; set; }
 
+    // Pause the execution of the feature
+    public bool Pause { get; set; }
+
     // Will not execute of one of the features is not active
     public List<string> RequiredFeatures { get; set; }
 
@@ -37,7 +40,10 @@ public abstract class PlayerFeature : MonoBehaviour
     // Final movement passed on to the manager
     protected Vector3 velocity;
 
+    // Manager that handles the features
     protected PlayerMovementManager manager;
+
+    // CameraController
     public CameraController CameraController;
 
 

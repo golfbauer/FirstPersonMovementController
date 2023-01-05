@@ -6,13 +6,11 @@ public class Dashing : PlayerFeatureExecuteOverTime
 {
     public int MaxDashCount { get; set; }
 
-    private float prevGravityMultiplier;
     private int currentDashCount;
 
     public override void CheckAction()
     {
         base.CheckAction();
-
         ResetDash();
     }
 
@@ -29,9 +27,10 @@ public class Dashing : PlayerFeatureExecuteOverTime
     {
         if (elapsedSinceStartExecution < MoveTime)
         {
+            float moveX = Input.GetAxis("Horizontal");
             Vector3 currentDashDirect =
                 moveDirect * (1f - MoveControl) +
-                (MoveControl * (initMoveX * transform.right + transform.forward * initMoveZ));
+                (MoveControl * (moveDirect + transform.right * moveX));
             velocity = currentDashDirect * MoveSpeed;
             return;
         }
@@ -45,33 +44,26 @@ public class Dashing : PlayerFeatureExecuteOverTime
         managerVelocity.y = 0f;
         manager.SetVelocity(managerVelocity);
         base.Init();
-        initMoveX = Input.GetAxis("Horizontal");
-        initMoveZ = Input.GetAxis("Vertical");
-        moveDirect = transform.right * initMoveX + transform.forward * initMoveZ;
+        moveDirect = transform.right * Input.GetAxis("Horizontal") + transform.forward * Input.GetAxis("Vertical");
         if (moveDirect == Vector3.zero)
         {
             moveDirect = transform.forward;
         }
-        ChangeGravityMultiplier(false);
+        ChangeGravityMultiplier(GravityMultiplier);
     }
 
+    /// <summary>
+    /// Checks the dash count.
+    /// </summary>
+    /// <returns><c>true</c>, if dash count is below max dash count, <c>false</c> otherwise.</returns>
     protected virtual bool CheckDashCount()
     {
         return currentDashCount < MaxDashCount;
     }
 
-    protected virtual void ChangeGravityMultiplier(bool undoGravity)
-    {
-        if (undoGravity)
-        {
-            manager.GravityMultiplier = prevGravityMultiplier;
-            return;
-        }
-
-        prevGravityMultiplier = manager.GravityMultiplier;
-        manager.GravityMultiplier = 0;
-    }
-
+    /// <summary>
+    /// Resets the dash count if the player is grounded or wall running or grappling.
+    /// </summary>
     protected virtual void ResetDash()
     {
         if (!IsExecutingAction && (manager.IsGrounded() || manager.IsFeatureActive("WallRunning") || manager.IsFeatureActive("Grappling")))
@@ -88,7 +80,7 @@ public class Dashing : PlayerFeatureExecuteOverTime
     protected override void FinishExecution()
     {
         base.FinishExecution();
-        ChangeGravityMultiplier(true);
+        UndoChangeGravityMultiplier();
         currentDashCount++;
     }
 }

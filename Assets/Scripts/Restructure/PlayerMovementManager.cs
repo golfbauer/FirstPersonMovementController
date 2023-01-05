@@ -55,7 +55,7 @@ public class PlayerMovementManager : MonoBehaviour
         Kcc = GetComponent<KinematicCharacterController>();
 
         features = new Dictionary<string, PlayerFeature>();
-        activeFeatures = new List<string>();
+        activeFeatures = new HashSet<string>();
 
         foreach (PlayerFeature feature in gameObject.GetComponents<PlayerFeature>()) 
         {

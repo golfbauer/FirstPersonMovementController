@@ -2,71 +2,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WallJumping : PlayerFeature
+public class WallJumping : PlayerFeatureExecuteOnce
 {
-    public Vector2 WallJumpForce { get; set; }
-    public CameraController CameraController { get; set; }
-
-    public override void CheckAction()
+    private Jumping jumping;
+    
+    protected override void Start()
     {
-        if(DisableFeature || !CanExecute())
-        {
-            IsExecutingAction = !CheckIsExecuting();
-        } else
-        {
-            if (!IsExecutingAction) Init();
-            Velocity = ExecuteAction();
-            manager.AddRawVelocity(Velocity);
-            IsExecutingAction = true;
-        }
-
-        UpdateElapsedSince();
+        base.Start();
+        jumping = GetComponent<Jumping>();
     }
 
-    protected override bool CanExecute()
+    protected override void ExecuteAction()
     {
-        if (!CheckKeyInput()) return false;
-        if (!CheckRequiredFeatures()) return false;
-
-        return true;
+        velocity = CameraController.transform.forward * MoveForce.x;
+        velocity.y = MoveForce.y;
     }
 
-    protected override Vector3 ExecuteAction()
+   protected override void IsExecuting()
     {
-        Vector3 vel = CameraController.transform.forward;
-        vel = new Vector3(vel.x * WallJumpForce.x, vel.y * WallJumpForce.y, vel.z * WallJumpForce.x);
-
-        return vel;
+        EnableFeatures();
+        if (!IsExecutingAction) return;
+        
+        IsExecutingAction = !(manager.IsGrounded() || manager.IsFeatureActive("WallRunning") || manager.IsFeatureActive("Jumping") || manager.IsFeatureActive("Dashing"));
     }
 
     protected override void Init()
     {
-        return;
+        base.Init();
+        jumping.CurrentJumpCount++;
+        manager.SetVelocity(Vector3.zero);
     }
 
-    private bool CheckIsExecuting()
+    protected override bool CheckKeys()
     {
-        List<string> requiredFeatures = new List<string>
-        {
-            "isJumping",
-            "isWallRunning"
-        };
-
-        return IsExecutingAction && (!manager.IsGrounded() || CheckIfFeaturesActive(requiredFeatures));
-    }
-
-    private bool CheckKeyInput()
-    {
-        return CheckInputGetKeysUp();
-    }
-
-    private bool CheckRequiredFeatures()
-    {
-        List<string> requiredFeatures = new List<string>
-        {
-            "isWallRunning"
-        };
-
-        return CheckIfFeaturesActive(requiredFeatures);
+        return CheckAllInputGetKeysUp();
     }
 }

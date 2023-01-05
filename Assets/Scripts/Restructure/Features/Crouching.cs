@@ -3,81 +3,76 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Crouching : PlayerFeature
+public class Crouching : PlayerFeatureExecuteOverTime
 {
 
     public float TimeToCrouch { get; set; }
     public float HeightDifference { get; set; }
 
     public bool IsCrouched;
-    public bool Crouch;
 
     private float targetHeight;
     private float currentHeight;
 
     private KinematicCharacterController kcc;
-    public CameraController CameraController;
 
-    new private void Start()
+    protected override void Start()
     {
         base.Start();
-        kcc = GetComponent<KinematicCharacterController>();
+        kcc = manager.Kcc;
     }
 
     public override void CheckAction()
     {
-        if (CanExecute())
+        if ((!Disabled && CanExecute()) || Execute)
         {
             Init();
-            IsExecutingAction = true;
-            Crouch = false;
         }
 
         if (IsExecutingAction)
         {
+            if(!AllowedToStandUp()) return;
             ExecuteAction();
         }
-
+        
         UpdateElapsedSince();
     }
 
     protected override bool CanExecute()
     {
-        if (IsExecutingAction) return false;
-
-        if (Crouch) return true;
-
-        if (!CheckKeys()) return false;
+        if(!base.CanExecute()) return false;
         if (!manager.IsGrounded()) return false;
-        if (CheckFeatures()) return false;
 
         return true;
     }
 
-    protected override Vector3 ExecuteAction()
+    protected override void ExecuteAction()
     {
-        if (ElapsedSinceStartExecution < TimeToCrouch)
+        if (elapsedSinceStartExecution < TimeToCrouch)
         {
-            float heightDifference = Mathf.Lerp(currentHeight, targetHeight, ElapsedSinceStartExecution / TimeToCrouch);
+            float targetControllerHeight = Mathf.Lerp(currentHeight, targetHeight, elapsedSinceStartExecution / TimeToCrouch);
+            float heightDifference = targetControllerHeight - kcc.Height;
+            transform.position += Vector3.up * (heightDifference/2);
+            bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit groundHit, kcc.Height/2);
 
-            if (IsCrouched)
+            if(isGrounded && groundHit.distance < transform.position.y)
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y + (heightDifference - kcc.Height), transform.position.z);
+                transform.position += Vector3.up * (transform.position.y - groundHit.distance) + Vector3.up * 0.1f;
             }
 
-            CameraController.SetCameraHeight(heightDifference - kcc.Height);
-            kcc.Height = heightDifference;
+            CameraController.AddCameraHeight(heightDifference/2);
+            kcc.Height = targetControllerHeight;
 
-            return Vector3.zero;
+            return;
         }
 
-        IsExecutingAction = false;
+        FinishExecution();
         IsCrouched = !IsCrouched;
-        return Vector3.zero;
     }
 
     protected override void Init()
     {
+        base.Init();
         if(IsCrouched)
         {
             currentHeight = kcc.Height;
@@ -89,19 +84,29 @@ public class Crouching : PlayerFeature
         targetHeight = kcc.Height - HeightDifference;
     }
 
-    private bool CheckKeys()
+    protected override void FinishExecution()
     {
-        return CheckInputGetKeysDown();
+        kcc.Height = targetHeight;
+        IsExecutingAction = false;
+        EnableFeatures();
     }
 
-    private bool CheckFeatures()
+    /// <summary>
+    /// Checks if the player is allowed to stand up.
+    /// </summary>
+    /// <returns>True if the player is allowed to stand up, false if not.</returns>
+    protected virtual bool AllowedToStandUp()
     {
-        List<string> requiredFeatures = new List<string>
+        if(!IsCrouched) return true;
+        if(Physics.Raycast(transform.position, Vector3.up, out RaycastHit hit, kcc.Height/2 + HeightDifference))
         {
-            "isSliding",
-            "isSprinting"
-        };
+            if(elapsedSinceStartExecution <= 0f){
+                IsExecutingAction = false;
+                EnableFeatures();
+            }
+            return false;
+        }
 
-        return CheckIfFeaturesActive(requiredFeatures);
+        return true;
     }
 }

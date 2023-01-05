@@ -1,87 +1,60 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
-public class Sliding : PlayerFeature
+public class Sliding : PlayerFeatureExecuteOverTime
 {
-    public float MoveCap { get; set; }
-    public float MoveSpeed { get; set; }
-    public float MoveControll { get; set; }
-    public float MoveTime { get; set; }
-
-    private float initMoveX;
-    private float initMoveZ;
-    private Vector3 moveDirect;
+    public bool CanCancelSlide { get; set; }
 
     private Crouching crouching;
+    private bool cancelSlide => CanCancelSlide && CheckKeys() && elapsedSinceStartExecution > 0;
 
-    new private void Start()
+    private new void Start()
     {
         base.Start();
         crouching = GetComponent<Crouching>();
     }
 
-    public override void CheckAction()
-    {
-        if (!DisableFeature && CanExecute())
-        {
-            Init();
-            IsExecutingAction = true;
-        }
-
-        if (IsExecutingAction)
-        {
-            Velocity = ExecuteAction();
-            manager.AddVelocity(Velocity, MoveCap);
-        }
-
-        UpdateElapsedSince();
-    }
-
     protected override bool CanExecute()
     {
-        if (IsExecutingAction)
-        {
-            return false;
-        }
-        if (!CheckKeys()) return false;
-        if (CheckActiveFeatures()) return false;
+        if(!base.CanExecute()) return false;
+        if (!manager.IsGrounded()) return false;
         if (crouching.IsCrouched) return false;
 
         return true;
     }
 
-    protected override Vector3 ExecuteAction()
+    protected override void ExecuteAction()
     {
-        if(ElapsedSinceStartExecution < MoveTime)
+        if (elapsedSinceStartExecution < MoveTime)
         {
+            if(cancelSlide)
+            {
+                FinishExecution();
+                return;
+            }
+            Vector3 moveX = transform.right * Input.GetAxis("Horizontal");
             Vector3 currentSlideDirect =
-                    moveDirect * (1f - MoveControll) +
-                    (MoveControll * (initMoveX * transform.right + transform.forward * initMoveZ));
-            return currentSlideDirect * MoveSpeed * Time.deltaTime;
+                    moveDirect * (1f - MoveControl) +
+                    (MoveControl * (moveX + transform.forward * moveDirect.z));
+            velocity = currentSlideDirect * MoveSpeed;
+            return;
         }
 
-        crouching.Crouch = true;
-        IsExecutingAction = false;
-        return Vector3.zero;
+        FinishExecution();
     }
 
     protected override void Init()
     {
-        initMoveX = Input.GetAxis("Horizontal");
-        initMoveZ = Input.GetAxis("Vertical");
-        moveDirect = transform.right * initMoveX + transform.forward * initMoveZ;
-        crouching.Crouch = true;
+        base.Init();
+        moveDirect = transform.right * Input.GetAxis("Horizontal") + transform.forward * Input.GetAxis("Vertical");
+        crouching.Execute = true;
     }
 
-    private bool CheckKeys()
+    protected override void FinishExecution()
     {
-        return CheckInputGetKeysDown();
-    }
-
-    private bool CheckActiveFeatures()
-    {
-        return !manager.IsFeatureActive("IsSliding") && manager.IsFeatureActive("IsSprinting");
+        base.FinishExecution();
+        crouching.Execute = true;
     }
 }
-

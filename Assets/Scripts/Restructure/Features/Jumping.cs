@@ -2,65 +2,58 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Jumping : PlayerFeature
+public class Jumping : PlayerFeatureExecuteOnce
 {
-
     public int MaxJumpCount { get; set; }
     public float JumpHeight { get; set; }
-    public List<string> BreakingFeatures { get; set; }
-
-    public int CurrentJumpCount;
-
-    public override void CheckAction()
-    {
-
-        if (DisableFeature || !CanExecute())
-        {
-            IsExecutingAction = !CheckIsExecuting();
-            UpdateElapsedSince();
-
-            if (manager.IsGrounded()) CurrentJumpCount = 0; 
-
-            return;
-        }
-
-        if (!IsExecutingAction) Init();
-        Velocity = ExecuteAction();
-
-        manager.AddRawVelocity(Velocity);
-        CurrentJumpCount++;
-
-        IsExecutingAction = true;
-        UpdateElapsedSince();
-    }
+    public int CurrentJumpCount { get; set; }
 
     protected override bool CanExecute()
     {
-        if (!CheckInputGetKeysDown()) return false;
-
-        if (CurrentJumpCount == 0 && !manager.IsGrounded()) return false;
-
-        if (CurrentJumpCount >= MaxJumpCount) return false;
-
-        if (CheckIfFeaturesActive(BreakingFeatures)) return false;
+        if(!base.CanExecute()) return false;
+        if(!CheckJumpCount()) return false;
 
         return true;
     }
 
-    protected override void Init()
-    {
-        return;
-    }
-
-    protected override Vector3 ExecuteAction()
+    protected override void ExecuteAction()
     {
         manager.ProjectOnPlane = false;
-        return new Vector3(0,  Mathf.Sqrt(JumpHeight * -2.0f * manager.Gravity.y), 0);
+        velocity = new Vector3(0,  Mathf.Sqrt(JumpHeight * -2.0f * manager.Gravity.y), 0);
     }
 
-    private bool CheckIsExecuting()
+    protected override void IsExecuting()
     {
-        return IsExecutingAction && (manager.IsGrounded() || manager.IsFeatureActive("Wallrun"));
+        EnableFeatures();
+        if (manager.IsGrounded() || manager.IsFeatureActive("WallRunning"))
+        {
+            CurrentJumpCount = 0;
+
+            if (IsExecutingAction)
+            {
+                IsExecutingAction = false;
+            }
+        }
+        
+    }
+
+    protected override void Init()
+    {
+        base.Init();
+        CurrentJumpCount++;
+    }
+
+    /// <summary>
+    /// Checks if jump count is smaller than max jump count and if player is grounded && jump count is 0
+    /// </summary>
+    /// <returns>true if player maxjumpcount allows jump</returns>
+    protected virtual bool CheckJumpCount()
+    {
+        if (CurrentJumpCount == 0 && !manager.IsGrounded()) return false;
+
+        if (CurrentJumpCount >= MaxJumpCount) return false;
+
+        return true;
     }
 }
 

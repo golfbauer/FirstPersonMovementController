@@ -11,6 +11,10 @@ public class PlayerMovementManager : MonoBehaviour
     private Vector3 velocity;
     private Vector3 movement;
 
+    private string frozen;
+    private float prevGravityMultiplier;
+    private string prevGravityMultiplierFeature;
+
     private Vector2 HorizontalVelocity
     {
         get { return new Vector2(velocity.x, velocity.z); }
@@ -34,7 +38,7 @@ public class PlayerMovementManager : MonoBehaviour
     // List of features that have been added to the controller
     private Dictionary<string, PlayerFeature> features;
     // IDs of features that are currently active
-    private List<string> activeFeatures;
+    private HashSet<string> activeFeatures;
 
     RaycastHit groundHit;
 
@@ -43,7 +47,7 @@ public class PlayerMovementManager : MonoBehaviour
         Kcc = GetComponent<KinematicCharacterController>();
 
         features = new Dictionary<string, PlayerFeature>();
-        activeFeatures = new List<string>();
+        activeFeatures = new HashSet<string>();
     }
 
     private void OnEnable() 
@@ -70,6 +74,15 @@ public class PlayerMovementManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(frozen != null) {
+            if(this.features.TryGetValue(frozen, out PlayerFeature value)) {
+                value.CheckAction();
+                return;
+            } else {
+                frozen = null;
+            }
+        }
+        
         movement = Vector3.zero;
 
         if (velocity.y <= 0)
@@ -89,8 +102,8 @@ public class PlayerMovementManager : MonoBehaviour
                 activeFeatures.Add(feature.Identifier);
                 continue;
             }
-            activeFeatures.Remove(feature.Identifier);
-        }
+                activeFeatures.Remove(feature.Identifier); 
+            }
 
         if (IsGrounded() && ProjectOnPlane && velocity.y > 0 )
         {
@@ -264,4 +277,73 @@ public class PlayerMovementManager : MonoBehaviour
         activeFeatures.Remove(featureId);
     }
 
+    /// <summary>
+    /// Disables features
+    /// </summary>
+    /// <param name="featureKeys">List of featuers to be disabled</param>
+    public void DisableFeatures(List<string> featureKeys)
+    {
+        foreach(string feature in featureKeys)
+        {
+            if (this.features.TryGetValue(feature, out PlayerFeature value))
+            {
+                value.Disabled = true;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Enables features
+    /// </summary>
+    /// <param name="featureKeys">List of features to be disabled</param>
+    public void EnableFeatures(List<string> featureKeys)
+    {
+        foreach(string featureKey in featureKeys)
+        {
+            if(features.TryGetValue(featureKey, out PlayerFeature value))
+            {
+                value.Disabled = false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Freeze player on spot and set velocity to zero
+    /// </summary>
+    public void Freeze(string featureId){
+        this.frozen = featureId;
+        SetVelocity(Vector3.zero);
+    }
+
+    /// <summary>
+    /// Unfreeze player
+    /// </summary>
+    public void UnFreeze(){
+        this.frozen = null;
+    }
+
+    /// <summary>
+    /// Changes the gravity multiplier temporarly. Can only be done by one feature at a time.
+    /// </summary>
+    public bool ChangeGravityMultiplier(float multiplier, string featureId)
+    {
+        if(prevGravityMultiplierFeature != null && prevGravityMultiplierFeature != featureId) return false;
+
+        prevGravityMultiplier = GravityMultiplier;
+        prevGravityMultiplierFeature = featureId;
+        GravityMultiplier = multiplier;
+        return true;
+    }
+
+    /// <summary>
+    /// Undoes the gravity multiplier change. Can only be done by the feature that made the change.
+    /// </summary>
+    public bool UndoChangeGravityMultiplier(string featureId)
+    {
+        if (prevGravityMultiplierFeature != featureId) return false;
+
+        GravityMultiplier = prevGravityMultiplier;
+        prevGravityMultiplierFeature = null;
+        return true;
+    }
 }

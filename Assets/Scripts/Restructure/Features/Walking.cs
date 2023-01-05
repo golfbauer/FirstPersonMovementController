@@ -4,44 +4,33 @@ using System.Collections.Generic;
 
 public class Walking : PlayerFeature
 {
-
     public float MoveSpeed { get; set; }
     public float MoveCap { get; set; }
 
     public override void CheckAction()
     {
-        if (DisableFeature || !CanExecute())
+        if(Disabled)
+        {
+            UpdateElapsedSince();
+            IsExecutingAction = false;
+            return;
+        }
+
+        ExecuteAction();
+
+        if (velocity != Vector3.zero)
+        {
+            manager.AddVelocity(velocity, MoveCap);
+            IsExecutingAction = true;
+        } else
         {
             IsExecutingAction = false;
-            UpdateElapsedSince();
-            return;
-        }
-        if(!IsExecutingAction) Init();
-        Velocity = ExecuteAction();
-
-        if(Velocity != Vector3.zero)
-        {
-            manager.AddVelocity(Velocity, MoveCap);
-            IsExecutingAction = true;
-            UpdateElapsedSince();
-            return;
         }
 
-        IsExecutingAction = false;
         UpdateElapsedSince();
     }
 
-    protected override bool CanExecute()
-    {
-        return true;
-    }
-
-    protected override void Init()
-    {
-        return;
-    }
-
-    protected override Vector3 ExecuteAction()
+    protected new void ExecuteAction()
     {
 
         float moveX = Input.GetAxisRaw("Horizontal");
@@ -49,7 +38,7 @@ public class Walking : PlayerFeature
 
         Vector3 moveDirect = transform.right * moveX + transform.forward * moveZ;
 
-        return moveDirect * MoveSpeed;
+        velocity = moveDirect * MoveSpeed;
     }
 }
 

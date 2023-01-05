@@ -3,9 +3,22 @@ using System.Collections;
 
 public class Sprinting : Walking
 {
-    protected override bool CanExecute()
+
+    public override void CheckAction()
     {
-        return manager.IsGrounded() && CheckInputGetKeys();
+        if(Disabled || !CanExecute())
+        {
+            IsExecutingAction = false;
+            UpdateElapsedSince();
+            return;
+        }
+
+        base.CheckAction();
+    }
+
+    protected new bool CanExecute()
+    {
+        return manager.IsGrounded() && CheckAllInputGetKeys();
     }
 }
 

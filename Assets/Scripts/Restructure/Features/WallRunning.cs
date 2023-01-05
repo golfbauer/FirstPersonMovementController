@@ -2,229 +2,174 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Utils;
 
-public class WallRunning : PlayerFeature
+public class WallRunning : PlayerFeatureExecuteOverTime
 {
-    public float GravityMultiplier { get; set; }
-    public float MoveCap { get; set; }
-    public float WallRunSpeed { get; set; }
     public float PushOfWallForce { get; set; }
     public float MaxTimeOnWall { get; set; }
     public float MaxWallRunAngle { get; set; }
     public float MinWallRunAngle { get; set; }
     public string[] WallRunLayers { get; set; }
-    public float WallRunMinimumHeight { get; set; }
     public float TimeToTiltCamera { get; set; }
     public float CameraTiltAngle { get; set; }
-    public CameraController CameraController { get; set; }
+    public float DistanceToGround { get; set; }
+    public float DistanceToWall { get; set; } = 1f;
 
-    private float prevGravityMultiplier;
-    private Vector3 wallRunMoveDirect;
-    private WallPosition prevWallPosition;
+    protected WallPosition wallPosition;
+    protected WallPosition prevWallPosition;
+    protected RaycastHit wallHitInfo;
+    protected WallJumping wallJumping;
 
-    private bool isWallRight;
-    private bool isWallLeft;
-    private bool isWallFront;
-    private bool isWallBack;
-
-    new void Start()
+    protected override void Start()
     {
         base.Start();
-        prevGravityMultiplier = manager.GravityMultiplier;
+        wallJumping = GetComponent<WallJumping>();
     }
 
-
-    public override void CheckAction()
-    {
-        if (DisableFeature || !CanExecute())
-        {
-            IsExecutingAction = false;
-            prevWallPosition = WallPosition.None;
-            ChangeGravityMultiplier(true);
-            TiltCamera(true);
-        } else
-        {
-            if (!IsExecutingAction) Init();
-            isWallRight = isWallLeft = isWallFront = isWallBack = false;
-
-            IsExecutingAction = true;
-            Velocity = ExecuteAction();
-
-            TiltCamera(false);
-
-            manager.AddVelocity(Velocity, MoveCap);
-        }
-
-        UpdateElapsedSince();
-    }
 
     protected override bool CanExecute()
     {
-        if (!CheckKeyInput()) return false;
-
-        if (!CheckRequiredFeatures()) return false;
-
-        if (!CheckWallHit(out RaycastHit hit)) return false;
-
-        if (!CheckTimeOnWall(hit)) return false;
-
-        // Only Check on first WallContact
-        if (!IsExecutingAction)
-        {
-            if (!CheckDistanceToGround()) return false;
-        }
+        if(!base.CanExecute()) return false;
+        if (!CheckWallHit()) return false;
+        if(!CheckWallAngle()) return false;
+        if (CheckDistanceToGround()) return false;
 
         return true;
     }
 
-    protected override Vector3 ExecuteAction()
+    protected virtual bool CheckDuringExecution()
     {
-        return wallRunMoveDirect * WallRunSpeed;
-    }
-
-    protected override void Init()
-    {
-        ChangeGravityMultiplier(false);
-    }
-
-    private void ChangeGravityMultiplier(bool undoGravity)
-    {
-        if (undoGravity)
-        {
-            manager.GravityMultiplier = prevGravityMultiplier;
-            return;
-        }
-
-        prevGravityMultiplier = manager.GravityMultiplier;
-        manager.GravityMultiplier = GravityMultiplier;
-    }
-
-    private bool CheckKeyInput()
-    {
-        return CheckInputGetKeys();
-    }
-
-    private bool CheckRequiredFeatures()
-    {
-        List<string> requiredFeatures = new List<string>
-        {
-            "isJumping"
-        };
-
-        return CheckIfFeaturesActive(requiredFeatures);
-    }
-
-    private bool CheckTimeOnWall(RaycastHit hit)
-    {
-        if(ElapsedSinceStartExecution >= MaxTimeOnWall)
-        {
-            PushOffWall(hit);
-            return false;
-        }
-        return true;
-    }
-
-    private bool CheckWallHit(out RaycastHit hit)
-    {
-        bool isHit = PlayerUpdateWallHit(out hit);
-
-        if (!isHit)
-        {
-            return false;
-        }
-
-        float hitWallAngle = Vector3.Angle(hit.normal, Vector3.up);
-
-        if (hitWallAngle > MaxWallRunAngle || hitWallAngle < MinWallRunAngle)
-        {
-            return false;
-        }
-
-        if (isWallFront)
-        {
-            wallRunMoveDirect = transform.right * (prevWallPosition == WallPosition.Right ? -1f : 1f) + transform.forward;
-            if (prevWallPosition == WallPosition.None) wallRunMoveDirect = Vector3.zero;
-        }
-        if (isWallBack)
-        {
-            if (prevWallPosition == WallPosition.None) return false;
-            wallRunMoveDirect = transform.right * (prevWallPosition == WallPosition.Right ? 1f : -1f) + -transform.forward;
-        }
-        if (isWallRight)
-        {
-            prevWallPosition = WallPosition.Right;
-            wallRunMoveDirect = transform.right + transform.forward;
-        }
-        if (isWallLeft)
-        {
-            prevWallPosition = WallPosition.Left;
-            wallRunMoveDirect = -transform.right + transform.forward;
-        }
+        if (!CheckKeys()) return false;
+        if (!CheckWallHit()) return false;
+        if(!CheckWallAngle()) return false;
+        if (!CheckTimeOnWall()) return false;
 
         return true;
     }
 
-    private bool CheckDistanceToGround()
+    protected override bool CheckKeys()
     {
-        return Physics.Raycast(transform.position, -transform.up, WallRunMinimumHeight);
+        return CheckAllInputGetKeys();
     }
 
-    private bool PlayerUpdateWallHit(out RaycastHit hit)
+    protected virtual bool CheckWallHit()
     {
-        isWallRight = Physics.Raycast(transform.position, transform.right, out hit, 1f, LayerMask.GetMask(WallRunLayers));
-        if (isWallRight) return true;
+        if(wallPosition != WallPosition.None) prevWallPosition = wallPosition;
 
-        isWallLeft = Physics.Raycast(transform.position, -transform.right, out hit, 1f, LayerMask.GetMask(WallRunLayers));
-        if (isWallLeft) return true;
-
-        isWallFront = Physics.Raycast(transform.position, transform.forward, out hit, 1f, LayerMask.GetMask(WallRunLayers));
-        if (isWallFront) return true;
-
-        isWallBack = Physics.Raycast(transform.position, -transform.forward, out hit, 1f, LayerMask.GetMask(WallRunLayers));
-        if (isWallBack) return true;
+        if (Physics.Raycast(transform.position, transform.forward, out wallHitInfo, DistanceToWall, LayerMask.GetMask(WallRunLayers)))
+        {
+            wallPosition = WallPosition.None;
+            moveDirect = transform.right * (prevWallPosition == WallPosition.Right ? -1f : 1f) + transform.forward;
+            if (prevWallPosition == WallPosition.None) moveDirect = Vector3.zero;
+            return true;
+        }
+        if (Physics.Raycast(transform.position, -transform.forward, out wallHitInfo, DistanceToWall, LayerMask.GetMask(WallRunLayers)))
+        {
+            wallPosition = WallPosition.None;
+            moveDirect = transform.right * (prevWallPosition == WallPosition.Right ? 1f : -1f) + -transform.forward;
+            return prevWallPosition != WallPosition.None;
+        }
+        if (Physics.Raycast(transform.position, transform.right, out wallHitInfo, DistanceToWall, LayerMask.GetMask(WallRunLayers)))
+        {
+            wallPosition = WallPosition.Right;
+            moveDirect = transform.right + transform.forward;
+            return true;
+        }
+        if (Physics.Raycast(transform.position, -transform.right, out wallHitInfo, DistanceToWall, LayerMask.GetMask(WallRunLayers)))
+        {
+            wallPosition = WallPosition.Left;
+            moveDirect = -transform.right + transform.forward;
+            return true;
+        }
 
         return false;
     }
 
-    private void TiltCamera(bool skip)
+    protected virtual bool CheckWallAngle()
     {
-        if(skip)
-        {
-            CameraController.TiltCamera(0, TimeToTiltCamera);
-            return;
-        }
-
-        if(isWallFront || isWallBack)
-        {
-            CameraController.TiltCamera(0, TimeToTiltCamera);
-            return;
-        }
-        
-        if(isWallRight)
-        {
-            CameraController.TiltCamera(CameraTiltAngle, TimeToTiltCamera);
-            return;
-        }
-
-        if(isWallLeft)
-        {
-            CameraController.TiltCamera(-CameraTiltAngle, TimeToTiltCamera);
-            return;
-        }
+        float hitWallAngle = Vector3.Angle(wallHitInfo.normal, Vector3.up);
+        return hitWallAngle < MaxWallRunAngle && hitWallAngle > MinWallRunAngle;
     }
 
-    private void PushOffWall(RaycastHit hit)
+    protected virtual bool CheckDistanceToGround()
     {
-        manager.AddVelocity(hit.normal * PushOfWallForce, PushOfWallForce);
+        return Physics.Raycast(transform.position, -transform.up, DistanceToGround);
+    }
+
+    protected virtual bool CheckTimeOnWall()
+    {
+        if (elapsedSinceStartExecution >= MaxTimeOnWall)
+        {
+            PushOffWall(wallHitInfo);
+            return false;
+        }
+        return true;
+    }
+
+    protected virtual void PushOffWall(RaycastHit hit)
+    {
+        manager.AddRawVelocity(hit.normal * PushOfWallForce);
+    }
+
+    protected override void Init()
+    {
+        base.Init();
+        SetVelocityAtStart();
+        ChangeGravityMultiplier(GravityMultiplier);
+        wallPosition = prevWallPosition = WallPosition.None;
+    }
+
+    protected virtual void SetVelocityAtStart()
+    {
+        initVelocity.y = 0f;
+        manager.SetVelocity(initVelocity);
+    }
+
+    protected override void ExecuteAction()
+    {
+        if(CheckDuringExecution())
+        {
+            velocity = moveDirect * MoveSpeed;
+        } else {
+            FinishExecution();
+        }
+
+        TiltCamera();
+    }
+
+    protected override void FinishExecution()
+    {
+        IsExecutingAction = false;
+        EnableFeatures();
+        if(!manager.IsFeatureActive("WallJumping")){
+            Vector3 velocity = manager.GetVelocity();
+            manager.SetVelocity(velocity.magnitude * transform.forward);
+        }
+        wallPosition = WallPosition.None;
+        UndoChangeGravityMultiplier();
+    }
+
+    protected virtual void TiltCamera()
+    {
+        if(wallPosition == prevWallPosition) return;
+
+        switch(wallPosition){
+            case WallPosition.None:
+                CameraController.TiltCamera(0, TimeToTiltCamera);
+                break;
+            case WallPosition.Right:
+                CameraController.TiltCamera(CameraTiltAngle, TimeToTiltCamera);
+                break;
+            case WallPosition.Left:
+                CameraController.TiltCamera(-CameraTiltAngle, TimeToTiltCamera);
+                break;
+        }
     }
 
     public enum WallPosition
     {
         Right,
         Left,
-        Front,
-        Back,
         None
     }
 }

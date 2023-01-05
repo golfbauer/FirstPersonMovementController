@@ -1,142 +1,136 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Grappling : PlayerFeature
+public class Grappling : PlayerFeatureExecuteOverTime
 {
-    public float MoveCap { get; set; }
-    public float GrappleCooldown { get; set; }
     public float MaxGrappleDistance { get; set; }
-    public float GrappleSpeed { get; set; }
     public string[] GrappleLayers { get; set; }
-    public bool CanCancelGrapple { get; set; }
 
-    public CameraController CameraController;
     public bool GrapplingAnimation;
     public RaycastHit GrappleHit;
 
-    private float prevGravityMultiplier;
-    private Vector3 localGrappleHitPoint;
-    private Vector3 grappleMoveDirect;
-
-    private Jumping jumping;
+    protected Vector3 localGrappleHitPoint;
+    protected Jumping jumping;
 
 
-    new void Start()
+    protected override void Start()
     {
         base.Start();
-        prevGravityMultiplier = manager.GravityMultiplier;
         jumping = GetComponent<Jumping>();
-    }
-
-    public override void CheckAction()
-    {
-        if(DisableFeature || !CanExecute())
-        {
-            ChangeGravityMultiplier(true);
-
-        } else
-        {
-            if (!IsExecutingAction) Init();
-            IsExecutingAction = true;
-            Velocity = ExecuteAction();
-            manager.AddVelocity(Velocity, MoveCap);
-        }
-
-        UpdateElapsedSince();
     }
 
     protected override bool CanExecute()
     {
-        if (IsExecutingAction)
-        {
-            if (CancelGrapple()) return false;
-            return true;
-        }
-        if (CheckInputGetKeysDown())
-        {
-            if (CheckCooldown()) return false;
-            if (!CheckGrappleHit()) return false;
-            return true;
-        }
-        return false;
+        if(!base.CanExecute()) return false;
+        if (!CheckGrappleHit()) return false;
+
+        return true;
     }
 
-    protected override Vector3 ExecuteAction()
-    {
-        if (GrapplingAnimation)
-        {
-            // we need some freeze function
-            manager.SetVelocity(Vector3.zero);
-            return Vector3.zero;
-        }
-        //if (manager.kcc.CheckObjectHit(grappleMoveDirect))
-        //{
-        //    manager.AddActiveFeature("Jumping");
-        //    IsExecutingAction = false;
-        //    return Vector3.zero;
-        //}
-        grappleMoveDirect = (GrappleHit.collider.transform.position + localGrappleHitPoint - transform.position).normalized;
-        return grappleMoveDirect * GrappleForceFunction() * GrappleSpeed;
-    }
-
-    protected override void Init()
-    {
-        localGrappleHitPoint = GrappleHit.point - GrappleHit.collider.transform.position;
-        GrapplingAnimation = true;
-        ChangeGravityMultiplier(false);
-    }
-
-    private void ChangeGravityMultiplier(bool undoGravity)
-    {
-        if (undoGravity)
-        {
-            manager.GravityMultiplier = prevGravityMultiplier;
-            return;
-        }
-
-        prevGravityMultiplier = manager.GravityMultiplier;
-        manager.GravityMultiplier = 0;
-    }
-
-    private bool CancelGrapple()
-    {
-        if(CanCancelGrapple && !GrapplingAnimation && CheckInputGetKeysDown())
-        {
-            jumping.CurrentJumpCount = 1;
-            IsExecutingAction = false;
-            return true;
-        }
-        return false;
-    }
-
-    private bool CheckCooldown()
-    {
-        return ElapsedSinceLastExecution < GrappleCooldown;
-    }
-
-    private bool CheckGrappleHit()
+    /// <summary>
+    /// Checks if players grapple has hit an object. If so grapple executes.
+    /// </summary>
+    /// <returns>true if grapple has hit an object</returns>
+    protected virtual bool CheckGrappleHit()
     {
         Transform cameraTransform = CameraController.transform;
 
         return Physics.Raycast(cameraTransform.position, cameraTransform.forward, out GrappleHit, MaxGrappleDistance, LayerMask.GetMask(GrappleLayers));
     }
 
-    private float GrappleForceFunction()
+    protected override void Init()
     {
-        return Mathf.Sqrt(ElapsedSinceStartExecution);
+        base.Init();
+        manager.ProjectOnPlane = false;
+        localGrappleHitPoint = GrappleHit.point - GrappleHit.collider.transform.position;
+        GrapplingAnimation = true;
+        ChangeGravityMultiplier(0f);
     }
 
-    new void UpdateElapsedSince()
+    protected override void ExecuteAction()
+    {
+        if(CheckGrappleAnimation()) return;
+
+        if(CancelGrapple()) return;
+
+        if (CheckForCollision()) return;
+
+        moveDirect = (GrappleHit.collider.transform.position + localGrappleHitPoint - transform.position).normalized;
+        velocity = moveDirect * GrappleForceFunction() * MoveSpeed;
+    }
+
+    /// <summary>
+    /// Checks if player is in grapple animation. If so it freqqzes the player.
+    /// </summary>
+    /// <returns><c>true</c>, if in grapple animation, <c>false</c> otherwise.</returns>
+    protected virtual bool CheckGrappleAnimation(){
+        if (GrapplingAnimation)
+        {
+            manager.Freeze(Identifier);
+            return true;
+        }
+
+        manager.UnFreeze();
+        return false;
+    }
+
+    /// <summary>
+    /// Cancels the grapple if not in animation and grapple key pressed during execution.
+    /// </summary>
+    /// <returns><c>true</c>, if grapple was canceled, <c>false</c> otherwise.</returns>
+    protected virtual bool CancelGrapple()
+    {
+        if(CanCancelExecution && !GrapplingAnimation && CheckAllInputGetKeysDown())
+        {
+            FinishExecution();
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if player hits an obsticale when grappling if so he stops the grapple.
+    /// </summary>
+    /// <returns><c>true</c>, if for collision was checked, <c>false</c> otherwise.</returns>
+    protected virtual bool CheckForCollision(){
+        if (manager.Kcc.CheckObjectHit(moveDirect))
+        {
+           manager.SetVelocity(Vector3.zero);
+           FinishExecution();
+           return true;
+        }
+
+        return false;
+    } 
+
+    /// <summary>
+    /// Grapple force function.
+    /// </summary>
+    /// <returns>Speed for the current time.</returns>
+    protected virtual float GrappleForceFunction()
+    {
+        return Mathf.Sqrt(elapsedSinceStartExecution);
+    }
+
+    protected override void UpdateElapsedSince()
     {
         if (IsExecutingAction)
         {
-            ElapsedSinceStartExecution += Time.deltaTime;
-            ElapsedSinceLastExecution = 0;
+            elapsedSinceStartExecution += Time.deltaTime;
+            elapsedSinceLastExecution = 0;
             return;
         }
 
-        ElapsedSinceLastExecution += Time.deltaTime;
-        ElapsedSinceStartExecution = 1f;
+        elapsedSinceLastExecution += Time.deltaTime;
+        elapsedSinceStartExecution = 1f;
+    }
+
+    protected override void FinishExecution()
+    {
+        jumping.CurrentJumpCount = 1;
+        manager.ProjectOnPlane = true;
+        IsExecutingAction = false;
+        UndoChangeGravityMultiplier();
+        manager.SetFeatureActive("Jumping");
+        EnableFeatures();
     }
 }

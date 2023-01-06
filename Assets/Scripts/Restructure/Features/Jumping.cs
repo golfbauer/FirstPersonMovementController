@@ -19,7 +19,9 @@ public class Jumping : PlayerFeatureExecuteOnce
     protected override void ExecuteAction()
     {
         manager.ProjectOnPlane = false;
-        velocity = new Vector3(0,  Mathf.Sqrt(JumpHeight * -2.0f * manager.Gravity.y), 0);
+        var VelocityOffset = -manager.GetVelocity().y;
+        var JumpForce = Mathf.Sqrt(JumpHeight * -2.0f * manager.Gravity.y);
+        velocity = new Vector3(0, VelocityOffset + JumpForce, 0);
     }
 
     protected override void IsExecuting()

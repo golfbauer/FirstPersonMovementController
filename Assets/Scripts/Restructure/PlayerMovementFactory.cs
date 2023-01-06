@@ -52,6 +52,7 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeWallJump();
         InitializeWallRun();
         InitializeGrapple();
+        InitializeJetpack();
     }
 
     void InitializeWalking()
@@ -212,6 +213,35 @@ public class PlayerMovementFactory : MonoBehaviour
 
         grappling.CameraController = cameraController;
         manager.AddFeature(grappling.Identifier, grappling);
+    }
+
+    void InitializeJetpack()
+    {
+        Jetpack jetpacking = this.AddComponent<Jetpack>();
+        jetpacking.ActionKeys = new KeyCode[] { KeyCode.E };
+        jetpacking.Identifier = "Jetpack";
+        jetpacking.DisableFeatures = new List<string>();
+        jetpacking.DisableFeatures.Add("Sprinting");
+        jetpacking.DisableFeatures.Add("Jumping");
+        jetpacking.DisableFeatures.Add("Dashing");
+        jetpacking.DisableFeatures.Add("WallRunning");
+        jetpacking.DisableFeatures.Add("Grappling");
+
+        jetpacking.ExcludingFeatures = new List<string>();
+        jetpacking.ExcludingFeatures.Add("WallRunning");
+        jetpacking.ExcludingFeatures.Add("Dashing");
+        jetpacking.ExcludingFeatures.Add("Grappling");
+        jetpacking.ExcludingFeatures.Add("Crouching");
+        jetpacking.ExcludingFeatures.Add("Sliding");
+
+        jetpacking.MoveCap = 30f;
+        jetpacking.MoveSpeed = 15f;
+        jetpacking.TimeToRechargeJetpackFuel = 2f;
+        jetpacking.TimeToDepletJetpackFuel = 3f;
+        jetpacking.TimeToStartRecharge = 0.3f;
+        jetpacking.FallReductionFactor = 10f;
+
+        manager.AddFeature(jetpacking.Identifier, jetpacking);
     }
 
     void InitializeManager()

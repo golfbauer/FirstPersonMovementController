@@ -19,7 +19,7 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
     public float GravityMultiplier { get; set; }
 
     // Cooldown after execution
-    public float  CoolDown {get; set; }
+    public float CoolDown {get; set; }
 
     // Can the action be cancelled
     public bool CanCancelExecution { get; set; }

@@ -74,11 +74,11 @@ public class KinematicCharacterController : MonoBehaviour
     public float MaxBounces { get; set; } = 5;
 
     private CapsuleCollider capsuleCollider;
-    private Rigidbody rigidbody;
+    private new Rigidbody rigidbody;
 
 
     // Use this for initialization
-    void Start()
+    void Start() 
 	{
         rigidbody = gameObject.AddComponent<Rigidbody>();
         rigidbody.isKinematic = true;

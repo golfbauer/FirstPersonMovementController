@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
-    private PlayerMovement playerMovement;
+    private Grappling grappleFeature;
     public LineRenderer lr;
     public Transform grapplingGunPos;
 
     private void LateUpdate()
     {
-        if (playerMovement.isGrappling)
+        if (grappleFeature.IsExecutingAction)
         {
             lr.SetPosition(0, grapplingGunPos.position);
         } else
@@ -21,17 +21,17 @@ public class PlayerAnimation : MonoBehaviour
 
     void Update()
     {
-        if (!playerMovement)
+        if (!grappleFeature)
         {
             try
             {
-                playerMovement = GetComponent<PlayerMovement>();
+                grappleFeature = GetComponent<Grappling>();
             } catch {
                 Debug.Log("PlayerMovement not assigned yet");
             }
         }
 
-        if (playerMovement && playerMovement.grapplingAnimation)
+        if (grappleFeature && grappleFeature.GrapplingAnimation)
         {
             PlayerGrapleAnimation();
         }
@@ -41,7 +41,7 @@ public class PlayerAnimation : MonoBehaviour
     void PlayerGrapleAnimation()
     {
         lr.enabled = true;
-        lr.SetPosition(1, playerMovement.grappleHit.point);
-        playerMovement.grapplingAnimation = false;
+        lr.SetPosition(1, grappleFeature.GrappleHit.point);
+        grappleFeature.GrapplingAnimation = false;
     }
 }

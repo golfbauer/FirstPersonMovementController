@@ -53,6 +53,7 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeWallRun();
         InitializeGrapple();
         InitializeJetpack();
+        InitializeHeadbob();
     }
 
     void InitializeWalking()
@@ -242,6 +243,21 @@ public class PlayerMovementFactory : MonoBehaviour
         jetpacking.FallReductionFactor = 10f;
 
         manager.AddFeature(jetpacking.Identifier, jetpacking);
+    }
+
+    void InitializeHeadbob()
+    {
+        Headbob headbob = this.AddComponent<Headbob>();
+        headbob.Identifier = "Headbob";
+        headbob.ExcludingFeatures = new List<string>();
+        headbob.ExcludingFeatures.Add("Sliding");
+        headbob.ExcludingFeatures.Add("Crouching");
+        headbob.HeadbobFeatures = new Dictionary<string, Vector2>();
+        headbob.HeadbobFeatures.Add("Sprinting", Vector2.zero);
+        headbob.HeadbobFeatures.Add("Walking", new Vector2(10, 0.1f));
+
+        headbob.CameraController = cameraController;
+        manager.AddFeature(headbob.Identifier, headbob);
     }
 
     void InitializeManager()

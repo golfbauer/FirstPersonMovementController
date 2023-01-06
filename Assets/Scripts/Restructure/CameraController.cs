@@ -6,6 +6,7 @@ public class CameraController : MonoBehaviour
 {
     public Transform PlayerTransform { get; set; }
     public float MouseSensitivity { get; set; }
+    public Vector3 LocalStartPosition { get; set; }
 
     private float xRotation;
     private float zRotation;
@@ -16,6 +17,7 @@ public class CameraController : MonoBehaviour
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        LocalStartPosition = transform.localPosition;
     }
 
     void Update()
@@ -66,5 +68,13 @@ public class CameraController : MonoBehaviour
     public void AddCameraHeight(float targetHeight)
     {
         transform.position += Vector3.up * targetHeight;
+    }
+
+    public void HeadBobCamera(float timer, float bobAmount)
+    {
+        transform.localPosition = new Vector3(
+            transform.localPosition.x,
+            LocalStartPosition.y + Mathf.Sin(timer) * bobAmount,
+            transform.localPosition.z);
     }
 }

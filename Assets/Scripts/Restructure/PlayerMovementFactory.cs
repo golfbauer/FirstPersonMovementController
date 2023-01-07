@@ -53,7 +53,6 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeWallRun();
         InitializeGrapple();
         InitializeJetpack();
-        InitializeHeadbob();
     }
 
     void InitializeWalking()

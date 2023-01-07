@@ -8,8 +8,11 @@ public class Jetpack : PlayerFeatureExecuteOverTime
     public float TimeToDepletJetpackFuel { get; set; }
     public float TimeToRechargeJetpackFuel { get; set; }
     public float TimeToStartRecharge { get; set; }
+    
+    // Reduce the time to stop the fall
     public float FallReductionFactor { get; set; } = 1;
 
+    // Max Fuel Capacity, 1 = 100%
     protected static float JetPackCapacity = 1f;
 
     protected override void Start()
@@ -18,6 +21,10 @@ public class Jetpack : PlayerFeatureExecuteOverTime
         JetpackFuel = JetPackCapacity;
     }
 
+    /// <summary>
+    /// Checks if player has enough fuel to execute the jetpack.
+    /// </summary>
+    /// <returns>True if there is fuel</returns>
     protected virtual bool CheckFuel()
     {
         return JetpackFuel > 0;

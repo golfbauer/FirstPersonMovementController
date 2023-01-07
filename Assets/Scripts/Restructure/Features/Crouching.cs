@@ -87,6 +87,7 @@ public class Crouching : PlayerFeatureExecuteOverTime
     protected override void FinishExecution()
     {
         kcc.Height = targetHeight;
+        CameraController.LocalStartPosition = CameraController.transform.localPosition;
         IsExecutingAction = false;
         EnableFeatures();
     }

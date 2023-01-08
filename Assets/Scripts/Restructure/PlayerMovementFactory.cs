@@ -1,24 +1,78 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements.Experimental;
+using static Utils;
 
 public class PlayerMovementFactory : MonoBehaviour
 {
 
     [Header("Debugging")]
+    [SerializeField] private bool _debug = false;
+
     [Header("Kinematic Character Controller")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float slopeLimit;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float stairOffset;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float stairSnapdownDistance;
+    [SerializeField][OnChangedCall("OnVariableChange")] private Vector3 center;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float height;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float radius;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float anglePower;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float maxBounces;
 
-    [SerializeField] private float slopeLimit;
-    [SerializeField] private float stairOffset;
-    [SerializeField] private float stairSnapdownDistance;
-    [SerializeField] private Vector3 center;
-    [SerializeField] private float height;
-    [SerializeField] private float radius;
-    [SerializeField] private float anglePower;
-    [SerializeField] private float maxBounces;
+    [Header("Walking")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float walkSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float walkCap;
 
+    [Header("Sprinting")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float sprintSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float sprintCap;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] sprintKeys;
+
+    [Header("Jumping")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float jumpHeight;
+    [SerializeField][OnChangedCall("OnVariableChange")] private int maxJumpCount;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] jumpKeys;
+
+    [Header("Crouching")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float timeToCrouch;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float heightDifference;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] crouchKeys;
+
+    [Header("Sliding")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float slideSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float slideCap;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float slideControl;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float slideTime;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool canCancelSlide;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] slideKeys;
+
+    [Header("Dashing")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float dashSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float dashCap;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float dashControl;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float dashTime;
+    [SerializeField][OnChangedCall("OnVariableChange")] private int maxDashCount;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] dashKeys;
+
+    [Header("WallRunning")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunGravityMultiplier;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunCap;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float maxTimeOnWall;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float minWallRunAngle;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float maxWallRunAngle;
+    [SerializeField][OnChangedCall("OnVariableChange")] private string[] wallRunLayers;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunDistanceToGround;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunTimeToTiltCamera;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunCameraTiltAngle;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] wallRunKeys;
+
+    [Header("WallJumping")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 wallJumpForce;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] wallJumpKeys;
+
+    [Header("Components")]
     [SerializeField] private GameObject playerCamera;
 
     private PlayerMovementManager manager;
@@ -31,6 +85,15 @@ public class PlayerMovementFactory : MonoBehaviour
             return controller;
         }
     }
+
+    private Walking walking;
+    private Sprinting sprinting;
+    private Jumping jumping;
+    private Crouching crouching;
+    private Sliding sliding;
+    private Dashing dashing;
+    private WallRunning wallRunning;
+    private WallJumping wallJumping;
 
     private void Awake()
     {
@@ -55,142 +118,206 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeJetpack();
     }
 
+    public void OnVariableChange()
+    {
+        if (_debug)
+        {
+            UpdateWalking();
+            UpdateSprinting();
+            UpdateJumping();
+            UpdateCrouching();
+            UpdateSliding();
+            UpdateDashing();
+            UpdateWallRun();
+        }
+    }
+
     void InitializeWalking()
     {
-        Walking walking = gameObject.AddComponent<Walking>();
-        walking.MoveSpeed = 40f;
-        walking.MoveCap = 5f;
-        walking.ActionKeys = new KeyCode[] { };
-        walking.Identifier = "Walking";
-
+        walking = gameObject.AddComponent<Walking>();
+        UpdateWalking();
         manager.AddFeature(walking.Identifier, walking);
+    }
+
+    void UpdateWalking()
+    {
+        walking.MoveSpeed = walkSpeed;
+        walking.MoveCap = walkCap;
+        walking.Identifier = Features.Walking;
     }
 
     void InitializeSprinting()
     {
-        Sprinting sprinting = this.AddComponent<Sprinting>();
-        sprinting.MoveSpeed = 40f;
-        sprinting.MoveCap = 10f;
-        sprinting.ActionKeys = new KeyCode[] { KeyCode.LeftShift };
-        sprinting.Identifier = "Sprinting";
-
+        sprinting = this.AddComponent<Sprinting>();
+        UpdateSprinting();
         manager.AddFeature(sprinting.Identifier, sprinting);
+    }
+    void UpdateSprinting()
+    {
+        sprinting.MoveSpeed = sprintSpeed;
+        sprinting.MoveCap = sprintCap;
+        sprinting.ActionKeys = sprintKeys;
+        sprinting.Identifier = Features.Sprinting;
     }
 
     void InitializeJumping()
     {
-        Jumping jumping = this.AddComponent<Jumping>();
-        jumping.MaxJumpCount = 2;
-        jumping.JumpHeight = 5f;
-        jumping.ActionKeys = new KeyCode[] { KeyCode.Space };
-        jumping.Identifier = "Jumping";
-        jumping.ExcludingFeatures = new List<string>();
-        jumping.ExcludingFeatures.Add("Sliding");
-        jumping.ExcludingFeatures.Add("Crouching");
-
+        jumping = this.AddComponent<Jumping>();
+        UpdateJumping();
         manager.AddFeature(jumping.Identifier, jumping);
+    }
+
+    void UpdateJumping()
+    {
+        jumping.MaxJumpCount = maxJumpCount;
+        jumping.JumpHeight = jumpHeight;
+        jumping.ActionKeys = jumpKeys;
+        jumping.Identifier = Features.Jumping;
+        jumping.ExcludingFeatures = new List<string>
+        {
+            Features.Sliding,
+            Features.Crouching
+        };
     }
 
     void InitializeCrouching()
     {
-        Crouching crouching = this.AddComponent<Crouching>();
-        crouching.ActionKeys = new KeyCode[] { KeyCode.C };
-        crouching.Identifier = "Crouching";
-        crouching.ExcludingFeatures = new List<string>();
-        crouching.ExcludingFeatures.Add("Sprinting");
-        crouching.ExcludingFeatures.Add("Sliding");
-
-        crouching.TimeToCrouch = 0.5f;
-        crouching.HeightDifference = 0.5f;
-        crouching.CameraController = cameraController;
-
+        crouching = this.AddComponent<Crouching>();
+        UpdateCrouching();
         manager.AddFeature(crouching.Identifier, crouching);
+    }
+
+    void UpdateCrouching()
+    {
+        crouching.ActionKeys = crouchKeys;
+        crouching.Identifier = Features.Crouching;
+        crouching.ExcludingFeatures = new List<string>
+        {
+            Features.Sprinting,
+            Features.Sliding
+        };
+
+        crouching.TimeToCrouch = timeToCrouch;
+        crouching.HeightDifference = heightDifference;
+        crouching.CameraController = cameraController;
     }
 
     void InitializeSliding()
     {
-        Sliding sliding = this.AddComponent<Sliding>();
-        sliding.ActionKeys = new KeyCode[] { KeyCode.C };
-        sliding.Identifier = "Sliding";
-        sliding.RequiredFeatures = new List<string>();
-        sliding.RequiredFeatures.Add("Sprinting");
-        sliding.DisableFeatures = new List<string>();
-        sliding.DisableFeatures.Add("Walking");
-        sliding.DisableFeatures.Add("Sprinting");
-        sliding.DisableFeatures.Add("Jumping");
-        sliding.CameraController = cameraController;
-
-        sliding.MoveCap = 30f;
-        sliding.MoveSpeed = 100f;
-        sliding.MoveControl = 0f;
-        sliding.MoveTime = 2f;
-        sliding.CanCancelSlide = true;
-
+        sliding = this.AddComponent<Sliding>();
+        UpdateSliding();
         manager.AddFeature(sliding.Identifier, sliding);
+    }
+
+    void UpdateSliding()
+    {
+        sliding.ActionKeys = slideKeys;
+        sliding.Identifier = Features.Sliding;
+        sliding.RequiredFeatures = new List<string>
+        {
+            Features.Sprinting
+        };
+        sliding.DisableFeatures = new List<string>
+        {
+            Features.Walking,
+            Features.Sprinting,
+            Features.Jumping
+        };
+
+        sliding.MoveCap = slideCap;
+        sliding.MoveSpeed = slideSpeed;
+        sliding.MoveControl = slideControl;
+        sliding.MoveTime = slideTime;
+        sliding.CanCancelSlide = canCancelSlide;
+        sliding.CameraController = cameraController;
     }
 
     void InitializeDashing()
     {
-        Dashing dashing = this.AddComponent<Dashing>();
-        dashing.ActionKeys = new KeyCode[] { KeyCode.LeftShift };
-        dashing.Identifier = "Dashing";
-        dashing.RequiredFeatures = new List<string>();
-        dashing.RequiredFeatures.Add("Jumping");
-        dashing.RequiredFeatures.Add("WallJumping");
-        dashing.DisableFeatures = new List<string>();
-        dashing.DisableFeatures.Add("Walking");
-        dashing.DisableFeatures.Add("Sprinting");
-        dashing.DisableFeatures.Add("Jumping");
+        dashing = this.AddComponent<Dashing>();
+        UpdateDashing();
+        manager.AddFeature(dashing.Identifier, dashing);
+    }
+
+    void UpdateDashing()
+    {
+        dashing.ActionKeys = dashKeys;
+        dashing.Identifier = Features.Dashing;
+        dashing.RequiredFeatures = new List<string>
+        {
+             Features.Jumping,
+            Features.WallJumping
+        };
+        dashing.DisableFeatures = new List<string>
+        {
+            Features.Walking,
+            Features.Sprinting,
+            Features.Jumping
+        };
         dashing.CameraController = cameraController;
 
-        dashing.MoveCap = 30f;
-        dashing.MoveSpeed = 100f;
-        dashing.MoveControl = 1f;
-        dashing.MoveTime = 0.5f;
-        dashing.MaxDashCount = 3;
-
-        manager.AddFeature(dashing.Identifier, dashing);
+        dashing.MoveCap = dashCap;
+        dashing.MoveSpeed = dashSpeed;
+        dashing.MoveControl = dashControl;
+        dashing.MoveTime = dashTime;
+        dashing.MaxDashCount = maxDashCount;
     }
 
     void InitializeWallRun()
     {
-        WallRunning wallRunning = this.AddComponent<WallRunning>();
-        wallRunning.ActionKeys = new KeyCode[] { KeyCode.Space };
-        wallRunning.Identifier = "WallRunning";
-        wallRunning.RequiredFeatures = new List<string>();
-        wallRunning.RequiredFeatures.Add("Jumping");
-        wallRunning.DisableFeatures = new List<string>();
-        wallRunning.DisableFeatures.Add("Walking");
-        wallRunning.DisableFeatures.Add("Sprinting");
-        wallRunning.DisableFeatures.Add("Jumping");
+        wallRunning = this.AddComponent<WallRunning>();
+        UpdateWallRun();
+        manager.AddFeature(wallRunning.Identifier, wallRunning);
+    }
 
-        wallRunning.GravityMultiplier = 0;
-        wallRunning.MoveCap = 20f;
-        wallRunning.MoveSpeed = 100f;
-        wallRunning.MaxTimeOnWall = 500;
-        wallRunning.MinWallRunAngle = 80;
-        wallRunning.MaxWallRunAngle = 100;
-        wallRunning.WallRunLayers = new string[] { "WallRun" };
-        wallRunning.DistanceToGround = 0;
-        wallRunning.TimeToTiltCamera = 0.3f;
-        wallRunning.CameraTiltAngle = 15f;
+    void UpdateWallRun()
+    {
+        wallRunning.ActionKeys = wallRunKeys;
+        wallRunning.Identifier = Features.WallRunning;
+        wallRunning.RequiredFeatures = new List<string>
+        {
+            Features.Jumping
+        };
+        wallRunning.DisableFeatures = new List<string>
+        {
+            Features.Walking,
+            Features.Sprinting,
+            Features.Jumping
+        };
+
+        wallRunning.GravityMultiplier = wallRunGravityMultiplier;
+        wallRunning.MoveCap = wallRunCap;
+        wallRunning.MoveSpeed = wallRunSpeed;
+        wallRunning.MaxTimeOnWall = maxTimeOnWall;
+        wallRunning.MinWallRunAngle = minWallRunAngle;
+        wallRunning.MaxWallRunAngle = maxWallRunAngle;
+        wallRunning.WallRunLayers = wallRunLayers;
+        wallRunning.DistanceToGround = wallRunDistanceToGround;
+        wallRunning.TimeToTiltCamera = wallRunTimeToTiltCamera;
+        wallRunning.CameraTiltAngle = wallRunCameraTiltAngle;
 
         wallRunning.CameraController = cameraController;
-        manager.AddFeature(wallRunning.Identifier, wallRunning);
     }
 
     void InitializeWallJump()
     {
-        WallJumping wallJumping = this.AddComponent<WallJumping>();
-        wallJumping.ActionKeys = new KeyCode[] { KeyCode.Space };
-        wallJumping.Identifier = "WallJumping";
-        wallJumping.RequiredFeatures = new List<string>();
-        wallJumping.RequiredFeatures.Add("WallRunning");
+        wallJumping = this.AddComponent<WallJumping>();
+        UpdateWallJump();
+        manager.AddFeature(wallJumping.Identifier, wallJumping);
+    }
 
-        wallJumping.MoveForce = new Vector3(10f, 5f);
+    void UpdateWallJump()
+    {
+        wallJumping.ActionKeys = wallJumpKeys;
+        wallJumping.Identifier = Features.WallJumping;
+        wallJumping.RequiredFeatures = new List<string>
+        {
+            Features.WallRunning
+        };
+
+        wallJumping.MoveForce = wallJumpForce;
 
         wallJumping.CameraController = cameraController;
-        manager.AddFeature(wallJumping.Identifier, wallJumping);
     }
 
     void InitializeGrapple()

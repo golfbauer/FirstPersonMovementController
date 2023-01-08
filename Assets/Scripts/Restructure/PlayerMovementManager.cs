@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlayerMovementManager : MonoBehaviour
 {
@@ -34,11 +36,13 @@ public class PlayerMovementManager : MonoBehaviour
         set { GravityMultiplier = value.magnitude / BaseGravity.magnitude; }
     }
     public bool ProjectOnPlane { get; set; } = true;
+    public bool PrintDebugInfo { get; set; } = false;
 
     // List of features that have been added to the controller
     private Dictionary<string, PlayerFeature> features;
     // IDs of features that are currently active
     private HashSet<string> activeFeatures;
+    private Dictionary<string, Vector3> velocityDeltas;
 
     RaycastHit groundHit;
 
@@ -74,6 +78,8 @@ public class PlayerMovementManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        velocityDeltas = new Dictionary<string, Vector3>();
+
         if(frozen != null) {
             if(this.features.TryGetValue(frozen, out PlayerFeature value)) {
                 value.CheckAction();
@@ -96,9 +102,11 @@ public class PlayerMovementManager : MonoBehaviour
 
         foreach (PlayerFeature feature in features.Values)
         {
+            Vector3 startVelocity = velocity;
             feature.CheckAction();
             if (feature.IsExecutingAction)
             {
+                velocityDeltas.Add(feature.Identifier, velocity - startVelocity);
                 activeFeatures.Add(feature.Identifier);
                 continue;
             }
@@ -116,6 +124,8 @@ public class PlayerMovementManager : MonoBehaviour
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
         }
         transform.position = Kcc.MovePlayer(movement);
+
+        if (PrintDebugInfo) PrintMovementDeltas();
 
     }
 
@@ -166,13 +176,23 @@ public class PlayerMovementManager : MonoBehaviour
         velocity += Gravity * Time.deltaTime;
     }
 
+    private void PrintMovementDeltas()
+    {
+        foreach (KeyValuePair<string, Vector3> delta in velocityDeltas)
+        {
+            Debug.Log(delta.Key + ": " + delta.Value);
+        }
+    }
+
     /// <summary>
     /// Adds Velocity to PlayerMovementManager.velocity up to the specified maxSpeed
     /// </summary>
     /// <param name="velocity">Velocity to add. This value should be in units/s and not relative to Time.deltaTime</param>
     /// <param name="maxSpeed">Maximum magnitude of horizontal (x and z) part of the PlayerMovementManager.velocity vector. This method will add up the the specified value but won't reduce the velocity if it is already higher.</param>
-    public void AddVelocity(Vector3 velocityDelta, float maxSpeed) 
+    /// <returns> The total, time relative net difference in velocity</returns>
+    public Vector3 AddVelocity(Vector3 velocityDelta, float maxSpeed) 
     {
+        Vector3 startVelocity = velocity;
         float startSpeed = HorizontalVelocity.magnitude;
 
         velocity += velocityDelta * Time.deltaTime;
@@ -185,10 +205,11 @@ public class PlayerMovementManager : MonoBehaviour
         {
             HorizontalVelocity = HorizontalVelocity.normalized * maxSpeed;
         }
+        return velocity - startVelocity;
     }
 
     /// <summary>
-    /// Adds Velocity directly to PlayerMovementManager.velocity up to the specified maxSpeed. 
+    /// Adds Velocity directly to PlayerMovementManager.velocity. 
     /// This is inteded for forces that are applied instantaneously (like a jump or push) as 
     /// opposed to forces that are applyied continuously (like walking).
     /// </summary>
@@ -277,6 +298,13 @@ public class PlayerMovementManager : MonoBehaviour
         activeFeatures.Remove(featureId);
     }
 
+    public List<String> GetExecutingFeatures()
+    {
+        return (List<String>)(from feature in this.features.Values
+                              where feature.IsExecutingAction == true
+                              select feature.Identifier);
+    }
+
     /// <summary>
     /// Disables features
     /// </summary>
@@ -305,6 +333,18 @@ public class PlayerMovementManager : MonoBehaviour
                 value.Disabled = false;
             }
         }
+    }
+
+    public bool IsFeatureDisabled(string featureId)
+    {
+        return features[featureId].Disabled;
+    }
+
+    public List<String> GetDisabledFatures()
+    {
+        return (List<string>)(from feature in this.features.Values
+               where feature.Disabled
+               select feature.Identifier);
     }
 
     /// <summary>
@@ -345,5 +385,29 @@ public class PlayerMovementManager : MonoBehaviour
         GravityMultiplier = prevGravityMultiplier;
         prevGravityMultiplierFeature = null;
         return true;
+    }
+
+    /// <summary>
+    /// Returns the velocity that was added by PlayerFeature with given featureId in the current update. 
+    /// </summary>
+    /// <param name="featureId"> Identifier of feature to be retrieved</param>
+    /// <returns> Total change in velocity that occured by feature; Vector3.zero if feature was not found</returns>
+    public Vector3 GetVelocityDelta(string featureId)
+    {
+        if (velocityDeltas.ContainsKey(featureId))
+        {
+            return velocityDeltas[featureId];
+        }
+        return Vector3.zero;
+    }
+
+    /// <summary>
+    /// Returns features and velocity changes for current update
+    /// </summary>
+    /// <param name="featureId"> Identifier of feature to be retrieved</param>
+    /// <returns> A dictornary of all features that were active in the current update containg featureIds and the corresponding net difference in velocity for each feature</returns>
+    public Dictionary<string, Vector3> GetVeclocityDeltas()
+    {
+        return velocityDeltas;
     }
 }

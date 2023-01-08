@@ -19,7 +19,7 @@ public class Headbob : PlayerFeature
 
     public override void CheckAction()
     {
-        if (CanExecute()) 
+        if (CanExecute() && !Disabled) 
         {
             Init();
         }

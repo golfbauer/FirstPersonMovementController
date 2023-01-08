@@ -9,6 +9,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     [Header("Debugging")]
     [SerializeField] private bool _debug = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool printDebugInfo = false;
 
     [Header("Kinematic Character Controller")]
     [SerializeField][OnChangedCall("OnVariableChange")] private float slopeLimit;
@@ -30,16 +31,19 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] sprintKeys;
 
     [Header("Jumping")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableJumping;
     [SerializeField][OnChangedCall("OnVariableChange")] private float jumpHeight;
     [SerializeField][OnChangedCall("OnVariableChange")] private int maxJumpCount;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] jumpKeys;
 
     [Header("Crouching")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableCrouching;
     [SerializeField][OnChangedCall("OnVariableChange")] private float timeToCrouch;
     [SerializeField][OnChangedCall("OnVariableChange")] private float heightDifference;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] crouchKeys;
 
     [Header("Sliding")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableSliding;
     [SerializeField][OnChangedCall("OnVariableChange")] private float slideSpeed;
     [SerializeField][OnChangedCall("OnVariableChange")] private float slideCap;
     [SerializeField][OnChangedCall("OnVariableChange")] private float slideControl;
@@ -48,6 +52,7 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] slideKeys;
 
     [Header("Dashing")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableDashing;
     [SerializeField][OnChangedCall("OnVariableChange")] private float dashSpeed;
     [SerializeField][OnChangedCall("OnVariableChange")] private float dashCap;
     [SerializeField][OnChangedCall("OnVariableChange")] private float dashControl;
@@ -56,6 +61,7 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] dashKeys;
 
     [Header("WallRunning")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableWallRunning;
     [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunGravityMultiplier;
     [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunSpeed;
     [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunCap;
@@ -69,8 +75,32 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] wallRunKeys;
 
     [Header("WallJumping")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableWallJumping;
     [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 wallJumpForce;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] wallJumpKeys;
+
+    [Header("Grappling")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disbaleGrappling;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float grappleSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float grappleCap;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float maxGrappleDistance;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float grappleCooldown;
+    [SerializeField][OnChangedCall("OnVariableChange")] private string[] grappleLayers;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool canCancelGrapple;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] grappleKeys;
+
+    [Header("Jetpack")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableJetpack;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float jetpackSpeed;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float jetpackCap;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float timeToRechargeJetpack;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float timeToDepletJetpack;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float timeToStartRecharge;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float fallReductionFactor;
+    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] jetpackKeys;
+
+    [Header("Headbob")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableHeadbob;
 
     [Header("Components")]
     [SerializeField] private GameObject playerCamera;
@@ -94,6 +124,9 @@ public class PlayerMovementFactory : MonoBehaviour
     private Dashing dashing;
     private WallRunning wallRunning;
     private WallJumping wallJumping;
+    private Grappling grappling;
+    private Jetpack jetpacking;
+    private Headbob headbob;
 
     private void Awake()
     {
@@ -116,6 +149,7 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeWallRun();
         InitializeGrapple();
         InitializeJetpack();
+        InitializeHeadbob();
     }
 
     public void OnVariableChange()
@@ -129,6 +163,11 @@ public class PlayerMovementFactory : MonoBehaviour
             UpdateSliding();
             UpdateDashing();
             UpdateWallRun();
+            UpdateWallJump();
+            UpdateGrapple();
+            UpdateJetpack();
+            UpdateHeadbob();
+            UpdateManager();
         }
     }
 
@@ -152,6 +191,7 @@ public class PlayerMovementFactory : MonoBehaviour
         UpdateSprinting();
         manager.AddFeature(sprinting.Identifier, sprinting);
     }
+
     void UpdateSprinting()
     {
         sprinting.MoveSpeed = sprintSpeed;
@@ -169,6 +209,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void UpdateJumping()
     {
+        jumping.Disabled = disableJumping;
         jumping.MaxJumpCount = maxJumpCount;
         jumping.JumpHeight = jumpHeight;
         jumping.ActionKeys = jumpKeys;
@@ -189,6 +230,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void UpdateCrouching()
     {
+        crouching.Disabled = disableCrouching;
         crouching.ActionKeys = crouchKeys;
         crouching.Identifier = Features.Crouching;
         crouching.ExcludingFeatures = new List<string>
@@ -211,6 +253,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void UpdateSliding()
     {
+        sliding.Disabled = disableSliding;
         sliding.ActionKeys = slideKeys;
         sliding.Identifier = Features.Sliding;
         sliding.RequiredFeatures = new List<string>
@@ -241,6 +284,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void UpdateDashing()
     {
+        dashing.Disabled = disableDashing;
         dashing.ActionKeys = dashKeys;
         dashing.Identifier = Features.Dashing;
         dashing.RequiredFeatures = new List<string>
@@ -272,6 +316,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void UpdateWallRun()
     {
+        wallRunning.Disabled = disableWallRunning;
         wallRunning.ActionKeys = wallRunKeys;
         wallRunning.Identifier = Features.WallRunning;
         wallRunning.RequiredFeatures = new List<string>
@@ -308,6 +353,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void UpdateWallJump()
     {
+        wallJumping.Disabled = disableWallJumping;
         wallJumping.ActionKeys = wallJumpKeys;
         wallJumping.Identifier = Features.WallJumping;
         wallJumping.RequiredFeatures = new List<string>
@@ -322,76 +368,109 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void InitializeGrapple()
     {
-        Grappling grappling = this.AddComponent<Grappling>();
-        grappling.ActionKeys = new KeyCode[] { KeyCode.F };
-        grappling.Identifier = "Grappling";
-        grappling.DisableFeatures = new List<string>();
-        grappling.DisableFeatures.Add("Walking");
-        grappling.DisableFeatures.Add("Jumping");
-        grappling.DisableFeatures.Add("Dashing");
-        grappling.DisableFeatures.Add("WallRunning");
+        grappling = this.AddComponent<Grappling>();
+        UpdateGrapple();
+        manager.AddFeature(grappling.Identifier, grappling);
+    }
 
-        grappling.MoveCap = 30f;
-        grappling.CoolDown = 1f;
-        grappling.MaxGrappleDistance = 50f;
-        grappling.MoveSpeed = 50f;
-        grappling.GrappleLayers = new string[] { "WallRun" };
-        grappling.CanCancelExecution = true;
+    void UpdateGrapple()
+    {
+        grappling.Disabled = disbaleGrappling;
+        grappling.ActionKeys = grappleKeys;
+        grappling.Identifier = Features.Grappling;
+        grappling.DisableFeatures = new List<string>
+        {
+            Features.Walking,
+            Features.Sprinting,
+            Features.Dashing,
+            Features.WallRunning,
+        };
+
+        grappling.MoveCap = grappleCap;
+        grappling.CoolDown = grappleCooldown;
+        grappling.MaxGrappleDistance = maxGrappleDistance;
+        grappling.MoveSpeed = grappleSpeed;
+        grappling.GrappleLayers = grappleLayers;
+        grappling.CanCancelExecution = canCancelGrapple;
 
         grappling.CameraController = cameraController;
-        manager.AddFeature(grappling.Identifier, grappling);
     }
 
     void InitializeJetpack()
     {
-        Jetpack jetpacking = this.AddComponent<Jetpack>();
-        jetpacking.ActionKeys = new KeyCode[] { KeyCode.E };
-        jetpacking.Identifier = "Jetpack";
-        jetpacking.DisableFeatures = new List<string>();
-        jetpacking.DisableFeatures.Add("Sprinting");
-        jetpacking.DisableFeatures.Add("Jumping");
-        jetpacking.DisableFeatures.Add("Dashing");
-        jetpacking.DisableFeatures.Add("WallRunning");
-        jetpacking.DisableFeatures.Add("Grappling");
-
-        jetpacking.ExcludingFeatures = new List<string>();
-        jetpacking.ExcludingFeatures.Add("WallRunning");
-        jetpacking.ExcludingFeatures.Add("Dashing");
-        jetpacking.ExcludingFeatures.Add("Grappling");
-        jetpacking.ExcludingFeatures.Add("Crouching");
-        jetpacking.ExcludingFeatures.Add("Sliding");
-
-        jetpacking.MoveCap = 30f;
-        jetpacking.MoveSpeed = 15f;
-        jetpacking.TimeToRechargeJetpackFuel = 2f;
-        jetpacking.TimeToDepletJetpackFuel = 3f;
-        jetpacking.TimeToStartRecharge = 0.3f;
-        jetpacking.FallReductionFactor = 10f;
-
+        jetpacking = this.AddComponent<Jetpack>();
+        UpdateJetpack();
         manager.AddFeature(jetpacking.Identifier, jetpacking);
+    }
+
+    void UpdateJetpack()
+    {
+        jetpacking.Disabled = disableJetpack;
+        jetpacking.ActionKeys = jetpackKeys;
+        jetpacking.Identifier = Features.Jetpack;
+        jetpacking.DisableFeatures = new List<string>
+        {
+            Features.Sprinting,
+            Features.Jumping,
+            Features.Dashing,
+            Features.WallRunning,
+            Features.Grappling
+        };
+
+        jetpacking.ExcludingFeatures = new List<string>
+        {
+            Features.WallRunning,
+            Features.Dashing,
+            Features.Grappling,
+            Features.Crouching,
+            Features.Sliding
+        };
+
+        jetpacking.MoveCap = jetpackCap;
+        jetpacking.MoveSpeed = jetpackSpeed;
+        jetpacking.TimeToRechargeJetpackFuel = timeToRechargeJetpack;
+        jetpacking.TimeToDepletJetpackFuel = timeToDepletJetpack;
+        jetpacking.TimeToStartRecharge = timeToStartRecharge;
+        jetpacking.FallReductionFactor = fallReductionFactor;
     }
 
     void InitializeHeadbob()
     {
-        Headbob headbob = this.AddComponent<Headbob>();
-        headbob.Identifier = "Headbob";
-        headbob.ExcludingFeatures = new List<string>();
-        headbob.ExcludingFeatures.Add("Sliding");
-        headbob.ExcludingFeatures.Add("Crouching");
-        headbob.HeadbobFeatures = new Dictionary<string, Vector2>();
-        headbob.HeadbobFeatures.Add("Sprinting", Vector2.zero);
-        headbob.HeadbobFeatures.Add("Walking", new Vector2(10, 0.1f));
+        headbob = this.AddComponent<Headbob>();
+        UpdateHeadbob();
+        manager.AddFeature(headbob.Identifier, headbob);
+    }
+
+    void UpdateHeadbob()
+    {
+        headbob.Disabled = disableHeadbob;
+        headbob.Identifier = Features.Headbob;
+        headbob.ExcludingFeatures = new List<string>
+        {
+            Features.Sliding,
+            Features.Crouching
+        };
+        headbob.HeadbobFeatures = new Dictionary<string, Vector2>
+        {
+            { Features.Sprinting, Vector2.zero },
+            { Features.Walking, new Vector2(10, 0.1f) }
+        };
 
         headbob.CameraController = cameraController;
-        manager.AddFeature(headbob.Identifier, headbob);
     }
 
     void InitializeManager()
     {
         manager = this.AddComponent<PlayerMovementManager>();
+        UpdateManager();
+    }
+
+    void UpdateManager()
+    {
         manager.BaseGravity = new Vector3(0, -9.81f, 0);
         manager.GroundedVelocityDeclineRate = 20f;
         manager.AirborneVelocityDeclineRate = 0;
+        manager.PrintDebugInfo = printDebugInfo;
     }
 
     void InitializeKinematicCharacterController()

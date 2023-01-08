@@ -176,6 +176,7 @@ public class Utils : MonoBehaviour
         public const string WallRunning = "WallRunning";
         public const string Grappling = "Grappling";
         public const string Jetpack = "Jetpack";
+        public const string Headbob = "Headbob";
     }
 }
 

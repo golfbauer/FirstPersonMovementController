@@ -226,7 +226,6 @@ GameObject:
   - component: {fileID: 4476857914268028863}
   - component: {fileID: 1501155382119159228}
   - component: {fileID: 7930149944804134226}
-  - component: {fileID: 6209381137902486899}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -243,7 +242,7 @@ Transform:
   m_GameObject: {fileID: 2391837753573485926}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1.474007, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4129777150225781225}
@@ -299,20 +298,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &6209381137902486899
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2391837753573485926}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4129777150225781224
 GameObject:
   m_ObjectHideFlags: 0
@@ -375,14 +360,77 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be55738884ac5476e9f256a9dd1b328c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _debug: 0
+  printDebugInfo: 0
   slopeLimit: 60
   stairOffset: 0.3
   stairSnapdownDistance: 0.9
   center: {x: 0, y: 0, z: 0}
-  height: 2
+  height: 3
   radius: 0.5
   anglePower: 0.5
   maxBounces: 5
+  walkSpeed: 40
+  walkCap: 5
+  sprintSpeed: 40
+  sprintCap: 10
+  sprintKeys: 30010000
+  disableJumping: 0
+  jumpHeight: 2
+  maxJumpCount: 2
+  jumpKeys: 20000000
+  disableCrouching: 0
+  timeToCrouch: 0.5
+  heightDifference: 1
+  crouchKeys: 63000000
+  disableSliding: 0
+  slideSpeed: 100
+  slideCap: 30
+  slideControl: 0
+  slideTime: 1
+  canCancelSlide: 1
+  slideKeys: 63000000
+  disableDashing: 0
+  dashSpeed: 100
+  dashCap: 30
+  dashControl: 0
+  dashTime: 0.5
+  maxDashCount: 3
+  dashKeys: 30010000
+  disableWallRunning: 0
+  wallRunGravityMultiplier: 0
+  wallRunSpeed: 100
+  wallRunCap: 20
+  maxTimeOnWall: 500
+  minWallRunAngle: 80
+  maxWallRunAngle: 100
+  wallRunLayers:
+  - WallRun
+  wallRunDistanceToGround: 0
+  wallRunTimeToTiltCamera: 0.3
+  wallRunCameraTiltAngle: 15
+  wallRunKeys: 20000000
+  disableWallJumping: 0
+  wallJumpForce: {x: 10, y: 5}
+  wallJumpKeys: 20000000
+  disbaleGrappling: 0
+  grappleSpeed: 50
+  grappleCap: 30
+  maxGrappleDistance: 50
+  grappleCooldown: 1
+  grappleLayers:
+  - WallRun
+  canCancelGrapple: 1
+  grappleKeys: 66000000
+  disableJetpack: 0
+  jetpackSpeed: 15
+  jetpackCap: 30
+  timeToRechargeJetpack: 2
+  timeToDepletJetpack: 3
+  timeToStartRecharge: 0.3
+  fallReductionFactor: 10
+  jetpackKeys: 65000000
+  disableHeadbob: 1
   playerCamera: {fileID: 4129777150849137025}
 --- !u!1 &4129777150849137025
 GameObject:
@@ -410,7 +458,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4129777150849137025}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.687, z: 0}
+  m_LocalPosition: {x: 0, y: 1.142, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

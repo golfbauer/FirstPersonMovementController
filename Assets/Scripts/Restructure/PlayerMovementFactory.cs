@@ -53,6 +53,7 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeWallRun();
         InitializeGrapple();
         InitializeJetpack();
+        InitializeGlider();
     }
 
     void InitializeWalking()
@@ -242,6 +243,25 @@ public class PlayerMovementFactory : MonoBehaviour
         jetpacking.FallReductionFactor = 10f;
 
         manager.AddFeature(jetpacking.Identifier, jetpacking);
+    }
+
+    void InitializeGlider()
+    {
+        Glider glider = this.AddComponent<Glider>();
+        glider.ActionKeys = new KeyCode[] { KeyCode.Q };
+        glider.Identifier = "Glider";
+        glider.DisableFeatures = new List<string>();
+        glider.DisableFeatures.Add("Walking");
+        glider.DisableFeatures.Add("Sprinting");
+
+        glider.MinDistanceToGround = 1f;
+        glider.RotationSpeed = 2f;
+        glider.GravityMultiplier = 0.5f;
+        glider.MoveSpeed = 5f;
+        glider.MoveCap = 10f;
+
+        glider.CameraController = cameraController;
+        manager.AddFeature(glider.Identifier, glider);
     }
 
     void InitializeHeadbob()

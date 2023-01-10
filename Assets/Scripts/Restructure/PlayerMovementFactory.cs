@@ -1,15 +1,23 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements.Experimental;
 using static Utils;
 
 public class PlayerMovementFactory : MonoBehaviour
 {
 
     [Header("Debugging")]
-    [SerializeField] private bool _debug = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool _debug = false;
     [SerializeField][OnChangedCall("OnVariableChange")] private bool printDebugInfo = false;
+
+    [Header("Manager")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private Vector3 gravity;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float groundDrag;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float airDrag;
+
+    [Header("Camera")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private GameObject playerCamera;
+    [SerializeField][OnChangedCall("OnVariableChange")] private float cameraSensitivity;
 
     [Header("Kinematic Character Controller")]
     [SerializeField][OnChangedCall("OnVariableChange")] private float slopeLimit;
@@ -102,9 +110,6 @@ public class PlayerMovementFactory : MonoBehaviour
     [Header("Headbob")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableHeadbob;
 
-    [Header("Components")]
-    [SerializeField] private GameObject playerCamera;
-
     private PlayerMovementManager manager;
     private KinematicCharacterController controller;
     private CameraController cameraController;
@@ -133,7 +138,6 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeKinematicCharacterController();
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         InitializeCameraController();
@@ -168,6 +172,8 @@ public class PlayerMovementFactory : MonoBehaviour
             UpdateJetpack();
             UpdateHeadbob();
             UpdateManager();
+            UpdateCameraController();
+            UpdateKinematicCharacterController();
         }
     }
 
@@ -467,31 +473,39 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void UpdateManager()
     {
-        manager.BaseGravity = new Vector3(0, -9.81f, 0);
-        manager.GroundedVelocityDeclineRate = 20f;
-        manager.AirborneVelocityDeclineRate = 0;
+        manager.BaseGravity = gravity;
+        manager.GroundedVelocityDeclineRate = groundDrag;
+        manager.AirborneVelocityDeclineRate = airDrag;
         manager.PrintDebugInfo = printDebugInfo;
     }
 
     void InitializeKinematicCharacterController()
     {
-        controller = Utils.CreateKinemeticCharacterController(
-            this.gameObject,
-            slopeLimit,
-            stairOffset,
-            stairSnapdownDistance,
-            center,
-            height,
-            radius,
-            anglePower,
-            maxBounces
-        );
+        controller = this.AddComponent<KinematicCharacterController>();
+        UpdateKinematicCharacterController();
+    }
+
+    void UpdateKinematicCharacterController()
+    {
+        controller.SlopeLimit = slopeLimit;
+        controller.StairOffset = stairOffset;
+        controller.StairSnapdownDistance = stairSnapdownDistance;
+        controller.Center = center;
+        controller.Height = height;
+        controller.Radius = radius;
+        controller.AnglePower = anglePower;
+        controller.MaxBounces = maxBounces;
     }
 
     void InitializeCameraController()
     {
         cameraController = playerCamera.AddComponent<CameraController>();
+        UpdateCameraController();
+    }
+
+    void UpdateCameraController()
+    {
         cameraController.PlayerTransform = transform;
-        cameraController.MouseSensitivity = 100f;
+        cameraController.MouseSensitivity = cameraSensitivity;
     }
 }

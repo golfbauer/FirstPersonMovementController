@@ -362,6 +362,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _debug: 0
   printDebugInfo: 0
+  gravity: {x: 0, y: -9.81, z: 0}
+  groundDrag: 20
+  airDrag: 5
+  playerCamera: {fileID: 4129777150849137025}
+  cameraSensitivity: 100
   slopeLimit: 60
   stairOffset: 0.3
   stairSnapdownDistance: 0.9
@@ -431,7 +436,6 @@ MonoBehaviour:
   fallReductionFactor: 10
   jetpackKeys: 65000000
   disableHeadbob: 1
-  playerCamera: {fileID: 4129777150849137025}
 --- !u!1 &4129777150849137025
 GameObject:
   m_ObjectHideFlags: 0

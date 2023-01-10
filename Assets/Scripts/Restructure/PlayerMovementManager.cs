@@ -257,11 +257,21 @@ public class PlayerMovementManager : MonoBehaviour
     /// </summary>
     /// <param name="featureID">ID of the feature to be removed</param>
     /// <returns>true if the element is successfully found and removed; otherwise, false. This method returns false if ID is not found</returns>
-
-
     public bool RemoveFeature(string featureID)
     {
         return features.Remove(featureID);
+    }
+
+    /// <summary>
+    /// Gets the feature with the specified ID from the features Dictionary
+    /// </summary>
+    ///<returns>The feature instance</returns>
+    public PlayerFeature GetFeature(string featureKey)
+    {
+        bool feature = features.TryGetValue(featureKey, out PlayerFeature value);
+        if(feature) return value;
+
+        return null;
     }
 
     /// <summary>

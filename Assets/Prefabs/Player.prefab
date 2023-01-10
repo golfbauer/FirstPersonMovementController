@@ -375,14 +375,16 @@ MonoBehaviour:
   radius: 0.5
   anglePower: 0.5
   maxBounces: 5
+  disableWalk: 0
   walkSpeed: 40
   walkCap: 5
+  disableSprint: 0
   sprintSpeed: 40
   sprintCap: 10
   sprintKeys: 30010000
   disableJumping: 0
   jumpHeight: 2
-  maxJumpCount: 2
+  maxJumpCount: 1
   jumpKeys: 20000000
   disableCrouching: 0
   timeToCrouch: 0.5

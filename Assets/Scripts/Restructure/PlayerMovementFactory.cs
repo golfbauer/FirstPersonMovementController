@@ -30,10 +30,12 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private float maxBounces;
 
     [Header("Walking")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableWalk;
     [SerializeField][OnChangedCall("OnVariableChange")] private float walkSpeed;
     [SerializeField][OnChangedCall("OnVariableChange")] private float walkCap;
 
     [Header("Sprinting")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableSprint;
     [SerializeField][OnChangedCall("OnVariableChange")] private float sprintSpeed;
     [SerializeField][OnChangedCall("OnVariableChange")] private float sprintCap;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] sprintKeys;
@@ -186,6 +188,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void UpdateWalking()
     {
+        walking.Disabled = disableWalk;
         walking.MoveSpeed = walkSpeed;
         walking.MoveCap = walkCap;
         walking.Identifier = Features.Walking;
@@ -200,6 +203,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void UpdateSprinting()
     {
+        sprinting.Disabled = disableSprint;
         sprinting.MoveSpeed = sprintSpeed;
         sprinting.MoveCap = sprintCap;
         sprinting.ActionKeys = sprintKeys;

@@ -47,6 +47,11 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] jumpKeys;
 
     [Header("Crouching")]
+    //TODO: Debug not working properly
+    // TODO: On Slide cancel use speed to jump
+    // TODO: Stuck on slide finish
+    // TODO: add gravity if needed
+    // TODO: error on change when not running
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableCrouching;
     [SerializeField][OnChangedCall("OnVariableChange")] private float timeToCrouch;
     [SerializeField][OnChangedCall("OnVariableChange")] private float heightDifference;
@@ -134,10 +139,12 @@ public class PlayerMovementFactory : MonoBehaviour
     private Grappling grappling;
     private Jetpack jetpacking;
     private Headbob headbob;
+    private bool isRunning;
 
     private void Awake()
     {
         InitializeKinematicCharacterController();
+        isRunning = true;
     }
 
     void Start()
@@ -160,7 +167,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     public void OnVariableChange()
     {
-        if (_debug)
+        if (_debug && isRunning)
         {
             UpdateWalking();
             UpdateSprinting();
@@ -299,7 +306,7 @@ public class PlayerMovementFactory : MonoBehaviour
         dashing.Identifier = Features.Dashing;
         dashing.RequiredFeatures = new List<string>
         {
-             Features.Jumping,
+            Features.Jumping,
             Features.WallJumping
         };
         dashing.DisableFeatures = new List<string>
@@ -315,6 +322,7 @@ public class PlayerMovementFactory : MonoBehaviour
         dashing.MoveControl = dashControl;
         dashing.MoveTime = dashTime;
         dashing.MaxDashCount = maxDashCount;
+        dashing.GravityMultiplier = 0;
     }
 
     void InitializeWallRun()

@@ -23,8 +23,11 @@ public class PlayerMovementManager : MonoBehaviour
         set { velocity.x = value.x; velocity.z = value.y; }
     }
 
+    private int lastParentId;
     private Vector3 lastParentPosition;
     private Vector3 currentParentMovement;
+    private bool airborneLastUpdate;
+    private float platformJumpCooldown = 0.1f;
 
     public float GroundedVelocityDeclineRate { get; set; }
     public float AirborneVelocityDeclineRate { get; set; }
@@ -133,22 +136,35 @@ public class PlayerMovementManager : MonoBehaviour
     {
         if (IsGrounded())
         {
-            if (lastParentPosition != null)
+            transform.SetParent(groundHit.transform);
+            int currentParentId = groundHit.transform.gameObject.GetInstanceID();
+
+            if (lastParentId == currentParentId && !airborneLastUpdate)
             {
                 currentParentMovement = groundHit.transform.position - lastParentPosition;
             }
 
-            transform.SetParent(groundHit.transform);
+            lastParentId = currentParentId;
             lastParentPosition = groundHit.transform.position;
+            airborneLastUpdate = false;
+            platformJumpCooldown = Math.Max(platformJumpCooldown - Time.deltaTime, 0);
 
         }
         else
         {
-            movement = currentParentMovement;
+            if (!airborneLastUpdate && platformJumpCooldown <= 0)
+            {
+                AddRawVelocity(currentParentMovement / Time.deltaTime);
+                platformJumpCooldown = 0.1f;
+            }
+
+            currentParentMovement = Vector3.zero;
+            airborneLastUpdate = true;
             transform.SetParent(null);
 
             if (groundHit.transform != null)
             {
+                lastParentId = groundHit.transform.gameObject.GetInstanceID();
                 lastParentPosition = groundHit.transform.position;
             }
         }
@@ -205,6 +221,7 @@ public class PlayerMovementManager : MonoBehaviour
         {
             HorizontalVelocity = HorizontalVelocity.normalized * maxSpeed;
         }
+
         return velocity - startVelocity;
     }
 

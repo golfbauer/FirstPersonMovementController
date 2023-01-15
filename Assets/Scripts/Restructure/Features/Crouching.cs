@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -7,10 +8,24 @@ public class Crouching : PlayerFeatureExecuteOverTime
 {
 
     public float TimeToCrouch { get; set; }
-    public float HeightDifference { get; set; }
+    public float HeightDifference {
+        get
+        {
+            return heightDifference;
+        }
+        set
+        {
+            if(IsCrouched)
+            {
+                throw new FieldAccessException("Altering the HeightDifference while Crouched is not permitted!");
+            }
+            heightDifference = value;
+        }
+    }
 
-    public bool IsCrouched;
+    public bool IsCrouched = false;
 
+    private float heightDifference;
     private float targetHeight;
     private float currentHeight;
 
@@ -53,12 +68,6 @@ public class Crouching : PlayerFeatureExecuteOverTime
             float targetControllerHeight = Mathf.Lerp(currentHeight, targetHeight, elapsedSinceStartExecution / TimeToCrouch);
             float heightDifference = targetControllerHeight - kcc.Height;
             transform.position += Vector3.up * (heightDifference/2);
-            bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit groundHit, kcc.Height/2);
-
-            if(isGrounded && groundHit.distance < transform.position.y)
-            {
-                transform.position += Vector3.up * (transform.position.y - groundHit.distance) + Vector3.up * 0.1f;
-            }
 
             CameraController.AddCameraHeight(heightDifference/2);
             kcc.Height = targetControllerHeight;
@@ -76,12 +85,12 @@ public class Crouching : PlayerFeatureExecuteOverTime
         if(IsCrouched)
         {
             currentHeight = kcc.Height;
-            targetHeight = kcc.Height + HeightDifference;
+            targetHeight = kcc.Height + heightDifference;
             return;
         }
 
         currentHeight = kcc.Height;
-        targetHeight = kcc.Height - HeightDifference;
+        targetHeight = kcc.Height - heightDifference;
     }
 
     protected override void FinishExecution()
@@ -99,7 +108,7 @@ public class Crouching : PlayerFeatureExecuteOverTime
     protected virtual bool AllowedToStandUp()
     {
         if(!IsCrouched) return true;
-        if(Physics.Raycast(transform.position, Vector3.up, out RaycastHit hit, kcc.Height/2 + HeightDifference))
+        if(Physics.Raycast(transform.position, Vector3.up, out RaycastHit hit, kcc.Height/2 + heightDifference))
         {
             if(elapsedSinceStartExecution <= 0f){
                 IsExecutingAction = false;

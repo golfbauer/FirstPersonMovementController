@@ -16,12 +16,9 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class KinematicCharacterController : MonoBehaviour
 {
@@ -116,7 +113,6 @@ public class KinematicCharacterController : MonoBehaviour
             // If we are overlapping with something, just exit.
             if (hit.distance == 0)
             {
-                // TODO: I think we can fix the crouching here!!!
                 break;
             }
 
@@ -210,15 +206,8 @@ public class KinematicCharacterController : MonoBehaviour
     }
 
     private bool CastSelf(Vector3 pos, Quaternion rot, Vector3 dir, float dist, out RaycastHit hit)
-    { 
-        // Get Parameters associated with the KCC
-        Vector3 center = rot * capsuleCollider.center + pos;
-        float radius = capsuleCollider.radius;
-        float height = capsuleCollider.height;
-
-        // Get top and bottom points of collider
-        Vector3 bottom = center + rot * Vector3.down * (height / 2 - radius);
-        Vector3 top = center + rot * Vector3.up * (height / 2 - radius);
+    {
+        (Vector3 center, Vector3 bottom, Vector3 top, float radius, float height) = GetCapsuleParameters(pos, rot);
 
         // Check what objects this collider will hit when cast with this configuration excluding itself
         IEnumerable<RaycastHit> hits = Physics.CapsuleCastAll(
@@ -238,9 +227,65 @@ public class KinematicCharacterController : MonoBehaviour
         return didHit;
     }
 
+    /// <summary>
+    /// Returns center, bottom, top, radius and height of Collider
+    /// </summary>
+    /// <param name="pos">Player position</param>
+    /// <param name="rot">PLayer rotation</param>
+    /// <returns>center, bottom, top, radius and height</returns>
+    public (Vector3, Vector3, Vector3, float, float) GetCapsuleParameters(Vector3 pos, Quaternion rot)
+    {
+        Vector3 center = rot * capsuleCollider.center + pos;
+        float radius = capsuleCollider.radius;
+        float height = capsuleCollider.height;
+
+        Vector3 bottom = center + rot * Vector3.down * (height / 2 - radius);
+        Vector3 top = center + rot * Vector3.up * (height / 2 - radius);
+
+        return (center, bottom, top, radius, height);
+    }
+
+    /// <summary>
+    /// Does a CastSelf into the moveDirect
+    /// </summary>
+    /// <param name="moveDirect">Direction for CastSelf</param>
+    /// <returns>True on hit</returns>
     public bool CheckObjectHit(Vector3 moveDirect)
     {
         return CastSelf(transform.position, transform.rotation, moveDirect, 0.1f, out RaycastHit groundHit);
+    }
+
+    /// <summary>
+    /// Pushes out player of any overlapping objects
+    /// </summary>
+    /// <param name="pos">Position of player</param>
+    /// <param name="rot">Rotation of player</param>
+    /// <returns>Vector that pushes player out of all colliding objects</returns>
+    public Vector3 PushOut()
+    {
+        Vector3 pos = transform.position;
+        Quaternion rot = transform.rotation;
+        float deltaTime = Time.deltaTime;
+        Vector3 pushOut = Vector3.zero;
+
+        (Vector3 center, Vector3 bottom, Vector3 top, float radius, float height) = GetCapsuleParameters(pos, rot);
+        
+        IEnumerable<Collider> overlappingCollider = Physics
+            .OverlapCapsule(top, bottom, radius, ~0, QueryTriggerInteraction.Ignore)
+            .Where(hit => hit.transform != transform);
+
+        foreach(Collider collider in overlappingCollider)
+        {
+            // Not need to check since these are all overlapping colliders anyway
+            Physics.ComputePenetration(
+                capsuleCollider, pos, rot, collider, 
+                collider.transform.position, collider.transform.rotation, 
+                out Vector3 dir, out float dist
+            );
+            pushOut += dir * dist;
+            pos += pushOut;
+        }
+        return pushOut;
     }
 }
 

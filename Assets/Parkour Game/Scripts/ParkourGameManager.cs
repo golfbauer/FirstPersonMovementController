@@ -1,92 +1,175 @@
-using System.Collections;
+using Assets.Parkour_Game.Scripts;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
+using UnityEngine;
+using static ParkourUtils;
 
 public class ParkourGameManager : MonoBehaviour
 {
     [SerializeField] private Vector3 spawnPosition;
-    [SerializeField] private float lowestPoint;
-    [SerializeField] private TMP_Text talker;
+    [SerializeField] private float deathPlaneY;
+    [SerializeField] private TMP_Text uiText;
 
-    private int deathCount = 0;
-    private bool enabledJump;
-    private string displayText;
-    private float displayTime = 5f;
-    private Coroutine displayMessage;
+    public HashSet<MovementFeature> EnableFeatures;
+    public HashSet<ParkourMovementFeature> EnabledFeatures;
+    public UIManager UiManager;
+
+    private int deathCount;
     private PlayerMovementManager movementManager;
-    private Jumping jumpFeature;
 
     void Start()
     {
-        movementManager = GetComponent<PlayerMovementManager>();
         if(spawnPosition == Vector3.zero){
             spawnPosition = transform.position;
         }
-        talker.text = "";
+        
+        EnableFeatures = new HashSet<MovementFeature>();
+        EnabledFeatures = new HashSet<ParkourMovementFeature>();
+        UiManager = this.AddComponent<UIManager>();
+        UiManager.Talker = uiText;
     }
 
     void Update()
     {
         CheckDeath();
-        CheckDisplayMessage();
 
-        if(!enabledJump){
-            EnableJump();
-            EnabledDoubleJump();
-        }
+        EnableNewFeature(false);
     }
-
 
     void CheckDeath(){
-        if(transform.position.y < lowestPoint){
+        if(transform.position.y < deathPlaneY){
             deathCount++;
-            transform.position = spawnPosition;
-            CheckCauseOfDeath();
+            ResetPlayer();
+            EnableNewFeature(true);
         }
     }
 
-    void EnableJump(){
-        if(!jumpFeature){
-            jumpFeature = GetComponent<Jumping>();
+    void ResetPlayer()
+    {
+        if (!movementManager)
+        {
+            movementManager = GetComponent<PlayerMovementManager>();
         }
-        if(jumpFeature && deathCount > 0 && jumpFeature.Disabled == true){
+
+        movementManager.SetVelocity(Vector3.zero);
+        transform.position = spawnPosition;
+    }
+
+    void EnableNewFeature(bool hasDied)
+    {
+        if (EnableFeatures.Count == 0) return;
+        
+        foreach (MovementFeature movementFeature in EnableFeatures.ToList())
+        {
+            if (EnabledFeatures.Contains(movementFeature.feature))
+            {
+                EnableFeatures.Remove(movementFeature);
+                continue;
+            }
+
+            if (!hasDied && !movementFeature.unlockOnCollision)
+            {
+                continue;
+            }
+
+            UpdateEnabledFeatures(movementFeature);
+
+        }
+    }
+    
+    void UpdateEnabledFeatures(MovementFeature movementFeature)
+    {
+        if (movementFeature.displayMessage) DisplayFeatureMessage(movementFeature);
+        EnabledFeatures.Add(movementFeature.feature);
+        EnableFeatures.Remove(movementFeature);
+        if (movementFeature.action != null)
+        {
+            movementFeature.action();
+        }
+    }
+
+    public void DisplayFeatureMessage(MovementFeature movementFeature)
+    {
+        if (!movementFeature.displayMessage) return;
+        UiManager.DisplayText(movementFeature.text, DisplayTime);
+        movementFeature.displayMessage = false;
+    }
+    public Action GetMovementAction(ParkourMovementFeature feature)
+    {
+        switch (feature)
+        {
+            case ParkourMovementFeature.EnableJump:
+                return EnableJump;
+            case ParkourMovementFeature.EnableDoubleJump:
+                return EnabledDoubleJump;
+            case ParkourMovementFeature.EnableCrouch:
+                return EnableCrouch;
+            case ParkourMovementFeature.EnableSlopeLimit:
+                return EnableSlope;
+            case ParkourMovementFeature.EnableDash:
+                return EnableDash;
+            case ParkourMovementFeature.EnableSlide:
+                return EnableSlide;
+            default:
+                return null;
+        }
+    }
+
+    void EnableJump()
+    {
+        Jumping jumpFeature = GetComponent<Jumping>();
+
+        if(jumpFeature && jumpFeature.Disabled == true){
             jumpFeature.Disabled = false;
         }
     }
 
     void EnabledDoubleJump()
     {
-        if(jumpFeature && deathCount > 1 && jumpFeature.MaxJumpCount == 1){
+        Jumping jumpFeature = GetComponent<Jumping>();
+
+        if (jumpFeature && jumpFeature.Disabled == false){
             jumpFeature.MaxJumpCount = 2;
-            enabledJump = true;
         }
     }
 
-    public void CheckDisplayMessage(){
-        if(displayText == "" || talker.text == displayText){
-            return;
-        }
+    void EnableCrouch()
+    {
+        Crouching crouchFeature = GetComponent<Crouching>();
 
-        if(displayMessage != null){
-            StopCoroutine(displayMessage);
+        if (crouchFeature && crouchFeature.Disabled == true)
+        {
+            crouchFeature.Disabled = false;
         }
-        displayMessage = StartCoroutine(DisplayMessage());
     }
 
-    public IEnumerator DisplayMessage(){
-        talker.text = displayText;
-        
-        yield return new WaitForSeconds(displayTime);
-
-        talker.text = "";
-        displayText = "";
+    void EnableSlope()
+    {
+        KinematicCharacterController kcc = GetComponent<KinematicCharacterController>();
+        if (kcc && kcc.SlopeLimit < 60)
+        {
+            kcc.SlopeLimit = 60;
+        }
     }
 
-    void CheckCauseOfDeath(){
-        if(!enabledJump){
-            if(deathCount == 1) displayText = ParkourUtils.JumpDisabled;
-            if(deathCount == 2) displayText = ParkourUtils.NoDoubleJump;
+    void EnableDash()
+    {
+        Dashing dash = GetComponent<Dashing>();
+        if (dash && dash.Disabled == true)
+        {
+            dash.Disabled = false;
+        }
+    }
+
+    void EnableSlide()
+    {
+        Sliding slide = GetComponent<Sliding>();
+        if(slide && slide.Disabled == true)
+        {
+            slide.Disabled = false;
         }
     }
 }

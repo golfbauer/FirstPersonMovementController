@@ -47,11 +47,6 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] jumpKeys;
 
     [Header("Crouching")]
-    //TODO: Debug not working properly
-    // TODO: On Slide cancel use speed to jump
-    // TODO: Stuck on slide finish
-    // TODO: add gravity if needed
-    // TODO: error on change when not running
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableCrouching;
     [SerializeField][OnChangedCall("OnVariableChange")] private float timeToCrouch;
     [SerializeField][OnChangedCall("OnVariableChange")] private float heightDifference;

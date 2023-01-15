@@ -9,22 +9,94 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: _debug
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: slideTime
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: slopeLimit
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: disableWalk
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: maxDashCount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: maxJumpCount
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: timeToCrouch
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: disableSprint
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableDashing
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableJetpack
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableJumping
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableSliding
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableCrouching
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disbaleGrappling
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableWallJumping
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableWallRunning
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: maxGrappleDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: timeToDepletJetpack
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: timeToStartRecharge
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: timeToRechargeJetpack
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: wallRunDistanceToGround
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781224, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_Name
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781224, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_TagString
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
@@ -33,31 +105,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.35
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4
+      value: -3
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7490273
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0.6625391
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -65,7 +137,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -82.988
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -91,5 +163,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnPosition: {x: 0, y: 0, z: 0}
-  lowestPoint: -2
-  talker: {fileID: 0}
+  deathPlaneY: 0
+  uiText: {fileID: 0}
+  UiManager: {fileID: 0}

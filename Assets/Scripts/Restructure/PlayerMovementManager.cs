@@ -126,6 +126,8 @@ public class PlayerMovementManager : MonoBehaviour
         {
             movement = Vector3.ProjectOnPlane(movement, groundHit.normal);
         }
+
+        transform.position += Kcc.PushOut();
         transform.position = Kcc.MovePlayer(movement);
 
         if (PrintDebugInfo) PrintMovementDeltas();
@@ -134,9 +136,9 @@ public class PlayerMovementManager : MonoBehaviour
 
     private void ApplyPlatformMovement()
     {
-        if (IsGrounded())
+        if (IsGrounded() && groundHit.distance != 0f)
         {
-            transform.SetParent(groundHit.transform);
+            transform.SetParent(groundHit.transform, true);
             int currentParentId = groundHit.transform.gameObject.GetInstanceID();
 
             if (lastParentId == currentParentId && !airborneLastUpdate)

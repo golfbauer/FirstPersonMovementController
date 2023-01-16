@@ -1,14 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+using static Utils;
 
 public class Sliding : PlayerFeatureExecuteOverTime
 {
     public bool CanCancelSlide { get; set; }
 
     private Crouching crouching;
-    private bool cancelSlide => CanCancelSlide && CheckKeys() && elapsedSinceStartExecution > 0;
 
     private new void Start()
     {
@@ -29,7 +26,7 @@ public class Sliding : PlayerFeatureExecuteOverTime
     {
         if (elapsedSinceStartExecution < MoveTime)
         {
-            if(cancelSlide)
+            if(CancelSlide())
             {
                 FinishExecution();
                 return;
@@ -54,7 +51,17 @@ public class Sliding : PlayerFeatureExecuteOverTime
 
     protected override void FinishExecution()
     {
-        base.FinishExecution();
+        IsExecutingAction = false;
+        EnableFeatures();
+        if (manager.IsGrounded())
+        {
+            ResetToInitVelocity();
+        }
         crouching.Execute = true;
+    }
+
+    protected virtual bool CancelSlide()
+    {
+        return (CanCancelSlide && CheckKeys() && elapsedSinceStartExecution > 0 && !manager.IsFeatureActive(Features.Crouching)) || !manager.IsGrounded();
     }
 }

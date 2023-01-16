@@ -226,7 +226,6 @@ public class PlayerMovementFactory : MonoBehaviour
         jumping.Identifier = Features.Jumping;
         jumping.ExcludingFeatures = new List<string>
         {
-            Features.Sliding,
             Features.Crouching
         };
         jumping.CanAlwaysJump = canAlwaysJump;
@@ -275,7 +274,6 @@ public class PlayerMovementFactory : MonoBehaviour
         {
             Features.Walking,
             Features.Sprinting,
-            Features.Jumping
         };
 
         sliding.MoveCap = slideCap;

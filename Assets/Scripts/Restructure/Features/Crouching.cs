@@ -15,7 +15,7 @@ public class Crouching : PlayerFeatureExecuteOverTime
         }
         set
         {
-            if(IsCrouched)
+            if(IsCrouched && value != heightDifference)
             {
                 throw new FieldAccessException("Altering the HeightDifference while Crouched is not permitted!");
             }

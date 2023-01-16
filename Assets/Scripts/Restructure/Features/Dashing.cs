@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Utils;
 
 public class Dashing : PlayerFeatureExecuteOverTime
 {
@@ -66,7 +67,7 @@ public class Dashing : PlayerFeatureExecuteOverTime
     /// </summary>
     protected virtual void ResetDash()
     {
-        if (!IsExecutingAction && (manager.IsGrounded() || manager.IsFeatureActive("WallRunning") || manager.IsFeatureActive("Grappling")))
+        if (!IsExecutingAction && (manager.IsGrounded() || manager.IsFeatureActive(Features.WallRunning) || manager.IsFeatureActive(Features.Grappling)))
         {
             currentDashCount = 0;
         }

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using static Utils;
 
 public class Jumping : PlayerFeatureExecuteOnce
 {
@@ -28,7 +29,7 @@ public class Jumping : PlayerFeatureExecuteOnce
     protected override void IsExecuting()
     {
         EnableFeatures();
-        if (manager.IsGrounded() || manager.IsFeatureActive("WallRunning"))
+        if (manager.IsGrounded() || manager.IsFeatureActive(Features.WallRunning))
         {
             CurrentJumpCount = 0;
 

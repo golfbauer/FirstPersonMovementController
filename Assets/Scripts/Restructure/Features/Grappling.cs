@@ -1,4 +1,5 @@
 using UnityEngine;
+using static Utils;
 
 public class Grappling : PlayerFeatureExecuteOverTime
 {
@@ -130,7 +131,7 @@ public class Grappling : PlayerFeatureExecuteOverTime
         manager.ProjectOnPlane = true;
         IsExecutingAction = false;
         UndoChangeGravityMultiplier();
-        manager.SetFeatureActive("Jumping");
+        manager.SetFeatureActive(Features.Jumping);
         EnableFeatures();
     }
 }

@@ -10,14 +10,17 @@ namespace Assets.Parkour_Game.Scripts
 {
     public class PlatformLevelCollision : MonoBehaviour
     {
-        
-        [SerializeField] private bool unlockOnCollision;
+        [SerializeField] private bool enableOnCollision;
         [SerializeField] private int hitsNeededToEnable;
-        [SerializeField] private int hitsNeededToDisplayMessage;
+
         [SerializeField] private ParkourMovementFeature enableFeature;
         [SerializeField] private ParkourMovementFeature[] requiredFeatures;
+        
+        [SerializeField] private int hitsNeededForAdditionalMessage;
+        [SerializeField] private int additionalMessageIndex;
 
-        private bool hitPlatform;
+        private bool featureEnabled;
+        private bool messageDisplayed;
         private int hitCount = 0;
         private ParkourGameManager parkourGameManager;
         private MovementFeature movementFeature = null;
@@ -25,7 +28,7 @@ namespace Assets.Parkour_Game.Scripts
 
         protected virtual void OnTriggerEnter(Collider other)
         {
-            if (hitPlatform)
+            if (featureEnabled && messageDisplayed)
                 return;
             
             if (other.gameObject.CompareTag("Player"))
@@ -36,38 +39,32 @@ namespace Assets.Parkour_Game.Scripts
                     parkourGameManager = other.gameObject.GetComponent<ParkourGameManager>();
                 }
                 if (!parkourGameManager) return;
-                if (movementFeature == null) InitMovementFeature();
-                if (movementFeature != null)
-                {
-                    EnableMessage();
-                    EnableFeature();
-                }
+                if (!featureEnabled) EnableFeature();
+                if (!messageDisplayed) DisplayMessage();
             }
-        }
-
-        protected virtual void InitMovementFeature()
-        {
-            if (!CheckRequiredFeatures() || !CheckEnabledFeatures())
-                return;
-
-            Action action = parkourGameManager.GetMovementAction(enableFeature);
-            movementFeature = new MovementFeature(enableFeature, unlockOnCollision, action);
         }
 
         protected virtual void EnableFeature()
         {
-            if (CheckHitsNeededToEnable()) return;
+            if (!CheckRequiredFeatureEnabled() || !CheckFeatureEnabled() || HitsNeededToEnable())
+                return;
 
+            Action action = parkourGameManager.GetMovementAction(enableFeature);
+            movementFeature = new MovementFeature(enableFeature, enableOnCollision, action, DisplayTime);
             parkourGameManager.EnableFeatures.Add(movementFeature);
+            featureEnabled = true;
         }
-
-        protected virtual void EnableMessage()
+        
+        protected virtual void DisplayMessage()
         {
-            if (!unlockOnCollision || CheckHitsNeededToDisplayMessage()) return;
-            parkourGameManager.DisplayFeatureMessage(movementFeature);
+            if (HitsNeededToDisplayMessage()) return;
+            
+            string message = GetAdditionalMessage(additionalMessageIndex);
+            parkourGameManager.DisplayMessage(message, DisplayTime);
+            messageDisplayed = true;
         }
 
-        protected virtual bool CheckRequiredFeatures()
+        protected virtual bool CheckRequiredFeatureEnabled()
         {
             if (requiredFeatures == null || requiredFeatures.Length == 0)
                 return true;
@@ -80,7 +77,7 @@ namespace Assets.Parkour_Game.Scripts
             return true;
         }
 
-        protected virtual bool CheckEnabledFeatures()
+        protected virtual bool CheckFeatureEnabled()
         {
             foreach (ParkourMovementFeature feature in parkourGameManager.EnabledFeatures)
             {
@@ -91,14 +88,26 @@ namespace Assets.Parkour_Game.Scripts
             return true;
         }
 
-        protected virtual bool CheckHitsNeededToEnable()
+        protected virtual bool HitsNeededToEnable()
         {
+            if (hitsNeededToEnable == 0)
+            {
+                featureEnabled = true;
+                return true;
+            }
+            
             return hitCount < hitsNeededToEnable;
         }
 
-        protected virtual bool CheckHitsNeededToDisplayMessage()
+        protected virtual bool HitsNeededToDisplayMessage()
         {
-            return hitCount < hitsNeededToDisplayMessage;
+            if(hitsNeededForAdditionalMessage == 0)
+            {
+                messageDisplayed = true;
+                return true;
+            }
+            
+            return hitCount < hitsNeededForAdditionalMessage;
         }
-     }
+    }
 }

@@ -1,4 +1,5 @@
 using Assets.Parkour_Game.Scripts;
+using Newtonsoft.Json.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ public class ParkourGameManager : MonoBehaviour
     public UIManager UiManager;
 
     private int deathCount;
+    private bool playerHasDied;
     private PlayerMovementManager movementManager;
 
     void Start()
@@ -36,15 +38,18 @@ public class ParkourGameManager : MonoBehaviour
     {
         CheckDeath();
 
-        EnableNewFeature(false);
+        EnableNewFeature();
     }
 
     void CheckDeath(){
         if(transform.position.y < deathPlaneY){
             deathCount++;
+            playerHasDied = true;
             ResetPlayer();
-            EnableNewFeature(true);
+            return;
         }
+
+        playerHasDied = false;
     }
 
     void ResetPlayer()
@@ -58,45 +63,57 @@ public class ParkourGameManager : MonoBehaviour
         transform.position = spawnPosition;
     }
 
-    void EnableNewFeature(bool hasDied)
+    void EnableNewFeature()
     {
         if (EnableFeatures.Count == 0) return;
         
         foreach (MovementFeature movementFeature in EnableFeatures.ToList())
         {
-            if (EnabledFeatures.Contains(movementFeature.feature))
+            if (EnabledFeatures.Contains(movementFeature.Feature))
             {
                 EnableFeatures.Remove(movementFeature);
                 continue;
             }
 
-            if (!hasDied && !movementFeature.unlockOnCollision)
+            if (!playerHasDied && !movementFeature.EnableOnCollision)
             {
                 continue;
             }
 
             UpdateEnabledFeatures(movementFeature);
-
         }
     }
     
     void UpdateEnabledFeatures(MovementFeature movementFeature)
     {
-        if (movementFeature.displayMessage) DisplayFeatureMessage(movementFeature);
-        EnabledFeatures.Add(movementFeature.feature);
-        EnableFeatures.Remove(movementFeature);
-        if (movementFeature.action != null)
+        if (movementFeature.Action == null)
         {
-            movementFeature.action();
+            Debug.Log("No action found for new Feature: " + movementFeature.Feature);
+            return;
         }
+
+        DisplayFeatureMessage(movementFeature);
+        movementFeature.Action();
+
+        EnabledFeatures.Add(movementFeature.Feature);
+        EnableFeatures.Remove(movementFeature);
+    }
+
+    public bool IsFeatureEnabled(ParkourMovementFeature movementFeature)
+    {
+        return EnabledFeatures.Contains(movementFeature);
     }
 
     public void DisplayFeatureMessage(MovementFeature movementFeature)
     {
-        if (!movementFeature.displayMessage) return;
-        UiManager.DisplayText(movementFeature.text, DisplayTime);
-        movementFeature.displayMessage = false;
+        UiManager.DisplayText(movementFeature.MessageOnEnable, movementFeature.DisplayTime);
     }
+
+    public void DisplayMessage(string text, float time)
+    {
+        UiManager.DisplayText(text, time);
+    }
+
     public Action GetMovementAction(ParkourMovementFeature feature)
     {
         switch (feature)
@@ -113,18 +130,29 @@ public class ParkourGameManager : MonoBehaviour
                 return EnableDash;
             case ParkourMovementFeature.EnableSlide:
                 return EnableSlide;
+            case ParkourMovementFeature.EnableWallRun:
+                return EnableWallRun;
+            case ParkourMovementFeature.EnableGrapple:
+                return EnableGrapple;
+            case ParkourMovementFeature.EnableJetpack:
+                return EnableJetpack;
             default:
                 return null;
         }
+    }
+
+    void EnableFeature(PlayerFeature feature)
+    {
+        if (!feature) return;
+
+        feature.Disabled = false;
     }
 
     void EnableJump()
     {
         Jumping jumpFeature = GetComponent<Jumping>();
 
-        if(jumpFeature && jumpFeature.Disabled == true){
-            jumpFeature.Disabled = false;
-        }
+        EnableFeature(jumpFeature);
     }
 
     void EnabledDoubleJump()
@@ -140,10 +168,7 @@ public class ParkourGameManager : MonoBehaviour
     {
         Crouching crouchFeature = GetComponent<Crouching>();
 
-        if (crouchFeature && crouchFeature.Disabled == true)
-        {
-            crouchFeature.Disabled = false;
-        }
+        EnableFeature(crouchFeature);
     }
 
     void EnableSlope()
@@ -157,19 +182,33 @@ public class ParkourGameManager : MonoBehaviour
 
     void EnableDash()
     {
-        Dashing dash = GetComponent<Dashing>();
-        if (dash && dash.Disabled == true)
-        {
-            dash.Disabled = false;
-        }
+        Dashing dashFeature = GetComponent<Dashing>();
+        EnableFeature(dashFeature);
     }
 
     void EnableSlide()
     {
-        Sliding slide = GetComponent<Sliding>();
-        if(slide && slide.Disabled == true)
-        {
-            slide.Disabled = false;
-        }
+        Sliding slideFeature = GetComponent<Sliding>();
+        EnableFeature(slideFeature);
+    }
+
+    void EnableWallRun()
+    {
+        WallRunning wallRun = GetComponent<WallRunning>();
+        WallJumping wallJump = GetComponent<WallJumping>();
+        EnableFeature(wallRun);
+        EnableFeature(wallJump);
+    }
+
+    void EnableGrapple()
+    {
+        Grappling grapple = GetComponent<Grappling>();
+        EnableFeature(grapple);
+    }
+
+    void EnableJetpack()
+    {
+        Jetpack jetpack = GetComponent<Jetpack>();
+        EnableFeature(jetpack);
     }
 }

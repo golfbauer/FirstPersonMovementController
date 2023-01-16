@@ -7,19 +7,19 @@ namespace Assets.Parkour_Game.Scripts
 {
     public class MovementFeature
     {
-        public ParkourMovementFeature feature;
-        public bool unlockOnCollision;
-        public Action action;
-        public string text;
-        public bool displayMessage;
+        public ParkourMovementFeature Feature;
+        public bool EnableOnCollision;
+        public Action Action;
+        public string MessageOnEnable;
+        public float DisplayTime;
 
-        public MovementFeature(ParkourMovementFeature feature, bool unlockOnCollision, Action action)
+        public MovementFeature(ParkourMovementFeature feature, bool enableOnCollision, Action action, float displayTime = 5f)
         {
-            this.feature = feature;
-            this.unlockOnCollision = unlockOnCollision;
-            this.text = GetFeatureText(feature);
-            this.action = action;
-            this.displayMessage = true;
+            this.Feature = feature;
+            this.EnableOnCollision = enableOnCollision;
+            this.Action = action;
+            MessageOnEnable = GetFeatureText(feature);
+            DisplayTime = displayTime;
         }
         
     }

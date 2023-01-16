@@ -40,6 +40,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     [Header("Jumping")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableJumping;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool canAlwaysJump;
     [SerializeField][OnChangedCall("OnVariableChange")] private float jumpHeight;
     [SerializeField][OnChangedCall("OnVariableChange")] private int maxJumpCount;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] jumpKeys;
@@ -133,6 +134,8 @@ public class PlayerMovementFactory : MonoBehaviour
     private Jetpack jetpacking;
     private Headbob headbob;
 
+    private bool isRunning;
+
     private void Awake()
     {
         InitializeKinematicCharacterController();
@@ -154,11 +157,12 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeGrapple();
         InitializeJetpack();
         InitializeHeadbob();
+        isRunning = true;
     }
 
     public void OnVariableChange()
     {
-        if (_debug)
+        if (_debug && isRunning)
         {
             UpdateWalking();
             UpdateSprinting();
@@ -225,6 +229,7 @@ public class PlayerMovementFactory : MonoBehaviour
             Features.Sliding,
             Features.Crouching
         };
+        jumping.CanAlwaysJump = canAlwaysJump;
     }
 
     void InitializeCrouching()

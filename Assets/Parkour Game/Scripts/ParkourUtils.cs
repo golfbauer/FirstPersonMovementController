@@ -50,6 +50,7 @@ public class ParkourUtils : MonoBehaviour
 
     public enum ParkourMovementFeature
     {
+        None = -1,
         EnableJump = 0,
         EnableDoubleJump = 1,
         EnableCrouch = 2,

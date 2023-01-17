@@ -250,9 +250,9 @@ public class KinematicCharacterController : MonoBehaviour
     /// </summary>
     /// <param name="moveDirect">Direction for CastSelf</param>
     /// <returns>True on hit</returns>
-    public bool CheckObjectHit(Vector3 moveDirect)
+    public bool CheckObjectHit(Vector3 moveDirect, float distance = 0.1f)
     {
-        return CastSelf(transform.position, transform.rotation, moveDirect, 0.1f, out RaycastHit groundHit);
+        return CastSelf(transform.position, transform.rotation, moveDirect, distance, out RaycastHit groundHit);
     }
 
     /// <summary>

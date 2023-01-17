@@ -111,5 +111,27 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
     {
         manager.UndoChangeGravityMultiplier(Identifier);
     }
+
+    /// <inheritdoc />
+    public override void DebugFeatureOnActive()
+    {
+        if (!DebugFeature) return;
+
+        Debug.Log("Feature " + Identifier + " is active");
+        Debug.Log("Elapsed Since Start Execution: " + elapsedSinceStartExecution);
+        Debug.Log("Velocity: " + velocity);
+
+        if(elapsedSinceStartExecution >= MoveTime) 
+        {
+            Debug.Log("Move Cap: " + MoveCap);
+            Debug.Log("Move Speed: " + MoveSpeed);
+            Debug.Log("Move Control: " + MoveControl);
+            Debug.Log("Move Time: " + MoveTime);
+            Debug.Log("Gravity Multiplier: " + GravityMultiplier);
+            Debug.Log("Can Cancel Execution: " + CanCancelExecution);
+        }
+        Debug.Log("---------------------------------");
+        Debug.Log("---------------------------------");
+    }
 }
 

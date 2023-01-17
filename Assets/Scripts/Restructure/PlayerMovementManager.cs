@@ -111,6 +111,7 @@ public class PlayerMovementManager : MonoBehaviour
             {
                 velocityDeltas.Add(feature.Identifier, velocity - startVelocity);
                 activeFeatures.Add(feature.Identifier);
+                feature.DebugFeatureOnActive();
                 continue;
             }
                 activeFeatures.Remove(feature.Identifier); 

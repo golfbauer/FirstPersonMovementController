@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour
 {
     public GameObject PauseUI;
     public GameObject IngameUI;
+    public GameObject Settings;
     public bool JetpackActive;
     
     private TMP_Text infoText;
@@ -19,6 +20,9 @@ public class UIManager : MonoBehaviour
     private Button easyMode;
     private Button quitGame;
     private Button resetGame;
+    private Button settingsButton;
+
+    private Slider mouseSense;
 
     private Coroutine displayingText;
     private ParkourGameManager parkourGameManager;
@@ -33,6 +37,8 @@ public class UIManager : MonoBehaviour
         easyMode = PauseUI.transform.Find("EasyMode").GetComponent<Button>();
         quitGame = PauseUI.transform.Find("QuitGame").GetComponent<Button>();
         resetGame = PauseUI.transform.Find("ResetGame").GetComponent<Button>();
+        settingsButton = PauseUI.transform.Find("Settings").GetComponent<Button>();
+        mouseSense = Settings.transform.Find("MouseSlider").GetComponent<Slider>();
 
         parkourGameManager = GetComponent<ParkourGameManager>();
         cameraController = transform.GetChild(0).GetComponent<CameraController>();
@@ -42,12 +48,19 @@ public class UIManager : MonoBehaviour
         easyMode.onClick.AddListener(() => SetEasyMode());
         quitGame.onClick.AddListener(() => QuitGame());
         resetGame.onClick.AddListener(() => ResetGame());
+        settingsButton.onClick.AddListener(() => OpenSettings());
+        mouseSense.onValueChanged.AddListener((value) => SetMouseSense(value));
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            if(Settings.activeSelf)
+            {
+                Settings.SetActive(false);
+            }
+            
             if (PauseUI.activeSelf)
             {
                 PauseUI.SetActive(false);
@@ -122,5 +135,16 @@ public class UIManager : MonoBehaviour
         parkourGameManager.resetGame.Invoke();
         JetpackActive = false;
         jetpackFuel.text = "";
+    }
+
+    public void OpenSettings()
+    {
+        Settings.SetActive(true);
+        PauseUI.SetActive(false);
+    }
+
+    public void SetMouseSense(float value)
+    {
+        cameraController.MouseSensitivity = value * 200;
     }
 }

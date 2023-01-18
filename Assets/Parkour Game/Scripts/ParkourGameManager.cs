@@ -19,6 +19,7 @@ public class ParkourGameManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private GameObject pauseUI;
     [SerializeField] private GameObject ingameUI;
+    [SerializeField] private GameObject settings;
 
     public Vector3 SpawnPoint
     {
@@ -51,6 +52,7 @@ public class ParkourGameManager : MonoBehaviour
         UiManager = this.AddComponent<UIManager>();
         UiManager.PauseUI = pauseUI;
         UiManager.IngameUI = ingameUI;
+        UiManager.Settings = settings;
     }
 
     void Update()

@@ -178,6 +178,7 @@ MonoBehaviour:
   deathPlaneY: 0
   pauseUI: {fileID: 0}
   ingameUI: {fileID: 0}
+  settings: {fileID: 0}
   UiManager: {fileID: 0}
   EasyModeEnabled: 0
   resetGame:

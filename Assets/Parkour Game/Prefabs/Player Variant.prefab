@@ -16,6 +16,10 @@ PrefabInstance:
       value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: grappleCap
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: slopeLimit
       value: 30
       objectReference: {fileID: 0}
@@ -56,6 +60,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: wallJumpForce.x
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: disableCrouching
       value: 1
       objectReference: {fileID: 0}
@@ -91,6 +99,10 @@ PrefabInstance:
       propertyPath: wallRunDistanceToGround
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 477278984, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781224, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_Name
       value: Player
@@ -109,7 +121,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
       propertyPath: m_LocalPosition.z
@@ -164,5 +176,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnPosition: {x: 0, y: 0, z: 0}
   deathPlaneY: 0
-  uiText: {fileID: 0}
+  pauseUI: {fileID: 0}
+  ingameUI: {fileID: 0}
   UiManager: {fileID: 0}
+  EasyModeEnabled: 0
+  resetGame:
+    m_PersistentCalls:
+      m_Calls: []

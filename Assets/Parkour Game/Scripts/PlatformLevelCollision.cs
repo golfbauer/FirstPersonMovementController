@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using static ParkourUtils;
-using static Utils;
 
 namespace Assets.Parkour_Game.Scripts
 {
     public class PlatformLevelCollision : MonoBehaviour
     {
+        [SerializeField] private bool allowEasyModeSpawn;
+        
         [SerializeField] private bool enableOnCollision;
         [SerializeField] private int hitsNeededToEnable;
 
@@ -24,7 +22,7 @@ namespace Assets.Parkour_Game.Scripts
         private int hitCount = 0;
         private ParkourGameManager parkourGameManager;
         private MovementFeature movementFeature = null;
-        
+
 
         protected virtual void OnTriggerEnter(Collider other)
         {
@@ -37,8 +35,15 @@ namespace Assets.Parkour_Game.Scripts
                 if (!parkourGameManager)
                 {
                     parkourGameManager = other.gameObject.GetComponent<ParkourGameManager>();
+
+                    if (!parkourGameManager) return;
+                    parkourGameManager.resetGame.AddListener(ResetCollider);
                 }
-                if (!parkourGameManager) return;
+                if (parkourGameManager.EasyModeEnabled)
+                {
+                    EasyMode();
+                    return;
+                }
                 if (!featureEnabled) EnableFeature();
                 if (!messageDisplayed) DisplayMessage();
             }
@@ -108,6 +113,25 @@ namespace Assets.Parkour_Game.Scripts
             }
             
             return hitCount < hitsNeededForAdditionalMessage;
+        }
+
+        protected void EasyMode()
+        {
+            featureEnabled = true;
+            messageDisplayed = true;
+            if(allowEasyModeSpawn)
+            {
+                parkourGameManager.SpawnPoint = transform.position;
+                parkourGameManager.SpawnPoint += Vector3.up * 2f;
+            }
+        }
+
+        protected void ResetCollider()
+        {   
+            hitCount = 0;
+            featureEnabled = false;
+            messageDisplayed = false;
+            movementFeature = null;
         }
     }
 }

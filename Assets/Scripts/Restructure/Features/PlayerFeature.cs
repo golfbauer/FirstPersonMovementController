@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class PlayerFeature : MonoBehaviour
 {
     // All Keys that will be checked before performing action
-    public KeyCode[] ActionKeys { get; set; }
+    public List<KeyCode> ActionKeys { get; set; }
 
     // Identifies Feature for manager
     public string Identifier { get; set; }

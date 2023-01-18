@@ -7,15 +7,17 @@ public class ParkourUtils : MonoBehaviour
 {
     public static float DisplayTime = 5f;
 
-    public static string EnableJumpText = "Wow! Looks like you died due to a skill issue! Please try and use the space bar to Jump!";
+    public static string EasyModeMessage = "Easy Mode Enabled";
+
+    public static string EnableJumpText = "Wow! Looks like you died due to what's called a skill issue! Please try and use the space bar to Jump!";
     public static string EnabledDoubleJumpText = "That is unfortunate! You know that you have a double jump right? Just press Space again!";
-    public static string EnableCrouchText = "Why didnt you try to go under that obstacle? Just crouch by pressing the C key!";
+    public static string EnableCrouchText = "Alright I guess you're not the creative kind. Here press C to crouch.";
     public static string EnableSlopeText = "";
-    public static string EnableDashText = "Congrats you unlocked a dash! You can dash by Jumping and pressing the Left Shift key!";
-    public static string EnableSlideText = "Alright you can use the slide to go below those things. But dont you dare go around the obstacles! Just press the Left Shift key while sprinting!";
+    public static string EnableDashText = "Congrats you found an invisble dash! Trust me bro it was there. Just press the left shift key while Jumping!";
+    public static string EnableSlideText = "Alright you can use slide to go below those things. Just press the Left Shift key while sprinting. But dont you dare go around! ";
     public static string EnableWallRun = "Alright looks like you need some spicy wallrunning! Just hold the Space bar when you touch a wall and release to jump away!";
     public static string EnableGrapple = "Looks like quite a long gap there! You can use the grapple to get across! Just aim at the wall and press K!";
-    public static string EnableJetpack = "Yay you found the jetpack!";
+    public static string EnableJetpack = "Hold E! Go up! Go up!";
 
     public static string[] EnableFeatureTexts = new string[]
     {
@@ -30,12 +32,23 @@ public class ParkourUtils : MonoBehaviour
         EnableJetpack,
     };
 
+    public static string AdditionalCrochMessage = "Alright you made it! Now I want you to be creative on this one. You can do it!";
+    public static string AdditionalSlopeMessage = "What are you doing? That slope isn't so steep, just walk up!";
+    public static string AdditionalGrappleStartMessage = "I swear to use the Grapple you have to press K! Oh wait, no! It's F! My bad!";
+    public static string AdditionalGrappleMidMessage = "In case you haven't noticed yet, You can cancel Grapple by pressing F again! It will help you on this part. Wow, I am so nice!";
+    public static string AdditionalJetpackMessage = "Oh boi that platform is far away. I am sure you can make that with a simple Jump and Dash. In case you can't, you might want to go down.";
+    public static string AdditionalJetpackMessage2 = "Look at the bottom right. There you can see a super well designed fuel meter for your jetpack.";
+    public static string EndMessage = "Alright, congrats! I didn't think you would make it this far. But I guess you did. I am proud of you!";
+
     public static string[] AdditionalMessages = new string[]
     {
-        "You can climb up slopes! Just press the W key to go up!",
-        "Oh that didnt work huh? Well you need to aim at the wall and press K to grapple! No hold up its F! My bad!",
-        "Hey this looks like quite some distance you have to jump there. Maybe you can use a jetpack. But where can you get one? But if I would have a jetpack I would hold E to use it.",
-        "Oi oi oi. These platforms are even further apart. I recommand to cancel your grapple by pressing F again. This way you will keep your momentum!",
+        AdditionalCrochMessage,
+        AdditionalSlopeMessage,
+        AdditionalGrappleStartMessage,
+        AdditionalGrappleMidMessage,
+        AdditionalJetpackMessage,
+        AdditionalJetpackMessage2,
+        EndMessage,
     };
 
     public static string GetFeatureText(ParkourMovementFeature feature)

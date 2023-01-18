@@ -7,6 +7,7 @@ public class CameraController : MonoBehaviour
     public Transform PlayerTransform { get; set; }
     public float MouseSensitivity { get; set; }
     public Vector3 LocalStartPosition { get; set; }
+    public bool FreezeCamera { get; set; }
 
     private float xRotation;
     private float zRotation;
@@ -22,6 +23,8 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
+        if (FreezeCamera) return;
+        
         CameraLook();
     }
 

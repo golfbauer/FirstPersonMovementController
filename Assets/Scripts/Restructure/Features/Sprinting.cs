@@ -15,8 +15,8 @@ public class Sprinting : Walking
 
         base.CheckAction();
     }
-
-    protected new bool CanExecute()
+    
+    protected override bool CanExecute()
     {
         return manager.IsGrounded() && CheckAllInputGetKeys();
     }

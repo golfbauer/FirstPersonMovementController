@@ -6,32 +6,51 @@ using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 using static ParkourUtils;
 
 public class ParkourGameManager : MonoBehaviour
 {
+    [Header("Player Configs")]
     [SerializeField] private Vector3 spawnPosition;
     [SerializeField] private float deathPlaneY;
-    [SerializeField] private TMP_Text uiText;
 
+    [Header("UI")]
+    [SerializeField] private GameObject pauseUI;
+    [SerializeField] private GameObject ingameUI;
+
+    public Vector3 SpawnPoint
+    {
+        get => spawnPosition;
+        set
+        {
+            spawnPosition = value;
+        }
+    }
     public HashSet<MovementFeature> EnableFeatures;
     public HashSet<ParkourMovementFeature> EnabledFeatures;
     public UIManager UiManager;
-
-    private int deathCount;
+    public bool EasyModeEnabled;
+    public UnityEvent resetGame = new UnityEvent();
+    
     private bool playerHasDied;
+    private Vector3 initSpawnPosition;
     private PlayerMovementManager movementManager;
+
 
     void Start()
     {
         if(spawnPosition == Vector3.zero){
             spawnPosition = transform.position;
         }
+        initSpawnPosition = spawnPosition;
         
         EnableFeatures = new HashSet<MovementFeature>();
         EnabledFeatures = new HashSet<ParkourMovementFeature>();
         UiManager = this.AddComponent<UIManager>();
-        UiManager.Talker = uiText;
+        UiManager.PauseUI = pauseUI;
+        UiManager.IngameUI = ingameUI;
     }
 
     void Update()
@@ -43,7 +62,6 @@ public class ParkourGameManager : MonoBehaviour
 
     void CheckDeath(){
         if(transform.position.y < deathPlaneY){
-            deathCount++;
             playerHasDied = true;
             ResetPlayer();
             return;
@@ -106,12 +124,12 @@ public class ParkourGameManager : MonoBehaviour
 
     public void DisplayFeatureMessage(MovementFeature movementFeature)
     {
-        UiManager.DisplayText(movementFeature.MessageOnEnable, movementFeature.DisplayTime);
+        UiManager.DisplayInfoText(movementFeature.MessageOnEnable, movementFeature.DisplayTime);
     }
 
     public void DisplayMessage(string text, float time)
     {
-        UiManager.DisplayText(text, time);
+        UiManager.DisplayInfoText(text, time);
     }
 
     public Action GetMovementAction(ParkourMovementFeature feature)
@@ -205,10 +223,58 @@ public class ParkourGameManager : MonoBehaviour
         Grappling grapple = GetComponent<Grappling>();
         EnableFeature(grapple);
     }
-
+    
     void EnableJetpack()
     {
         Jetpack jetpack = GetComponent<Jetpack>();
+        UiManager.JetpackActive = true;
         EnableFeature(jetpack);
+    }
+
+    public void EnableAllFeatures()
+    {
+        EnableFeatures.Clear();
+        EnabledFeatures.Clear();
+        EnableJump();
+        EnabledDoubleJump();
+        EnableCrouch();
+        EnableSlope();
+        EnableDash();
+        EnableSlide();
+        EnableWallRun();
+        EnableGrapple();
+        EnableJetpack();
+    }
+
+    public void DisableAllFeatures()
+    {
+        Jumping jumpFeature = GetComponent<Jumping>();
+        Crouching crouchFeature = GetComponent<Crouching>();
+        Dashing dashFeature = GetComponent<Dashing>();
+        Sliding slideFeature = GetComponent<Sliding>();
+        WallRunning wallRun = GetComponent<WallRunning>();
+        WallJumping wallJump = GetComponent<WallJumping>();
+        Grappling grapple = GetComponent<Grappling>();
+        Jetpack jetpack = GetComponent<Jetpack>();
+
+        jumpFeature.Disabled = true;
+        jumpFeature.MaxJumpCount = 1;
+        crouchFeature.Disabled = true;
+        dashFeature.Disabled = true;
+        slideFeature.Disabled = true;
+        wallRun.Disabled = true;
+        wallJump.Disabled = true;
+        grapple.Disabled = true;
+        jetpack.Disabled = true;
+    }
+
+    public void ResetGame()
+    {
+        EnableFeatures.Clear();
+        EnabledFeatures.Clear();
+        DisableAllFeatures();
+        EasyModeEnabled = false;
+        spawnPosition = initSpawnPosition;
+        transform.position = spawnPosition;
     }
 }

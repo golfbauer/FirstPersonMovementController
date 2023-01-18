@@ -30,7 +30,7 @@ public class Walking : PlayerFeature
         UpdateElapsedSince();
     }
 
-    protected new void ExecuteAction()
+    protected override void ExecuteAction()
     {
 
         float moveX = Input.GetAxisRaw("Horizontal");

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Utils;
 
 public class WallRunning : PlayerFeatureExecuteOverTime
 {
@@ -141,7 +142,7 @@ public class WallRunning : PlayerFeatureExecuteOverTime
     {
         IsExecutingAction = false;
         EnableFeatures();
-        if(!manager.IsFeatureActive("WallJumping")){
+        if(!manager.IsFeatureActive(Features.WallJumping)){
             Vector3 velocity = manager.GetVelocity();
             manager.SetVelocity(velocity.magnitude * transform.forward);
         }

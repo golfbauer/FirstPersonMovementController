@@ -22,6 +22,8 @@ public abstract class PlayerFeature : MonoBehaviour
     // Pause the execution of the feature
     public bool Pause { get; set; }
 
+    public bool DebugFeature { get; set; }
+
     // Will not execute of one of the features is not active
     public List<string> RequiredFeatures { get; set; }
 
@@ -231,6 +233,20 @@ public abstract class PlayerFeature : MonoBehaviour
     {
         if (DisableFeatures == null) return;
         manager.EnableFeatures(DisableFeatures);
+    }
+    
+    /// <summary>
+    /// Will Debug the feature while its running
+    /// </summary>
+    public virtual void DebugFeatureOnActive()
+    {
+        if (!DebugFeature) return;
+
+        Debug.Log("Feature " + Identifier + " is active");
+        Debug.Log("Elapsed Since Start Execution: " + elapsedSinceStartExecution);
+        Debug.Log("Velocity: " + velocity);
+        Debug.Log("---------------------------------");
+        Debug.Log("---------------------------------");
     }
 }
 

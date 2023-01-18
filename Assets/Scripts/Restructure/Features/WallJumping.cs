@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Utils;
 
 public class WallJumping : PlayerFeatureExecuteOnce
 {
@@ -23,7 +24,7 @@ public class WallJumping : PlayerFeatureExecuteOnce
         EnableFeatures();
         if (!IsExecutingAction) return;
         
-        IsExecutingAction = !(manager.IsGrounded() || manager.IsFeatureActive("WallRunning") || manager.IsFeatureActive("Jumping") || manager.IsFeatureActive("Dashing"));
+        IsExecutingAction = !(manager.IsGrounded() || manager.IsFeatureActive(Features.WallRunning) || manager.IsFeatureActive(Features.Jumping) || manager.IsFeatureActive(Features.Dashing));
     }
 
     protected override void Init()

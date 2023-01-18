@@ -360,8 +360,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be55738884ac5476e9f256a9dd1b328c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _debug: 0
-  printDebugInfo: 0
+  _changePropsOnRuntime: 0
+  debugFeatureVelocities: 0
+  debugWalking: 0
+  debugSprinting: 0
+  debugJumping: 0
+  debugCrouching: 0
+  debugSliding: 0
+  debugDashing: 0
+  debugWallRunning: 0
+  debugWallJumping: 0
+  debugGrappling: 0
+  debugJetpack: 0
+  debugHeadbob: 0
   gravity: {x: 0, y: -9.81, z: 0}
   groundDrag: 20
   airDrag: 5
@@ -381,6 +392,7 @@ MonoBehaviour:
   sprintCap: 10
   sprintKeys: 30010000
   disableJumping: 0
+  canAlwaysJump: 0
   jumpHeight: 2
   maxJumpCount: 2
   jumpKeys: 20000000

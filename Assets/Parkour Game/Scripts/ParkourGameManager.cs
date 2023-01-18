@@ -258,6 +258,7 @@ public class ParkourGameManager : MonoBehaviour
         WallJumping wallJump = GetComponent<WallJumping>();
         Grappling grapple = GetComponent<Grappling>();
         Jetpack jetpack = GetComponent<Jetpack>();
+        KinematicCharacterController kcc = GetComponent<KinematicCharacterController>();
 
         jumpFeature.Disabled = true;
         jumpFeature.MaxJumpCount = 1;
@@ -268,6 +269,7 @@ public class ParkourGameManager : MonoBehaviour
         wallJump.Disabled = true;
         grapple.Disabled = true;
         jetpack.Disabled = true;
+        kcc.SlopeLimit = 30;
     }
 
     public void ResetGame()

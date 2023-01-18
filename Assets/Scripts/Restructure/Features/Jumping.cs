@@ -1,12 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using static Utils;
 
 public class Jumping : PlayerFeatureExecuteOnce
 {
     public int MaxJumpCount { get; set; }
     public float JumpHeight { get; set; }
     public int CurrentJumpCount { get; set; }
+    public bool CanAlwaysJump { get; set; }
 
     protected override bool CanExecute()
     {
@@ -27,7 +29,7 @@ public class Jumping : PlayerFeatureExecuteOnce
     protected override void IsExecuting()
     {
         EnableFeatures();
-        if (manager.IsGrounded() || manager.IsFeatureActive("WallRunning"))
+        if (manager.IsGrounded() || manager.IsFeatureActive(Features.WallRunning))
         {
             CurrentJumpCount = 0;
 
@@ -51,7 +53,7 @@ public class Jumping : PlayerFeatureExecuteOnce
     /// <returns>true if player maxjumpcount allows jump</returns>
     protected virtual bool CheckJumpCount()
     {
-        if (CurrentJumpCount == 0 && !manager.IsGrounded()) return false;
+        if (CurrentJumpCount == 0 && !manager.IsGrounded() && !CanAlwaysJump) return false;
 
         if (CurrentJumpCount >= MaxJumpCount) return false;
 

@@ -111,6 +111,7 @@ public class PlayerMovementManager : MonoBehaviour
             {
                 velocityDeltas.Add(feature.Identifier, velocity - startVelocity);
                 activeFeatures.Add(feature.Identifier);
+                feature.DebugFeatureOnActive();
                 continue;
             }
                 activeFeatures.Remove(feature.Identifier); 
@@ -282,13 +283,14 @@ public class PlayerMovementManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Gets the feature with the specified ID from the features Dictionary
-    /// </summary>
-    ///<returns>The feature instance</returns>
-    public PlayerFeature GetFeature(string featureKey)
+    /// Returns a PlayerFeature from Manager
+    /// <summary>
+    public PlayerFeature GetFeature(string featureID)
     {
-        bool feature = features.TryGetValue(featureKey, out PlayerFeature value);
-        if(feature) return value;
+        if(features.TryGetValue(featureID, out PlayerFeature feature))
+        {
+            return feature;
+        }
 
         return null;
     }

@@ -7,8 +7,20 @@ public class PlayerMovementFactory : MonoBehaviour
 {
 
     [Header("Debugging")]
-    [SerializeField][OnChangedCall("OnVariableChange")] private bool _debug = false;
-    [SerializeField][OnChangedCall("OnVariableChange")] private bool printDebugInfo = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool _changePropsOnRuntime = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugFeatureVelocities = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugWalking = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugSprinting = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugJumping = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugCrouching = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugSliding = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugDashing = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugWallRunning = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugWallJumping = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugGrappling = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugJetpack = false;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool debugHeadbob = false;
+
 
     [Header("Manager")]
     [SerializeField][OnChangedCall("OnVariableChange")] private Vector3 gravity;
@@ -42,6 +54,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     [Header("Jumping")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableJumping;
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool canAlwaysJump;
     [SerializeField][OnChangedCall("OnVariableChange")] private float jumpHeight;
     [SerializeField][OnChangedCall("OnVariableChange")] private int maxJumpCount;
     [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] jumpKeys;
@@ -136,6 +149,8 @@ public class PlayerMovementFactory : MonoBehaviour
     private Headbob headbob;
     private bool isRunning;
 
+    private bool isRunning;
+
     private void Awake()
     {
         InitializeKinematicCharacterController();
@@ -158,12 +173,15 @@ public class PlayerMovementFactory : MonoBehaviour
         InitializeGrapple();
         InitializeJetpack();
         InitializeHeadbob();
+        UpdateDebugging();
+        isRunning = true;
     }
 
     public void OnVariableChange()
     {
-        if (_debug && isRunning)
+        if (_changePropsOnRuntime && isRunning)
         {
+            UpdateDebugging();
             UpdateWalking();
             UpdateSprinting();
             UpdateJumping();
@@ -180,6 +198,22 @@ public class PlayerMovementFactory : MonoBehaviour
             UpdateKinematicCharacterController();
         }
     }
+
+    void UpdateDebugging()
+    {
+        walking.DebugFeature = debugWalking;
+        sprinting.DebugFeature = debugSprinting;
+        jumping.DebugFeature = debugJumping;
+        crouching.DebugFeature = debugCrouching;
+        sliding.DebugFeature = debugSliding;
+        dashing.DebugFeature = debugDashing;
+        wallRunning.DebugFeature = debugWallRunning;
+        wallJumping.DebugFeature = debugWallJumping;
+        grappling.DebugFeature = debugGrappling;
+        jetpacking.DebugFeature = debugJetpack;
+        headbob.DebugFeature = debugHeadbob;
+    }
+
 
     void InitializeWalking()
     {
@@ -228,9 +262,9 @@ public class PlayerMovementFactory : MonoBehaviour
         jumping.Identifier = Features.Jumping;
         jumping.ExcludingFeatures = new List<string>
         {
-            Features.Sliding,
             Features.Crouching
         };
+        jumping.CanAlwaysJump = canAlwaysJump;
     }
 
     void InitializeCrouching()
@@ -276,7 +310,6 @@ public class PlayerMovementFactory : MonoBehaviour
         {
             Features.Walking,
             Features.Sprinting,
-            Features.Jumping
         };
 
         sliding.MoveCap = slideCap;
@@ -483,7 +516,7 @@ public class PlayerMovementFactory : MonoBehaviour
         manager.BaseGravity = gravity;
         manager.GroundedVelocityDeclineRate = groundDrag;
         manager.AirborneVelocityDeclineRate = airDrag;
-        manager.PrintDebugInfo = printDebugInfo;
+        manager.PrintDebugInfo = debugFeatureVelocities;
     }
 
     void InitializeKinematicCharacterController()

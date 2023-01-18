@@ -120,5 +120,7 @@ public class UIManager : MonoBehaviour
     {
         parkourGameManager.ResetGame();
         parkourGameManager.resetGame.Invoke();
+        JetpackActive = false;
+        jetpackFuel.text = "";
     }
 }

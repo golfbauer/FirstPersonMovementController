@@ -1,0 +1,186 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &5081248732556719840
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: _debug
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: slideTime
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: grappleCap
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: slopeLimit
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableWalk
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: maxDashCount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: maxJumpCount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: timeToCrouch
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableSprint
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableDashing
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableJetpack
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableJumping
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableSliding
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: wallJumpForce.x
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableCrouching
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disbaleGrappling
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableWallJumping
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: disableWallRunning
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: maxGrappleDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: timeToDepletJetpack
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: timeToStartRecharge
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: timeToRechargeJetpack
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 453433243, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: wallRunDistanceToGround
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 477278984, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781224, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_Name
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781224, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7490273
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.6625391
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -82.988
+      objectReference: {fileID: 0}
+    - target: {fileID: 4129777150225781225, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+--- !u!1 &9208685572276217608 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4129777150225781224, guid: e3030e0edb2c4436598718f11d3cc3b5, type: 3}
+  m_PrefabInstance: {fileID: 5081248732556719840}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1306091112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9208685572276217608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c1f5b03790924bfd9ef7f987a89b7a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnPosition: {x: 0, y: 0, z: 0}
+  deathPlaneY: 0
+  pauseUI: {fileID: 0}
+  ingameUI: {fileID: 0}
+  settings: {fileID: 0}
+  UiManager: {fileID: 0}
+  EasyModeEnabled: 0
+  resetGame:
+    m_PersistentCalls:
+      m_Calls: []

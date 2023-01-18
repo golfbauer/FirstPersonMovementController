@@ -42,26 +42,28 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private float maxBounces;
 
     [Header("Walking")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableWalk;
     [SerializeField][OnChangedCall("OnVariableChange")] private float walkSpeed;
     [SerializeField][OnChangedCall("OnVariableChange")] private float walkCap;
 
     [Header("Sprinting")]
+    [SerializeField][OnChangedCall("OnVariableChange")] private bool disableSprint;
     [SerializeField][OnChangedCall("OnVariableChange")] private float sprintSpeed;
     [SerializeField][OnChangedCall("OnVariableChange")] private float sprintCap;
-    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] sprintKeys;
+    [SerializeField][OnChangedCall("OnVariableChange")] private List<KeyCode> sprintKeys;
 
     [Header("Jumping")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableJumping;
     [SerializeField][OnChangedCall("OnVariableChange")] private bool canAlwaysJump;
     [SerializeField][OnChangedCall("OnVariableChange")] private float jumpHeight;
     [SerializeField][OnChangedCall("OnVariableChange")] private int maxJumpCount;
-    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] jumpKeys;
+    [SerializeField][OnChangedCall("OnVariableChange")] private List<KeyCode> jumpKeys;
 
     [Header("Crouching")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableCrouching;
     [SerializeField][OnChangedCall("OnVariableChange")] private float timeToCrouch;
     [SerializeField][OnChangedCall("OnVariableChange")] private float heightDifference;
-    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] crouchKeys;
+    [SerializeField][OnChangedCall("OnVariableChange")] private List<KeyCode> crouchKeys;
 
     [Header("Sliding")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableSliding;
@@ -70,7 +72,7 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private float slideControl;
     [SerializeField][OnChangedCall("OnVariableChange")] private float slideTime;
     [SerializeField][OnChangedCall("OnVariableChange")] private bool canCancelSlide;
-    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] slideKeys;
+    [SerializeField][OnChangedCall("OnVariableChange")] private List<KeyCode> slideKeys;
 
     [Header("Dashing")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableDashing;
@@ -79,7 +81,7 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private float dashControl;
     [SerializeField][OnChangedCall("OnVariableChange")] private float dashTime;
     [SerializeField][OnChangedCall("OnVariableChange")] private int maxDashCount;
-    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] dashKeys;
+    [SerializeField][OnChangedCall("OnVariableChange")] private List<KeyCode> dashKeys;
 
     [Header("WallRunning")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableWallRunning;
@@ -93,12 +95,12 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunDistanceToGround;
     [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunTimeToTiltCamera;
     [SerializeField][OnChangedCall("OnVariableChange")] private float wallRunCameraTiltAngle;
-    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] wallRunKeys;
+    [SerializeField][OnChangedCall("OnVariableChange")] private List<KeyCode> wallRunKeys;
 
     [Header("WallJumping")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableWallJumping;
     [SerializeField][OnChangedCall("OnVariableChange")] private Vector2 wallJumpForce;
-    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] wallJumpKeys;
+    [SerializeField][OnChangedCall("OnVariableChange")] private List<KeyCode> wallJumpKeys;
 
     [Header("Grappling")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disbaleGrappling;
@@ -108,7 +110,7 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private float grappleCooldown;
     [SerializeField][OnChangedCall("OnVariableChange")] private string[] grappleLayers;
     [SerializeField][OnChangedCall("OnVariableChange")] private bool canCancelGrapple;
-    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] grappleKeys;
+    [SerializeField][OnChangedCall("OnVariableChange")] private List<KeyCode> grappleKeys;
 
     [Header("Jetpack")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableJetpack;
@@ -118,7 +120,7 @@ public class PlayerMovementFactory : MonoBehaviour
     [SerializeField][OnChangedCall("OnVariableChange")] private float timeToDepletJetpack;
     [SerializeField][OnChangedCall("OnVariableChange")] private float timeToStartRecharge;
     [SerializeField][OnChangedCall("OnVariableChange")] private float fallReductionFactor;
-    [SerializeField][OnChangedCall("OnVariableChange")] private KeyCode[] jetpackKeys;
+    [SerializeField][OnChangedCall("OnVariableChange")] private List<KeyCode> jetpackKeys;
 
     [Header("Headbob")]
     [SerializeField][OnChangedCall("OnVariableChange")] private bool disableHeadbob;
@@ -145,12 +147,12 @@ public class PlayerMovementFactory : MonoBehaviour
     private Grappling grappling;
     private Jetpack jetpacking;
     private Headbob headbob;
-
     private bool isRunning;
 
     private void Awake()
     {
         InitializeKinematicCharacterController();
+        isRunning = true;
     }
 
     void Start()
@@ -220,6 +222,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void UpdateWalking()
     {
+        walking.Disabled = disableWalk;
         walking.MoveSpeed = walkSpeed;
         walking.MoveCap = walkCap;
         walking.Identifier = Features.Walking;
@@ -234,6 +237,7 @@ public class PlayerMovementFactory : MonoBehaviour
 
     void UpdateSprinting()
     {
+        sprinting.Disabled = disableSprint;
         sprinting.MoveSpeed = sprintSpeed;
         sprinting.MoveCap = sprintCap;
         sprinting.ActionKeys = sprintKeys;
@@ -328,7 +332,7 @@ public class PlayerMovementFactory : MonoBehaviour
         dashing.Identifier = Features.Dashing;
         dashing.RequiredFeatures = new List<string>
         {
-             Features.Jumping,
+            Features.Jumping,
             Features.WallJumping
         };
         dashing.DisableFeatures = new List<string>
@@ -344,6 +348,7 @@ public class PlayerMovementFactory : MonoBehaviour
         dashing.MoveControl = dashControl;
         dashing.MoveTime = dashTime;
         dashing.MaxDashCount = maxDashCount;
+        dashing.GravityMultiplier = 0;
     }
 
     void InitializeWallRun()

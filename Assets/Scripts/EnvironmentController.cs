@@ -16,6 +16,27 @@ public class EnvironmentController : MonoBehaviour
     [SerializeField] private RotationDirection rotationDirection = new RotationDirection();
     [SerializeField] private float degreesPerSecond;
 
+    public Vector3 StartTransform
+    {
+        get => startTransform;
+        set => startTransform = value;
+    }
+    public Vector3 TargetTransform
+    {
+        get => targetTransform;
+        set => targetTransform = value;
+    }
+    public float TransitionTime
+    {
+        get => transitionTime;
+        set => transitionTime = value;
+    }
+    public bool Movement
+    {
+        get => movement;
+        set => movement = value;
+    }
+
     public Vector3 MovementDelta
     {
         get { return transform.position - lastPosition; }

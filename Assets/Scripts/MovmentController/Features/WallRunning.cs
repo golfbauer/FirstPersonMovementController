@@ -166,11 +166,4 @@ public class WallRunning : PlayerFeatureExecuteOverTime
                 break;
         }
     }
-
-    public enum WallPosition
-    {
-        Right,
-        Left,
-        None
-    }
 }

@@ -308,7 +308,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4129777150225781225}
   - component: {fileID: 243443}
-  - component: {fileID: 453433243}
+  - component: {fileID: 4129777150423864562}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -348,7 +348,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lr: {fileID: 477278989}
   grapplingGunPos: {fileID: 477278985}
---- !u!114 &453433243
+--- !u!114 &4129777150423864562
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -357,10 +357,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 4129777150225781224}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be55738884ac5476e9f256a9dd1b328c, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f0e2cb3ff4d21f4da798430c8cae473, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _changePropsOnRuntime: 0
+  _changePropsOnRuntime: 1
   debugFeatureVelocities: 0
   debugWalking: 0
   debugSprinting: 0
@@ -378,7 +378,7 @@ MonoBehaviour:
   airDrag: 5
   playerCamera: {fileID: 4129777150849137025}
   cameraSensitivity: 100
-  slopeLimit: 60
+  slopeLimit: 30
   stairOffset: 0.3
   stairSnapdownDistance: 0.9
   center: {x: 0, y: 0, z: 0}
@@ -396,17 +396,17 @@ MonoBehaviour:
   disableJumping: 0
   canAlwaysJump: 0
   jumpHeight: 2
-  maxJumpCount: 1
+  maxJumpCount: 2
   jumpKeys: 20000000
   disableCrouching: 0
-  timeToCrouch: 0.5
+  timeToCrouch: 0.3
   heightDifference: 1
   crouchKeys: 63000000
   disableSliding: 0
   slideSpeed: 100
   slideCap: 30
   slideControl: 0
-  slideTime: 1
+  slideTime: 0.5
   canCancelSlide: 1
   slideKeys: 63000000
   disableDashing: 0
@@ -414,7 +414,7 @@ MonoBehaviour:
   dashCap: 30
   dashControl: 0
   dashTime: 0.5
-  maxDashCount: 3
+  maxDashCount: 1
   dashKeys: 30010000
   disableWallRunning: 0
   wallRunGravityMultiplier: 0
@@ -425,17 +425,17 @@ MonoBehaviour:
   maxWallRunAngle: 100
   wallRunLayers:
   - WallRun
-  wallRunDistanceToGround: 0
+  wallRunDistanceToGround: 1
   wallRunTimeToTiltCamera: 0.3
   wallRunCameraTiltAngle: 15
   wallRunKeys: 20000000
   disableWallJumping: 0
-  wallJumpForce: {x: 10, y: 5}
+  wallJumpForce: {x: 15, y: 5}
   wallJumpKeys: 20000000
   disbaleGrappling: 0
   grappleSpeed: 50
-  grappleCap: 30
-  maxGrappleDistance: 50
+  grappleCap: 25
+  maxGrappleDistance: 20
   grappleCooldown: 1
   grappleLayers:
   - WallRun
@@ -444,9 +444,9 @@ MonoBehaviour:
   disableJetpack: 0
   jetpackSpeed: 15
   jetpackCap: 30
-  timeToRechargeJetpack: 2
-  timeToDepletJetpack: 3
-  timeToStartRecharge: 0.3
+  timeToRechargeJetpack: 4
+  timeToDepletJetpack: 2
+  timeToStartRecharge: 1
   fallReductionFactor: 10
   jetpackKeys: 65000000
   disableHeadbob: 1

@@ -20,7 +20,7 @@ public class Walking : PlayerFeature
 
         if (velocity != Vector3.zero)
         {
-            manager.AddVelocity(velocity, MoveCap);
+            manager.AddVelocityHorizontallyCapped(velocity, MoveCap);
             IsExecutingAction = true;
         } else
         {

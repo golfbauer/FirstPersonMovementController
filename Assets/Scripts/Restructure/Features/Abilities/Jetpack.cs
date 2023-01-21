@@ -50,7 +50,7 @@ public class Jetpack : PlayerFeatureExecuteOverTime
             velY = manager.GetVelocity().y * FallReductionFactor;
         }
         
-        manager.AddVelocity(Vector3.up * (-velY + MoveSpeed), MoveCap);
+        manager.AddVelocityVerticalyCapped(Vector3.up * (-velY + MoveSpeed), MoveCap);
         JetpackFuel -= Time.deltaTime / TimeToDepletJetpackFuel;
 
     }

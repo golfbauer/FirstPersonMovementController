@@ -209,7 +209,7 @@ public class PlayerMovementManager : MonoBehaviour
     /// <param name="velocity">Velocity to add. This value should be in units/s and not relative to Time.deltaTime</param>
     /// <param name="maxSpeed">Maximum magnitude of horizontal (x and z) part of the PlayerMovementManager.velocity vector. This method will add up the the specified value but won't reduce the velocity if it is already higher.</param>
     /// <returns> The total, time relative net difference in velocity</returns>
-    public Vector3 AddVelocity(Vector3 velocityDelta, float maxSpeed) 
+    public Vector3 AddVelocityHorizontallyCapped(Vector3 velocityDelta, float maxSpeed) 
     {
         Vector3 startVelocity = velocity;
         float startSpeed = HorizontalVelocity.magnitude;
@@ -227,6 +227,46 @@ public class PlayerMovementManager : MonoBehaviour
 
         return velocity - startVelocity;
     }
+
+    public Vector3 AddVelocityVerticalyCapped(Vector3 velocityDelta, float maxSpeed)
+    {
+        Vector3 startVelocity = velocity;
+        float startSpeed = velocity.y;
+
+        velocity += velocityDelta * Time.deltaTime;
+
+        if (startSpeed > maxSpeed && velocity.y > startSpeed)
+        {
+            velocity.y = (Vector3.up * startSpeed).y;
+        }
+        if (startSpeed < maxSpeed && velocity.y > maxSpeed)
+        {
+            velocity.y = (Vector3.up * maxSpeed).y;
+        }
+
+        return velocity - startVelocity;
+    }
+
+    public Vector3 AddVelocityCapped(Vector3 velocityDelta, float maxSpeed)
+    {
+        Vector3 startVelocity = velocity;
+        float startSpeed = velocity.magnitude;
+
+        velocity += velocityDelta * Time.deltaTime;
+
+        if (startSpeed > maxSpeed && velocity.magnitude > startSpeed)
+        {
+            velocity = startVelocity;
+        }
+        if (startSpeed < maxSpeed && velocity.magnitude > maxSpeed)
+        {
+            velocity = velocity.normalized * maxSpeed;
+        }
+
+        return velocity - startVelocity;
+    }
+
+
 
     /// <summary>
     /// Adds Velocity directly to PlayerMovementManager.velocity. 

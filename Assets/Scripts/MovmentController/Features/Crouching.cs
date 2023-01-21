@@ -108,10 +108,11 @@ public class Crouching : PlayerFeatureExecuteOverTime
     /// <returns>True if the player is allowed to stand up, false if not.</returns>
     protected virtual bool AllowedToStandUp()
     {
-        if(!IsCrouched) return true;
-
-        if(!CastStandUp()) {
-            if(elapsedSinceStartExecution <= 0f){
+        if (!IsCrouched) return true;
+        if (Physics.Raycast(transform.position, Vector3.up, out RaycastHit hit, kcc.Height / 2 + heightDifference))
+        {
+            if (elapsedSinceStartExecution <= 0f)
+            {
                 IsExecutingAction = false;
                 EnableFeatures();
             }
@@ -119,16 +120,5 @@ public class Crouching : PlayerFeatureExecuteOverTime
         }
 
         return true;
-    }
-
-    protected virtual bool CastStandUp(){
-        (Vector3 center, Vector3 bottom, Vector3 top, float radius, float height) = manager.Kcc.GetCapsuleParameters(transform.position, transform.rotation);
-        Vector2 direction = manager.GetVelocity() * Time.deltaTime;
-        top.y += HeightDifference + 0.1f;
-         IEnumerable<RaycastHit> hits = Physics.CapsuleCastAll(
-            top, bottom, radius, direction, direction.magnitude, ~0, QueryTriggerInteraction.Ignore)
-            .Where(hit => hit.collider.transform != transform && hit.distance == 0);
-
-        return hits.Count() == 0;
     }
 }

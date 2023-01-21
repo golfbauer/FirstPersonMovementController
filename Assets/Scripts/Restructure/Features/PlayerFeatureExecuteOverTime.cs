@@ -41,7 +41,7 @@ public abstract class PlayerFeatureExecuteOverTime : PlayerFeature
         if (IsExecutingAction)
         {
             ExecuteAction();
-            manager.AddVelocity(velocity, MoveCap);
+            manager.AddVelocityHorizontallyCapped(velocity, MoveCap);
         }
 
         UpdateElapsedSince();
